@@ -43,14 +43,14 @@ void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 result)
     if (v1.x == 0.0f)
     {
         printf("ZERO DIVISION");
-        return NULL;
-    }
+        return;
+    }float vectorLenght(Vec2 v1);
     float denom;
     denom = v2.y - ((v1.y / v1.x) * v2.x);
     if (denom == 0.0f)
     {
         printf("ZERO DIVISION");
-        return NULL;
+        return;
     }
     float c = (v3.y - (v3.x / v1.x)) / denom;
     result.y = c;
