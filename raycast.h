@@ -1,11 +1,16 @@
-#ifndef RAYCAST_H
-#define RAYCAST_H
+#ifndef VECTOR2_H
+#define VECTOR2_H
 
 typedef struct
 {
     float x;
     float y;
 } Vec2;
+
+#endif
+
+#ifndef RAYCAST_H
+#define RAYCAST_H
 
 typedef struct
 {
