@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "raycast.h"
 
+void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result) {}
+void vectorAdd(Vec2 v1, Vec2 v2, Vec2 *result) {}
+
 CollisionData *checkCollision(Wall w1, Ray r1)
 {
 }

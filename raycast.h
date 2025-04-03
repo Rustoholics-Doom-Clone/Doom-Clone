@@ -7,6 +7,11 @@ typedef struct
     float y;
 } Vec2;
 
+// Stores v1-v2 in result
+void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result);
+// Stores v1 + v2 in result
+void vectorAdd(Vec2 v1, Vec2 v2, Vec2 *result);
+
 #endif
 
 #ifndef RAYCAST_H
