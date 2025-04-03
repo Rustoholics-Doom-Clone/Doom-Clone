@@ -3,8 +3,6 @@
 #include <math.h>
 #include "raycast.h"
 
-#define VECINIT (Vec2){0.0, 0.0}
-
 void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result)
 {
     result->x = v1.x - v2.x;

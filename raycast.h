@@ -7,6 +7,8 @@ typedef struct
     float y;
 } Vec2;
 
+#define VECINIT (Vec2){0.0, 0.0}
+
 // Stores v1-v2 in result
 void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result);
 // Stores v1 + v2 in result
