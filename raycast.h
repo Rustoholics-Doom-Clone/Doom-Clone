@@ -24,7 +24,7 @@ void normalize(Vec2 *v1);
 // Rotates v1 around the origin counter clockwise looking from positive z
 void rotate(Vec2 *v1, float rad);
 
-// Returns x and y for the equation x*v1 + y*v2 = v3
+// Returns x and y for the equation x*v1 + y*v2 = v3. The answer is saved as a vector in result
 void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 
 #endif
@@ -40,15 +40,15 @@ typedef struct
 
 typedef struct
 {
-    Vec2 start, stop;
+    Vec2 start, stop; // Both ends of the wall
 } Wall;
 
 typedef struct
 {
-    Vec2 start, dir;
+    Vec2 start, dir; // The origin of the ray and the direction. Remember to normalize the direction
 } Ray;
 
-// Returns info on if and where a ray hits a wall. NULL == Doesn't hit
+// Returns info on if and where a ray hits a wall. NULL == Doesn't hit, Remember to free the result
 CollisionData *checkCollision(Wall w1, Ray r1);
 
 #endif
