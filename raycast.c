@@ -2,7 +2,12 @@
 #include <stdlib.h>
 #include "raycast.h"
 
-void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result) {}
+void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result)
+{
+    result->x = v1.x - v2.x;
+    result->y = v1.y - v2.y;
+}
+
 void vectorAdd(Vec2 v1, Vec2 v2, Vec2 *result) {}
 void vectorScale(Vec2 v1, float k, Vec2 *result) {}
 void vectorDot(Vec2 v1, Vec2 v2, Vec2 *result) {}
