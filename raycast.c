@@ -35,6 +35,12 @@ void normalize(Vec2 *v1)
     vectorScale(*v1, 1 / vectorLenght(*v1), v1);
 }
 
+void rotate(Vec2 *v1, float rad)
+{
+    v1->x = v1->x * cosf(rad) - v1->y * sinf(rad);
+    v1->y = v1->x * sinf(rad) + v1->y * cosf(rad);
+}
+
 CollisionData *checkCollision(Wall w1, Ray r1)
 {
     Vec2 odelta = VECINIT;

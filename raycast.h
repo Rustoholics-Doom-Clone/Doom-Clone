@@ -21,6 +21,8 @@ float vectorDot(Vec2 v1, Vec2 v2);
 float vectorLenght(Vec2 v1);
 // normalize vector
 void normalize(Vec2 *v1);
+// Rotates v1 around the origin counter clockwise looking from positive z
+void rotate(Vec2 *v1, float rad);
 
 // Returns x and y for the equation x*v1 + y*v2 = v3
 void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
