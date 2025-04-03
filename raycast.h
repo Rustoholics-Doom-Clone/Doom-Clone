@@ -23,7 +23,9 @@ typedef struct
     Vec2 start, dir;
 } Ray;
 
+// Returns info on if and where a ray hits a wall. NULL == Doesn't hit
 CollisionData *checkCollision(Wall w1, Ray r1);
-Vec2 *solveSystem(Vec2 v1, Vec2 v2);
+// Returns x and y for the equation x*v1 + y*v2 = v3
+Vec2 *solveSystem(Vec2 v1, Vec2 v2, Vec2 v3);
 
 #endif
