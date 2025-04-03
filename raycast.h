@@ -16,6 +16,9 @@ void vectorScale(Vec2 v1, float k, Vec2 *result);
 // returns the dot product of v1 and v2
 float vectorDot(Vec2 v1, Vec2 v2);
 
+// Returns x and y for the equation x*v1 + y*v2 = v3
+void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 result);
+
 #endif
 
 #ifndef RAYCAST_H
@@ -39,7 +42,5 @@ typedef struct
 
 // Returns info on if and where a ray hits a wall. NULL == Doesn't hit
 CollisionData *checkCollision(Wall w1, Ray r1);
-// Returns x and y for the equation x*v1 + y*v2 = v3
-Vec2 *solveSystem(Vec2 v1, Vec2 v2, Vec2 v3);
 
 #endif

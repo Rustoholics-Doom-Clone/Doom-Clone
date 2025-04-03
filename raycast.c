@@ -19,11 +19,29 @@ void vectorScale(Vec2 v1, float k, Vec2 *result)
     result->x = v1.x * k;
     result->y = v1.y * k;
 }
-float vectorDot(Vec2 v1, Vec2 v2) {}
+float vectorDot(Vec2 v1, Vec2 v2)
+{
+    return (v1.x * v2.x + v1.y * v2.y);
+}
 
 CollisionData *checkCollision(Wall w1, Ray r1)
 {
 }
-Vec2 *solveSystem(Vec2 v1, Vec2 v2, Vec2 v3)
+void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 result)
 {
+    if (v1.x == 0.0f)
+    {
+        printf("ZERO DIVISION");
+        return NULL;
+    }
+    float denom;
+    denom = v2.y - ((v1.y / v1.x) * v2.x);
+    if (denom == 0.0f)
+    {
+        printf("ZERO DIVISION");
+        return NULL;
+    }
+    float c = (v3.y - (v3.x / v1.x)) / denom;
+    result.y = c;
+    result.x = ((v3.x / v1.x) - c * (v2.x / v1.x));
 }
