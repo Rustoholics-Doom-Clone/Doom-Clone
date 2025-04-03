@@ -23,4 +23,6 @@ typedef struct
     Vec2 start, dir;
 } Ray;
 
+CollisionData *checkCollision(Wall w1, Ray r1);
+
 #endif
