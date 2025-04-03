@@ -15,6 +15,8 @@ void vectorAdd(Vec2 v1, Vec2 v2, Vec2 *result);
 void vectorScale(Vec2 v1, float k, Vec2 *result);
 // returns the dot product of v1 and v2
 float vectorDot(Vec2 v1, Vec2 v2);
+// returns vectorlenght
+float vectorLenght(Vec2 v1);
 // normalize vector
 void normalize(Vec2 *v1);
 
