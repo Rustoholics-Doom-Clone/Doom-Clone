@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "raycast.h"
 
 void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result)
@@ -26,10 +27,12 @@ float vectorDot(Vec2 v1, Vec2 v2)
 
 float vectorLenght(Vec2 v1)
 {
+    return sqrtf(vectorDot(v1, v1));
 }
 
 void normalize(Vec2 *v1)
 {
+    vectorScale(*v1, 1 / vectorLenght(*v1), v1);
 }
 
 CollisionData *checkCollision(Wall w1, Ray r1)
