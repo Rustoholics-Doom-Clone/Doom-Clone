@@ -21,7 +21,7 @@ float vectorLenght(Vec2 v1);
 void normalize(Vec2 *v1);
 
 // Returns x and y for the equation x*v1 + y*v2 = v3
-void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 result);
+void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 
 #endif
 

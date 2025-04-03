@@ -38,7 +38,7 @@ void normalize(Vec2 *v1)
 CollisionData *checkCollision(Wall w1, Ray r1)
 {
 }
-void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 result)
+void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
 {
     if (v1.x == 0.0f)
     {
@@ -56,6 +56,6 @@ void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 result)
     }
     float c = (v3.y - (v1.y * (v3.x / v1.x))) / denom;
     printf("C %f ", c);
-    result.y = c;
-    result.x = ((v3.x / v1.x) - c * (v2.x / v1.x));
+    result->y = c;
+    result->x = ((v3.x / v1.x) - c * (v2.x / v1.x));
 }
