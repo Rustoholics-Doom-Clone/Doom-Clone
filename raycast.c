@@ -24,6 +24,10 @@ float vectorDot(Vec2 v1, Vec2 v2)
     return (v1.x * v2.x + v1.y * v2.y);
 }
 
+void normalize(Vec2 *v1)
+{
+}
+
 CollisionData *checkCollision(Wall w1, Ray r1)
 {
 }
