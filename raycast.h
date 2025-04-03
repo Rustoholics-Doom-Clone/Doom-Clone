@@ -18,4 +18,9 @@ typedef struct
     Vec2 start, stop;
 } Wall;
 
+typedef struct
+{
+    Vec2 start, dir;
+} Ray;
+
 #endif
