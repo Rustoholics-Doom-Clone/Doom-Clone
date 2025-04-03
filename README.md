@@ -10,7 +10,9 @@ Vi skriver i C, med grafiksbiblioteket raylib. Det ska vara kompatibelt med åtm
 
 
 # Naming conventions
+
 Allt skrivs på engelska. Vi använder camelcase för funktioner, små bokstäver för variabler och stora bokstäver för konstanter. Typedefs (egna datatyper) är PascalCase. Filnamn är lowercase.
+
 
 Branches döps efter funktionen som ska implementeras. Issues skrivs med instruktion först och problemet efter, till exempel: “Fix: Walls won’t load”. Commits skrivs som till exempel: “Fixed: Walls won’t load” eller “Added: Raycaster”
 
