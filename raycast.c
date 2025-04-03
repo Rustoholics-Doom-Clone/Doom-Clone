@@ -19,7 +19,7 @@ void vectorScale(Vec2 v1, float k, Vec2 *result)
     result->x = v1.x * k;
     result->y = v1.y * k;
 }
-void vectorDot(Vec2 v1, Vec2 v2, Vec2 *result) {}
+float vectorDot(Vec2 v1, Vec2 v2) {}
 
 CollisionData *checkCollision(Wall w1, Ray r1)
 {
