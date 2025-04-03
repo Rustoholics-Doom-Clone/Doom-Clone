@@ -13,4 +13,9 @@ typedef struct
     float d;       // how far away it happened
 } CollisionData;
 
+typedef struct
+{
+    Vec2 start, stop;
+} Wall;
+
 #endif
