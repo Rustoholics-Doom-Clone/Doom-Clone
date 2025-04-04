@@ -28,7 +28,7 @@ void normalize(Vec2 *v1);
 void rotate(Vec2 *v1, float rad);
 
 // Returns x and y for the equation x*v1 + y*v2 = v3. The answer is saved as a vector in result
-void solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
+int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 
 #endif
 
