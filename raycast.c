@@ -141,3 +141,13 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
     rotate(&camdir, DEG_TO_RAD(start));
     return result;
 }
+
+void freeCollisionData(CollisionData **a, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        if (a[i])
+            free(a[i]);
+    }
+    free(a);
+}

@@ -56,4 +56,6 @@ CollisionData *checkCollision(Wall w1, Ray r1);
 // Shots rn rays accros the fov. Returns a list of collisiondata for the closest collisions of each ray. nw is the number of walls
 CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *walls, int rn);
 
+void freeCollisionData(CollisionData **a, int n);
+
 #endif
