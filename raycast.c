@@ -105,9 +105,7 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
 CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *walls, int rn)
 {
     float step = fov / (rn - 1);
-    printf("Step %f\n", step);
     float start = (-1.0 * fov) / 2;
-    printf("Start %f\n", start);
 
     normalize(&camdir);
 
