@@ -7,6 +7,9 @@ typedef struct
     float y;
 } Vec2;
 
+#define PI 3.14159265358979323846
+#define DEG_TO_RAD(deg) ((deg) * (PI / 180.0))
+
 #define VECINIT (Vec2){0.0, 0.0}
 
 // Stores v1-v2 in result
