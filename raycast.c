@@ -37,8 +37,13 @@ void normalize(Vec2 *v1)
 
 void rotate(Vec2 *v1, float rad)
 {
-    v1->x = v1->x * cosf(rad) - v1->y * sinf(rad);
-    v1->y = v1->x * sinf(rad) + v1->y * cosf(rad);
+    float old_x = v1->x;
+    float old_y = v1->y;
+
+    v1->x = old_x * cosf(rad) - old_y * sinf(rad);
+    v1->y = old_x * sinf(rad) + old_y * cosf(rad);
+
+    normalize(v1);
 }
 
 CollisionData *checkCollision(Wall w1, Ray r1)
