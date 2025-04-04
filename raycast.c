@@ -101,4 +101,43 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
     result->x = ((v3.x / v1.x) - c * (v2.x / v1.x));
     return 1;
 }
+
+CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *walls, int rn)
+{
+    float step = fov / (rn - 1);
+    printf("Step %f\n", step);
+    float start = (-1.0 * fov) / 2;
+    printf("Start %f\n", start);
+
+    normalize(&camdir);
+
+    CollisionData **result = malloc(rn * sizeof(CollisionData *));
+    if (!result)
+    {
+        printf("Malloc error in multiRayShot");
+        return NULL;
+    }
+
+    rotate(&camdir, DEG_TO_RAD(start));
+    for (int i = 0; i < rn; i++)
+    {
+        result[i] = NULL; // Initialize to NULL
+
+        for (int j = 0; j < wn; j++)
+        {
+            CollisionData *temp = checkCollision(walls[j], (Ray){campos, camdir});
+            printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+            if (temp && (!result[i] || result[i]->d > temp->d))
+            {
+                if (!result[i])
+                    result[i] = malloc(sizeof(CollisionData));
+
+                if (result[i])
+                    *result[i] = *temp;
+            }
+        }
+        rotate(&camdir, DEG_TO_RAD(step));
+    }
+    rotate(&camdir, DEG_TO_RAD(start));
+    return result;
 }
