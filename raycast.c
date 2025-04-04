@@ -56,7 +56,10 @@ CollisionData *checkCollision(Wall w1, Ray r1)
     vectorSub(w1.stop, w1.start, &wdir);
     vectorSub(w1.start, r1.start, &odelta);
 
-    solveSystem(r1.dir, wdir, odelta, &result);
+    if (!solveSystem(r1.dir, wdir, odelta, &result))
+    {
+        return NULL;
+    }
     if (result.x < 0.0 || result.y > 0.0 || result.y < -1.0)
     {
         return NULL;
