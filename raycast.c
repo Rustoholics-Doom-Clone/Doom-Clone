@@ -73,37 +73,7 @@ CollisionData *checkCollision(Wall w1, Ray r1)
     vectorAdd(r1.start, temp, &data->position);
 
     return data;
-} /*
- int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
- {
-     if (v1.x == 0.0f || v1.x == -0.0f)
-     {
-         if (v2.x == 0.0f || v2.x == -0.0f || v1.y == 0.0f || v1.y == -0.0f)
-         {
-             printf("Parallel");
-             return 0;
-         }
-
-         return solveSystem((Vec2){v1.y, v1.x}, (Vec2){v2.y, v2.x}, (Vec2){v3.y, v3.x}, result);
-
-         printf("ZERO DIVISION");
-         return 0;
-     }
-     float denom;
-     denom = v2.y - ((v1.y / v1.x) * v2.x);
-     // printf("Denom %f ", denom);
-     if (denom == 0.0f)
-     {
-         printf("Parallel");
-         return 0;
-     }
-     float c = (v3.y - (v1.y * (v3.x / v1.x))) / denom;
-     // printf("C %f ", c);
-     result->y = c;
-     result->x = ((v3.x / v1.x) - c * (v2.x / v1.x));
-     return 1;
- }*/
-
+}
 int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
 {
 
