@@ -56,6 +56,7 @@ CollisionData *checkCollision(Wall w1, Ray r1)
     vectorSub(w1.stop, w1.start, &wdir);
     vectorSub(w1.start, r1.start, &odelta);
 
+
     if (!solveSystem(r1.dir, wdir, odelta, &result))
     {
         return NULL;
@@ -151,3 +152,4 @@ void freeCollisionData(CollisionData **a, int n)
     }
     free(a);
 }
+
