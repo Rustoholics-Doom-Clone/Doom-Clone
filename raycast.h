@@ -26,8 +26,7 @@ float vectorLenght(Vec2 v1);
 void normalize(Vec2 *v1);
 // Rotates v1 around the origin counter clockwise looking from positive z
 void rotate(Vec2 *v1, float rad);
-
-// Returns x and y for the equation x*v1 + y*v2 = v3. The answer is saved as a vector in result
+// Solves the system [v1,v2]*result = v3 for result. Returns 1 if there is a single solution otherwise 0
 int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 
 #endif
@@ -39,6 +38,7 @@ typedef struct
 {
     Vec2 position; // where the collision happened
     float d;       // how far away it happened
+    float angle;   // used when firing multiple rays to determine the angle from the source.
 } CollisionData;
 
 typedef struct

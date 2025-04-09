@@ -67,6 +67,7 @@ CollisionData *checkCollision(Wall w1, Ray r1)
 
     CollisionData *data = malloc(sizeof(CollisionData));
     data->d = result.x;
+    data->angle = NAN;
 
     Vec2 temp = VECINIT;
     vectorScale(r1.dir, result.x, &temp);
@@ -124,6 +125,7 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
                     *result[i] = *temp;
             }
         }
+        result[i]->angle = start - i * step;
         rotate(&camdir, DEG_TO_RAD(step));
     }
     rotate(&camdir, DEG_TO_RAD(start));
