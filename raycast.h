@@ -1,3 +1,8 @@
+#ifndef PICONST
+#define PICONST
+#define PI 3.14159265358979323846
+#endif
+
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
@@ -7,7 +12,6 @@ typedef struct
     float y;
 } Vec2;
 
-#define PI 3.14159265358979323846
 #define DEG_TO_RAD(deg) ((deg) * (PI / 180.0))
 
 #define VECINIT (Vec2){0.0, 0.0}
