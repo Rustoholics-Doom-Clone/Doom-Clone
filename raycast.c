@@ -126,7 +126,7 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
                     *result[i] = *temp;
             }
         }
-        result[i]->angle = start - i * step;
+        result[i]->angle = start + i * step;
         rotate(&camdir, DEG_TO_RAD(step));
     }
     rotate(&camdir, DEG_TO_RAD(start));
