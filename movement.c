@@ -17,7 +17,7 @@ Add rotation by mouse (?)
 
 
 //returns a vec2 rotated by rad radians
-Vec2 rotate(Vec2 step, float rad) {
+Vec2 rotatemx(Vec2 step, float rad) {
     float x = cosf(rad)*step.x-sinf(rad)*step.y;
     float y = sinf(rad)*step.x+cosf(rad)*step.y;
     return (Vec2){x, y};
@@ -25,28 +25,28 @@ Vec2 rotate(Vec2 step, float rad) {
 
 Vec2 moveForward(Vec2 pos, float rad) {
     Vec2 dir = VECINIT;
-    dir = rotate(STEP, rad);
+    dir = rotatemx(STEP, rad);
     float x = pos.x += dir.x;
     float y = pos.y += dir.y;
     return (Vec2){x, y};
 };
 Vec2 moveRight(Vec2 pos, float rad) {
     Vec2 dir = VECINIT;
-    dir = rotate(STEP, rad+PI/2);
+    dir = rotatemx(STEP, rad+PI/2);
     float x = pos.x += dir.x;
     float y = pos.y += dir.y;
     return (Vec2){x, y};
 };
 Vec2 moveLeft(Vec2 pos, float rad) {
     Vec2 dir = VECINIT;
-    dir = rotate(STEP, rad-PI/2);
+    dir = rotatemx(STEP, rad-PI/2);
     float x = pos.x += dir.x;
     float y = pos.y += dir.y;
     return (Vec2){x, y};
 };
 Vec2 moveBack(Vec2 pos, float rad) {
     Vec2 dir = VECINIT;
-    dir = rotate(STEP, rad+PI);
+    dir = rotatemx(STEP, rad+PI);
     float x = pos.x += dir.x;
     float y = pos.y += dir.y;
     return (Vec2){x, y};

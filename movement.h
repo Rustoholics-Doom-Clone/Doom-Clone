@@ -1,13 +1,8 @@
+#include "raycast.h"
+
 #ifndef MOVEMENT_H
 #define MOVEMENT_H
 
-typedef struct
-{
-    float x;
-    float y;
-} Vec2;
-
-#define VECINIT (Vec2){0.0, 0.0}
 
 //move character forwards, requires current position and angle in radians
 Vec2 moveForward(Vec2 pos, float rad);
