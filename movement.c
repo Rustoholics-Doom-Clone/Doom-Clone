@@ -15,6 +15,14 @@ Stop at walls
 Add rotation by mouse (?)
 */
 
+
+//returns a vec2 rotated by rad radians
+Vec2 rotate(Vec2 step, float rad) {
+    float x = cosf(rad)*step.x-sinf(rad)*step.y;
+    float y = sinf(rad)*step.x+cosf(rad)*step.y;
+    return (Vec2){x, y};
+};
+
 Vec2 moveForward(Vec2 pos, float rad) {
     Vec2 dir = VECINIT;
     dir = rotate(STEP, rad);
@@ -50,9 +58,3 @@ float rotateRight(float angle) {
 float rotateLeft(float angle) {
     return angle -= ROTSPEED;
 }
-//returns a vec2 rotated by rad radians
-Vec2 rotate(Vec2 step, float rad) {
-    float x = cosf(rad)*step.x-sinf(rad)*step.y;
-    float y = sinf(rad)*step.x+cosf(rad)*step.y;
-    return (Vec2){x, y};
-};
