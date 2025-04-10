@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #include "raycast.h"
 
 void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result)
