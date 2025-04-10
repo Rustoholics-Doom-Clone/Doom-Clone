@@ -3,58 +3,47 @@
 #include <math.h>
 #include "movement.h"
 
-//how long a step should be
-#define STEP (Vec2){1.0, 0.0}
 
-#define PI 3.14159265358979323846
-//How fast character rotates
-#define ROTSPEED PI/120
 
 /*TODO: 
 Stop at walls
 Add rotation by mouse (?)
 */
 
-
-//returns a vec2 rotated by rad radians
-Vec2 rotatemx(Vec2 step, float rad) {
-    float x = cosf(rad)*step.x-sinf(rad)*step.y;
-    float y = sinf(rad)*step.x+cosf(rad)*step.y;
-    return (Vec2){x, y};
+void moveForward(Player *player) {
+    float old_x = player->pos.x;
+    float old_y = player->pos.y;
+    player->pos.x = old_x += player->dir.x;
+    player->pos.y = old_y += player->dir.y;
+};
+void moveRight(Player *player) {
+    float old_x = player->pos.x;
+    float old_y = player->pos.y;
+    Vec2 dir = player->dir;
+    rotate(&dir, PI/2);
+    player->pos.x = old_x += dir.x;
+    player->pos.y = old_y += dir.y;
+};
+void moveLeft(Player *player) {
+    float old_x = player->pos.x;
+    float old_y = player->pos.y;
+    Vec2 dir = player->dir;
+    rotate(&dir, -PI/2);
+    player->pos.x = old_x += dir.x;
+    player->pos.y = old_y += dir.y;
+};
+void moveBack(Player *player) {
+    float old_x = player->pos.x;
+    float old_y = player->pos.y;
+    Vec2 dir = player->dir;
+    rotate(&dir, PI);
+    player->pos.x = old_x += dir.x;
+    player->pos.y = old_y += dir.y;
 };
 
-Vec2 moveForward(Vec2 pos, float rad) {
-    Vec2 dir = VECINIT;
-    dir = rotatemx(STEP, rad);
-    float x = pos.x += dir.x;
-    float y = pos.y += dir.y;
-    return (Vec2){x, y};
+void rotateRight(Player *player) {
+    rotate(&player->dir, ROTSPEED);
 };
-Vec2 moveRight(Vec2 pos, float rad) {
-    Vec2 dir = VECINIT;
-    dir = rotatemx(STEP, rad+PI/2);
-    float x = pos.x += dir.x;
-    float y = pos.y += dir.y;
-    return (Vec2){x, y};
-};
-Vec2 moveLeft(Vec2 pos, float rad) {
-    Vec2 dir = VECINIT;
-    dir = rotatemx(STEP, rad-PI/2);
-    float x = pos.x += dir.x;
-    float y = pos.y += dir.y;
-    return (Vec2){x, y};
-};
-Vec2 moveBack(Vec2 pos, float rad) {
-    Vec2 dir = VECINIT;
-    dir = rotatemx(STEP, rad+PI);
-    float x = pos.x += dir.x;
-    float y = pos.y += dir.y;
-    return (Vec2){x, y};
-};
-
-float rotateRight(float angle) {
-    return angle += ROTSPEED;
-};
-float rotateLeft(float angle) {
-    return angle -= ROTSPEED;
+void rotateLeft(Player *player) {
+    rotate(&player->dir, -ROTSPEED);
 }
