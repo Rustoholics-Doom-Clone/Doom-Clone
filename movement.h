@@ -20,7 +20,7 @@ typedef struct
 
 #define PLAYERINIT (Player){VECINIT, (Vec2){1.0, 0.0}}
 
-//move character forwards, requires current position and angle in radians
+//move character forwards, requires a player struct
 void moveForward(Player *player);
 //move character right
 void moveRight(Player *player);
