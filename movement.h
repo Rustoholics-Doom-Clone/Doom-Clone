@@ -3,7 +3,8 @@
 //how long a step should be
 #define STEP (Vec2){1.0, 0.0}
 
-#ifndef PI
+#ifndef PICONST
+#define PICONST
 #define PI 3.14159265358979323846
 #endif
 //How fast character rotates
@@ -20,7 +21,16 @@ typedef struct
 
 #define PLAYERINIT (Player){VECINIT, (Vec2){1.0, 0.0}}
 
-//move character forwards, requires a player struct
+typedef struct
+{
+    Vec2 n;
+    Vec2 a;
+} Line;
+
+#define LINEINIT (Line){VECINIT, VECINIT}
+
+
+//move character forwards, requires current position and angle in radians
 void moveForward(Player *player);
 //move character right
 void moveRight(Player *player);
