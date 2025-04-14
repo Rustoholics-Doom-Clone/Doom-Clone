@@ -6,7 +6,6 @@
 
 
 /*TODO: 
-Stop at walls
 Add rotation by mouse (?)
 */
 
@@ -49,7 +48,7 @@ void rotateLeft(Player *player) {
 };
 
 
-//Converts the points of a wall into a line
+//Converts the points of a wall into a line in vector form x = a + tn
 Line wallToLine(Wall wall) {
     Vec2 n = (Vec2){1.0, (wall.stop.y-wall.start.y) / (wall.stop.x-wall.stop.y)};
     Vec2 a = (Vec2){0, wall.start.y - n.x * wall.start.y};
