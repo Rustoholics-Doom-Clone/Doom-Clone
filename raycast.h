@@ -73,3 +73,5 @@ float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 typedef struct Map Map;
 // Works like checkCollision but checks against all walls in m and returns the closest.
 CollisionData *mapCollision(Map *m, Ray r1);
+// Works like multiRayShot but with a map instead of a manual list of walls.
+CollisionData **mapMultiRayShot(Ray cam, float fov, int rn, Map *m);
