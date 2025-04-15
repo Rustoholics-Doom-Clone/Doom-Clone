@@ -26,9 +26,9 @@ Branches bör godkännas av åtminstone en annan gruppmedlem innan de mergas. Pr
 
 # Uppdelning av arbete (so far)
 Ray caster 
-* Raylib - Ludvig
+* Raylib - Ludvig (Gick vidare till v.2)
 * Logic - Dante
-* Level design - 
+* Level design - Dante
 * Texture -
   
 Player 
@@ -39,4 +39,4 @@ Enemies
 * Movement/Sight - 
 * Attack -
   
-Hud - 
+Hud - Linus
