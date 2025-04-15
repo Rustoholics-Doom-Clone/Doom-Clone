@@ -71,3 +71,9 @@ void freeCollisionData(CollisionData **a, int n);
 // Takes an array of collisiondata of length n and returns an array of floats of lenght n that is the collision distance scaled.
 float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 #endif
+
+#ifdef MAPH
+// Works like checkCollision but checks against all walls in m and returns the closest.
+CollisionData *mapCollision(Map m, Ray r1);
+
+#endif
