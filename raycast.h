@@ -72,4 +72,4 @@ float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 
 typedef struct Map Map;
 // Works like checkCollision but checks against all walls in m and returns the closest.
-CollisionData *mapCollision(Map m, Ray r1);
+CollisionData *mapCollision(Map *m, Ray r1);
