@@ -25,5 +25,7 @@ typedef struct Map
 int saveMap(int numOfWalls, Wall *walls, char *filename);
 // reads a map from a file.
 Map *loadMap(char *filename);
+// Frees a Map
+void freeMap(Map *m);
 
 #endif
