@@ -194,3 +194,8 @@ CollisionData *mapCollision(Map *m, Ray r1)
     result->angle = 0;
     return result;
 }
+
+CollisionData **mapMultiRayShot(Ray cam, float fov, int rn, Map *m)
+{
+    return multiRayShot(cam.start, cam.dir, fov, m->numOfWalls, m->walls, rn);
+}
