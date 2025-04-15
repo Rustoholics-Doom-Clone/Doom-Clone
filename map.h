@@ -13,7 +13,7 @@ typedef struct
 #ifndef MAPH
 #define MAPH
 
-typedef struct
+typedef struct Map
 {
     int numOfWalls;
     Wall *walls;

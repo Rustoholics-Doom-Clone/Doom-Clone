@@ -1,5 +1,3 @@
-#include "map.h"
-
 #ifndef PICONST
 #define PICONST
 #define PI 3.14159265358979323846
@@ -72,8 +70,6 @@ void freeCollisionData(CollisionData **a, int n);
 float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 #endif
 
-#ifdef MAPH
+typedef struct Map Map;
 // Works like checkCollision but checks against all walls in m and returns the closest.
 CollisionData *mapCollision(Map m, Ray r1);
-
-#endif
