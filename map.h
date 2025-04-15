@@ -1,5 +1,15 @@
 #include "raycast.h"
 
+#ifndef WALLSTRUCT
+#define WALLSTRUCT
+
+typedef struct
+{
+    Vec2 start, stop; // Both ends of the wall
+} Wall;
+
+#endif
+
 #ifndef MAPH
 #define MAPH
 
