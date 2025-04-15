@@ -13,5 +13,7 @@ typedef struct
 
 // saves an array of walls as a map.
 int saveMap(int numOfWalls, Wall *walls, char *filename);
+// reads a map from a file.
+Map *loadMap(char *filename);
 
 #endif
