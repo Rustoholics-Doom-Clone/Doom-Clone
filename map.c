@@ -20,14 +20,21 @@ Map *loadMap(char *filename)
 {
     FILE *mfile = fopen(filename, "r");
     if (!mfile)
+    {
+        printf("Could not open file");
         return NULL;
+    }
     Map *result = malloc(sizeof(Map));
     if (!result)
+    {
+        printf("Malloc error");
         return NULL;
+    }
 
     char buffer[50];
     if (!fgets(buffer, sizeof(buffer), mfile))
     {
+        printf("Could not read format of file");
         fclose(mfile);
         free(result);
         return NULL;
@@ -38,6 +45,7 @@ Map *loadMap(char *filename)
     result->walls = malloc(sizeof(Wall) * nwalls);
     if (!result->walls)
     {
+        printf("Malloc error");
         fclose(mfile);
         free(result);
         return NULL;
