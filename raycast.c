@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #include "raycast.h"
 
 void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result)
@@ -126,10 +127,39 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
                     *result[i] = *temp;
             }
         }
-        result[i]->angle = start - i * step;
+        result[i]->angle = start + i * step;
         rotate(&camdir, DEG_TO_RAD(step));
     }
     rotate(&camdir, DEG_TO_RAD(start));
+    return result;
+}
+
+float *wallHeightArray(CollisionData **a, int n, float fov, int width)
+{
+    float *result = malloc(sizeof(float) * n);
+    if (!result)
+    {
+        return NULL;
+    }
+
+    float ppdistance = ((float)width / 2.0) / tanf(DEG_TO_RAD(fov / 2.0));
+    printf("PP %f\n", ppdistance);
+
+    for (int i = 0; i < n; i++)
+    {
+        if (!a[i])
+        {
+            result[i] = FLT_MAX;
+            continue;
+        }
+        if (isnan(a[i]->angle))
+        {
+            result[i] = FLT_MAX;
+            continue;
+        }
+
+        result[i] = ppdistance / (a[i]->d * cosf(DEG_TO_RAD(a[i]->angle)));
+    }
     return result;
 }
 

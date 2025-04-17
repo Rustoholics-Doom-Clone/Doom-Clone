@@ -60,5 +60,6 @@ CollisionData *checkCollision(Wall w1, Ray3D r1);
 CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *walls, int rn);
 // Frees an array of collisiondata pointers of length n, handles entries that are null as well.
 void freeCollisionData(CollisionData **a, int n);
-
+// Takes an array of collisiondata of length n and returns an array of floats of lenght n that is the collision distance scaled.
+float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 #endif
