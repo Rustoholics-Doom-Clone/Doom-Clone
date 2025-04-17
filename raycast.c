@@ -4,6 +4,7 @@
 #include <math.h>
 #include <float.h>
 #include "raycast.h"
+#include "map.h"
 
 void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result)
 {
@@ -171,4 +172,31 @@ void freeCollisionData(CollisionData **a, int n)
             free(a[i]);
     }
     free(a);
+}
+CollisionData *mapCollision(Map *m, Ray r1)
+{
+    normalize(&r1.dir);
+
+    CollisionData *result = NULL;
+
+    for (int j = 0; j < m->numOfWalls; j++)
+    {
+        CollisionData *temp = checkCollision(m->walls[j], r1);
+        // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+        if (temp && (!result || result->d > temp->d))
+        {
+            if (!result)
+                result = malloc(sizeof(CollisionData));
+
+            if (result)
+                *result = *temp;
+        }
+    }
+    result->angle = 0;
+    return result;
+}
+
+CollisionData **mapMultiRayShot(Ray cam, float fov, int rn, Map *m)
+{
+    return multiRayShot(cam.start, cam.dir, fov, m->numOfWalls, m->walls, rn);
 }
