@@ -41,6 +41,8 @@ Map *loadMap(char *filename)
     }
     int nwalls, nenemy;
     sscanf(buffer, "%d,%d", &nwalls, &nenemy);
+    result->numOfWalls = nwalls;
+    result->enemyCount = nenemy;
 
     result->walls = malloc(sizeof(Wall) * nwalls);
     if (!result->walls)
@@ -53,7 +55,7 @@ Map *loadMap(char *filename)
     // Enemies here. TODO!
 
     for (int i = 0; i < nwalls && fgets(buffer, sizeof(buffer), mfile); i++)
-        sscanf(buffer, "%f,%f", &result->walls[i].start, &result->walls[i].stop);
+        sscanf(buffer, "%f,%f,%f,%f", &result->walls[i].start.x, &result->walls[i].start.y, &result->walls[i].stop.x, &result->walls[i].stop.y);
 
     fclose(mfile);
     return result;
