@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "movement.h"
@@ -7,6 +6,7 @@
 
 /*TODO: 
 Add rotation by mouse (?)
+Add acceleration based movement (?)
 */
 
 void moveForward(Player *player) {
@@ -19,7 +19,7 @@ void moveRight(Player *player) {
     float old_x = player->pos.x;
     float old_y = player->pos.y;
     Vec2 dir = player->dir;
-    rotate(&dir, PI/2);
+    rotate(&dir, -PI/2);
     player->pos.x = old_x += dir.x;
     player->pos.y = old_y += dir.y;
 };
@@ -27,7 +27,7 @@ void moveLeft(Player *player) {
     float old_x = player->pos.x;
     float old_y = player->pos.y;
     Vec2 dir = player->dir;
-    rotate(&dir, -PI/2);
+    rotate(&dir, PI/2);
     player->pos.x = old_x += dir.x;
     player->pos.y = old_y += dir.y;
 };
@@ -41,11 +41,21 @@ void moveBack(Player *player) {
 };
 
 void rotateRight(Player *player) {
-    rotate(&player->dir, ROTSPEED);
-};
-void rotateLeft(Player *player) {
     rotate(&player->dir, -ROTSPEED);
 };
+void rotateLeft(Player *player) {
+    rotate(&player->dir, ROTSPEED);
+};
+
+void healPlayer(Player *player, int heal) {
+    int old_hp = player->hp;
+    player->hp = min(MAXHP, old_hp+heal);
+}
+
+void addAmmo(Player *player, int ammo) {
+    int old_ammo = player->ammo;
+    player->ammo = min(MAXAMMO, old_ammo+ammo);
+}
 
 
 //Converts the points of a wall into a line in vector form x = a + tn

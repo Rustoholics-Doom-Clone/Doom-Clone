@@ -1,12 +1,11 @@
 #include "raycast.h"
+#include "raymath.h"
 
 //how long a step should be
 #define STEP (Vec2){1.0, 0.0}
+#define MAXHP 100
+#define MAXAMMO 100
 
-#ifndef PICONST
-#define PICONST
-#define PI 3.14159265358979323846
-#endif
 //How fast character rotates
 #define ROTSPEED PI/120
 
@@ -17,9 +16,11 @@ typedef struct
 {
     Vec2 pos;
     Vec2 dir;
+    int hp;
+    int ammo;
 } Player;
 
-#define PLAYERINIT (Player){VECINIT, (Vec2){1.0, 0.0}}
+#define PLAYERINIT (Player){VECINIT, (Vec2){1.0, 0.0}, MAXHP, MAXAMMO}
 
 typedef struct
 {
@@ -44,5 +45,9 @@ void rotateRight(Player *player);
 void rotateLeft(Player *player);
 //Checks if there is collision between player and wall, and pushes away player if so
 void collideWithWall(Player *player, Wall wall);
+//Makes sure player health doesn't go over max health
+void healPlayer(Player *player, int heal);
+//Makes sure player ammo doesn't go over max ammo
+void addAmmo(Player *player, int ammo);
 
 #endif
