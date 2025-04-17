@@ -49,12 +49,12 @@ void rotateLeft(Player *player) {
 
 void healPlayer(Player *player, int heal) {
     int old_hp = player->hp;
-    player->hp = min(MAXHP, old_hp+heal);
+    player->hp = MIN(MAXHP, old_hp+heal);
 }
 
 void addAmmo(Player *player, int ammo) {
     int old_ammo = player->ammo;
-    player->ammo = min(MAXAMMO, old_ammo+ammo);
+    player->ammo = MIN(MAXAMMO, old_ammo+ammo);
 }
 
 

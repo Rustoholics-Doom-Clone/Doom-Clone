@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "raycast.h"
+#include "movement.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -68,8 +69,10 @@ int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
 
-    Vec2 camPos = { 160.0f, 160.0f };
-    Vec2 camDir = { 1.0f, 0.0f };
+    Player player = PLAYERINIT;
+
+    Vec2 camPos = player.pos;
+    Vec2 camDir = player.dir;
 
     Wall walls[MAX_WALLS];
     int wallCount = buildWallsFromMap(walls, MAX_WALLS);

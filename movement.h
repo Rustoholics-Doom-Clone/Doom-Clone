@@ -1,16 +1,23 @@
 #include "raycast.h"
-#include "raymath.h"
+#include "raylib.h"
 
 //how long a step should be
 #define STEP (Vec2){1.0, 0.0}
 #define MAXHP 100
 #define MAXAMMO 100
+#define STARTPOS (Vec2){160.0, 160.0}
 
 //How fast character rotates
 #define ROTSPEED PI/120
 
+#ifndef MIN
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
 #ifndef MOVEMENT_H
 #define MOVEMENT_H
+
+
 
 typedef struct
 {
@@ -20,7 +27,7 @@ typedef struct
     int ammo;
 } Player;
 
-#define PLAYERINIT (Player){VECINIT, (Vec2){1.0, 0.0}, MAXHP, MAXAMMO}
+#define PLAYERINIT (Player){STARTPOS, (Vec2){1.0, 0.0}, MAXHP, MAXAMMO}
 
 typedef struct
 {
