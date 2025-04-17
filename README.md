@@ -1,5 +1,5 @@
 # För att köra
-Skriv in gcc main.c -o my_game.exe -Iinclude -Llib -lraylib -lopengl32 -lgdi32 -lwinmm
+Skriv in gcc main.c raycast.c map.c movement.c -o my_game.exe -Iinclude -Llib -lraylib -lopengl32 -lgdi32 -lwinmm
 och sen ./my_game.exe
 
 # Vad vi ska göra
