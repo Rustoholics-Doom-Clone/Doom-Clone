@@ -11,7 +11,7 @@ int saveMap(int numOfWalls, Wall *walls, char *filename)
         return 0;
     fprintf(mfile, "%d,0\n", numOfWalls);
     for (int i = 0; i < numOfWalls; i++)
-        fprintf(mfile, "%f,%f\n", walls[i].start, walls[i].stop);
+        fprintf(mfile, "%f,%f,%f,%f\n", walls[i].start.x, walls[i].start.y, walls[i].stop.x, walls[i].stop.y);
     fclose(mfile);
     return 1;
 }
