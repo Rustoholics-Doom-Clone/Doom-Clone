@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "raycast.h"
 #include <math.h>
+#include <stdio.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -8,18 +9,18 @@
 #define MAP_WIDTH 10
 #define MAP_HEIGHT 10
 #define MAX_WALLS 1024
-#define NUM_RAYS SCREEN_WIDTH  // One ray per column
+#define NUM_RAYS 200
 #define FOV 60.0f
 
 int map[MAP_HEIGHT][MAP_WIDTH] = {
     {1,1,1,1,1,1,1,1,1,1},
     {1,0,0,0,0,0,0,0,0,1},
-    {1,0,1,0,1,0,1,0,0,1},
-    {1,0,1,0,1,0,1,0,0,1},
+    {1,0,0,0,0,0,1,0,0,1},
     {1,0,0,0,0,0,0,0,0,1},
-    {1,0,1,1,1,1,1,1,0,1},
-    {1,0,1,0,0,0,0,1,0,1},
-    {1,0,1,0,1,1,0,1,0,1},
+    {1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,1},
     {1,1,1,1,1,1,1,1,1,1}
 };
@@ -46,39 +47,24 @@ int buildWallsFromMap(Wall *walls, int maxWalls) {
     return count;
 }
 
-void updateCamera(Vec2 *pos, Vec2 *dir) {
-    float speed = 2.0f;
-    Vec2 forward = *dir;
-    Vec2 strafe = { -dir->y, dir->x }; // Perpendicular to dir
-
-    if (IsKeyDown(KEY_W)) vectorAdd(*pos, (Vec2){ forward.x * speed, forward.y * speed }, pos);
-    if (IsKeyDown(KEY_S)) vectorAdd(*pos, (Vec2){ -forward.x * speed, -forward.y * speed }, pos);
-    if (IsKeyDown(KEY_A)) vectorAdd(*pos, (Vec2){ -strafe.x * speed, -strafe.y * speed }, pos);
-    if (IsKeyDown(KEY_D)) vectorAdd(*pos, (Vec2){ strafe.x * speed, strafe.y * speed }, pos);
-
-    if (IsKeyDown(KEY_LEFT)) rotate(dir, -0.05f);
-    if (IsKeyDown(KEY_RIGHT)) rotate(dir, 0.05f);
-}
-
 void draw3DView(CollisionData **hits, int rayCount) {
     for (int i = 0; i < rayCount; i++) {
         if (!hits[i]) continue;
 
         float dist = hits[i]->d;
-        float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle)); // fix fisheye
-        float wallHeight = (TILE_SIZE * 500) / corrected;
+        float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle)); // Correct fisheye effect
+        float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
 
         float brightness = 255 - (dist * 0.5f);
         if (brightness < 0) brightness = 0;
         if (brightness > 255) brightness = 255;
 
         Color wallColor = (Color){ brightness, brightness, brightness, 255 };
-        DrawRectangle(i, (SCREEN_HEIGHT / 2) - wallHeight / 2, 1, wallHeight, wallColor);
+        DrawRectangle(i, (SCREEN_HEIGHT / 2) - (wallHeight / 2), 1, wallHeight, wallColor);
     }
 }
 
-int main(void)
-{
+int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
 
@@ -89,20 +75,31 @@ int main(void)
     int wallCount = buildWallsFromMap(walls, MAX_WALLS);
 
     while (!WindowShouldClose()) {
-        updateCamera(&camPos, &camDir);
-
+    
         CollisionData **hits = multiRayShot(camPos, camDir, FOV, wallCount, walls, NUM_RAYS);
-
+    
+        // Count hits
+        int hitCount = 0;
+        for (int i = 0; i < NUM_RAYS; i++) {
+            if (hits[i]) hitCount++;
+        }
+    
         BeginDrawing();
         ClearBackground(DARKBLUE);
-
+    
         draw3DView(hits, NUM_RAYS);
-        DrawText("Use WSAD + arrow keys", 20, 20, 20, RAYWHITE);
-
+    
+        DrawText("Use WSAD + arrow keys", 20, 20, 20, RED);
+    
+        char buffer[64];
+        sprintf(buffer, "Rays hit walls: %d", hitCount);
+        DrawText(buffer, 20, 50, 20, RED);
+    
         EndDrawing();
-
+    
         freeCollisionData(hits, NUM_RAYS);
     }
+    
 
     CloseWindow();
     return 0;
