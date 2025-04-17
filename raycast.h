@@ -1,6 +1,5 @@
 #ifndef PICONST
 #define PICONST
-#define PI 3.14159265358979323846
 #endif
 
 #ifndef VECTOR2_H
@@ -57,11 +56,12 @@ typedef struct
 
 typedef struct
 {
-    Vec2 start, dir; // The origin of the ray and the direction. Remember to normalize the direction
-} Ray;
+    Vec2 start, dir; 
+} Ray3D;
+
 
 // Returns info on if and where a ray hits a wall. NULL == Doesn't hit, Remember to free the result
-CollisionData *checkCollision(Wall w1, Ray r1);
+CollisionData *checkCollision(Wall w1, Ray3D r1);
 // Shots rn rays accros the fov. Returns a list of collisiondata for the closest collisions of each ray. nw is the number of walls
 CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *walls, int rn);
 // Frees an array of collisiondata pointers of length n, handles entries that are null as well.
@@ -72,6 +72,6 @@ float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 
 typedef struct Map Map;
 // Works like checkCollision but checks against all walls in m and returns the closest.
-CollisionData *mapCollision(Map *m, Ray r1);
+CollisionData *mapCollision(Map *m, Ray3D r1);
 // Works like multiRayShot but with a map instead of a manual list of walls.
-CollisionData **mapMultiRayShot(Ray cam, float fov, int rn, Map *m);
+CollisionData **mapMultiRayShot(Ray3D cam, float fov, int rn, Map *m);

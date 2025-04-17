@@ -1,3 +1,4 @@
+#include "raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -48,7 +49,7 @@ void rotate(Vec2 *v1, float rad)
     normalize(v1);
 }
 
-CollisionData *checkCollision(Wall w1, Ray r1)
+CollisionData *checkCollision(Wall w1, Ray3D r1)
 {
     Vec2 odelta = VECINIT;
     Vec2 result = VECINIT;
@@ -116,8 +117,8 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
 
         for (int j = 0; j < wn; j++)
         {
-            CollisionData *temp = checkCollision(walls[j], (Ray){campos, camdir});
-            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+            CollisionData *temp = checkCollision(walls[j], (Ray3D){campos, camdir});
+            printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
             if (temp && (!result[i] || result[i]->d > temp->d))
             {
                 if (!result[i])
