@@ -34,6 +34,16 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 
 #endif
 
+#ifndef WALLSTRUCT
+#define WALLSTRUCT
+
+typedef struct
+{
+    Vec2 start, stop; // Both ends of the wall
+} Wall;
+
+#endif
+
 #ifndef RAYCAST_H
 #define RAYCAST_H
 
@@ -46,13 +56,9 @@ typedef struct
 
 typedef struct
 {
-    Vec2 start, stop; // Both ends of the wall
-} Wall;
-
-typedef struct
-{
     Vec2 start, dir; 
 } Ray3D;
+
 
 // Returns info on if and where a ray hits a wall. NULL == Doesn't hit, Remember to free the result
 CollisionData *checkCollision(Wall w1, Ray3D r1);
@@ -63,3 +69,9 @@ void freeCollisionData(CollisionData **a, int n);
 // Takes an array of collisiondata of length n and returns an array of floats of lenght n that is the collision distance scaled.
 float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 #endif
+
+typedef struct Map Map;
+// Works like checkCollision but checks against all walls in m and returns the closest.
+CollisionData *mapCollision(Map *m, Ray3D r1);
+// Works like multiRayShot but with a map instead of a manual list of walls.
+CollisionData **mapMultiRayShot(Ray3D cam, float fov, int rn, Map *m);
