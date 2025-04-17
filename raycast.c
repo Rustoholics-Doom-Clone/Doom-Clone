@@ -173,7 +173,7 @@ void freeCollisionData(CollisionData **a, int n)
     }
     free(a);
 }
-CollisionData *mapCollision(Map *m, Ray r1)
+CollisionData *mapCollision(Map *m, Ray3D r1)
 {
     normalize(&r1.dir);
 
@@ -196,7 +196,7 @@ CollisionData *mapCollision(Map *m, Ray r1)
     return result;
 }
 
-CollisionData **mapMultiRayShot(Ray cam, float fov, int rn, Map *m)
+CollisionData **mapMultiRayShot(Ray3D cam, float fov, int rn, Map *m)
 {
     return multiRayShot(cam.start, cam.dir, fov, m->numOfWalls, m->walls, rn);
 }
