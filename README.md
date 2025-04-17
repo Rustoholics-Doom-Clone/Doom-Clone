@@ -1,3 +1,7 @@
+# För att köra
+Skriv in gcc main.c -o my_game.exe -Iinclude -Llib -lraylib -lopengl32 -lgdi32 -lwinmm
+och sen ./my_game.exe
+
 # Vad vi ska göra
 Vi ska göra en enkel Doom Clone. Målet är att låta spelaren gå runt i en bana som är visad med en texturerad raycaster. Det ska finns fiender som kan skjuta och bli skjutna av spelaren. Det ska även finnas en enkel HUD som visar spelarens hälsa och ammunition.
 
@@ -22,9 +26,9 @@ Branches bör godkännas av åtminstone en annan gruppmedlem innan de mergas. Pr
 
 # Uppdelning av arbete (so far)
 Ray caster 
-* Raylib - Ludvig
+* Raylib - Ludvig (Gick vidare till v.2)
 * Logic - Dante
-* Level design - 
+* Level design - Dante
 * Texture -
   
 Player 
@@ -35,4 +39,4 @@ Enemies
 * Movement/Sight - 
 * Attack -
   
-Hud - 
+Hud - Linus
