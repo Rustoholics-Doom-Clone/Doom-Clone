@@ -53,6 +53,7 @@ Map *loadMap(char *filename)
         return NULL;
     }
     // Enemies here. TODO!
+    result->enemyPos = NULL;
 
     for (int i = 0; i < nwalls && fgets(buffer, sizeof(buffer), mfile); i++)
         sscanf(buffer, "%f,%f,%f,%f", &result->walls[i].start.x, &result->walls[i].start.y, &result->walls[i].stop.x, &result->walls[i].stop.y);
