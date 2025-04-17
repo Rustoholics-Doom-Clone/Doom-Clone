@@ -46,9 +46,9 @@ void moveRight(Player *player);
 void moveLeft(Player *player);
 //move character back
 void moveBack(Player *player);
-//rotates character right by pi/120 rad
+//rotates character right by ROTSPEED rad
 void rotateRight(Player *player);
-//rotates character left by pi/120 rad
+//rotates character left by ROTSPEED rad
 void rotateLeft(Player *player);
 //Checks if there is collision between player and wall, and pushes away player if so
 void collideWithWall(Player *player, Wall wall);
