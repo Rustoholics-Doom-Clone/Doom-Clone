@@ -19,7 +19,7 @@ void moveRight(Player *player) {
     float old_x = player->pos.x;
     float old_y = player->pos.y;
     Vec2 dir = player->dir;
-    rotate(&dir, -PI/2);
+    rotate(&dir, PI/2);
     player->pos.x = old_x += dir.x;
     player->pos.y = old_y += dir.y;
 };
@@ -27,7 +27,7 @@ void moveLeft(Player *player) {
     float old_x = player->pos.x;
     float old_y = player->pos.y;
     Vec2 dir = player->dir;
-    rotate(&dir, PI/2);
+    rotate(&dir, -PI/2);
     player->pos.x = old_x += dir.x;
     player->pos.y = old_y += dir.y;
 };
@@ -41,10 +41,10 @@ void moveBack(Player *player) {
 };
 
 void rotateRight(Player *player) {
-    rotate(&player->dir, -ROTSPEED);
+    rotate(&player->dir, ROTSPEED);
 };
 void rotateLeft(Player *player) {
-    rotate(&player->dir, ROTSPEED);
+    rotate(&player->dir, -ROTSPEED);
 };
 
 void healPlayer(Player *player, int heal) {
