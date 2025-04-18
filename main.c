@@ -95,11 +95,11 @@ int main(void) {
         sprintf(buffer, "Rays hit walls: %d", hitCount);
         DrawText(buffer, 20, 50, 20, RED);
 
-        sprintf(buffer, "HP: %d", player.hp);
-        DrawText(buffer, SCREEN_WIDTH-200, SCREEN_HEIGHT-60, 20, BLACK);
+        //sprintf(buffer, "HP: %d", player.hp);
+        //DrawText(buffer, SCREEN_WIDTH-200, SCREEN_HEIGHT-60, 20, BLACK);
 
-        sprintf(buffer, "AMMO: %d", player.ammo);
-        DrawText(buffer, SCREEN_WIDTH-200, SCREEN_HEIGHT-30, 20, BLACK);
+        //sprintf(buffer, "AMMO: %d", player.ammo);
+        //DrawText(buffer, SCREEN_WIDTH-200, SCREEN_HEIGHT-30, 20, BLACK);
     
         EndDrawing();
     
