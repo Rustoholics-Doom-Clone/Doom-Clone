@@ -95,22 +95,12 @@ int main(void)
         draw3DView(hits, NUM_RAYS);
 
         char buffer[64];
-
-<<<<<<< HEAD
-        //sprintf(buffer, "HP: %d", player.hp);
-        //DrawText(buffer, SCREEN_WIDTH-200, SCREEN_HEIGHT-60, 20, BLACK);
-
-        //sprintf(buffer, "AMMO: %d", player.ammo);
-        //DrawText(buffer, SCREEN_WIDTH-200, SCREEN_HEIGHT-30, 20, BLACK);
-    
-=======
         sprintf(buffer, "HP: %d", player.hp);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
 
         sprintf(buffer, "AMMO: %d", player.ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
 
->>>>>>> origin/main
         EndDrawing();
 
         freeCollisionData(hits, NUM_RAYS);
