@@ -37,7 +37,7 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 typedef struct
 {
     Vec2 start, stop; // Both ends of the wall
-    char *texture;
+    Texture2D texture;
 } Wall;
 
 #endif
@@ -50,7 +50,7 @@ typedef struct
     Vec2 position; // where the collision happened
     float d;       // how far away it happened
     float angle;   // used when firing multiple rays to determine the angle from the source.
-    char *texture;
+    Texture2D texture;
 } CollisionData;
 
 typedef struct
