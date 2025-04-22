@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "raycast.h"
 #include "movement.h"
+#include "map.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -80,14 +81,18 @@ int main(void)
     SetTargetFPS(60);
 
     Player player = PLAYERINIT;
+    player.pos = (Vec2){0.0, 0.0};
 
+    /*
     Wall walls[MAX_WALLS];
     int wallCount = buildWallsFromMap(walls, MAX_WALLS);
+    */
+    Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
         rotateRight(&player);
-        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, wallCount, walls, NUM_RAYS);
+        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
