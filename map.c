@@ -4,6 +4,17 @@
 #include <float.h>
 #include "map.h"
 
+int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
+{
+    Vec2 diffvec;
+    vectorSub(foe1.pos, playerpos, &diffvec);
+    normalize(&diffvec);
+    if (vectorDot(diffvec, playerdir) < cosf(DEG_TO_RAD(fov / 2)))
+    {
+        return 0;
+    }
+    return 1;
+}
 int saveMap(int numOfWalls, Wall *walls, char *filename)
 {
     FILE *mfile = fopen(filename, "w");
