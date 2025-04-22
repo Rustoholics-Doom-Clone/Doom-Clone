@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
+#include "raylib.h"
 #include "map.h"
 
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
