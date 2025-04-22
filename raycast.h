@@ -8,6 +8,7 @@ typedef struct
 } Vec2;
 
 #define DEG_TO_RAD(deg) ((deg) * (PI / 180.0))
+#define RAD_TO_DEG(rad) ((rad) * (180.0 / PI))
 
 #define VECINIT (Vec2){0.0, 0.0}
 
