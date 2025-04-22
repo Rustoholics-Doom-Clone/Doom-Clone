@@ -37,6 +37,8 @@ typedef struct Enemy
     int id;
 } Enemy;
 
+// Checks if enemy is in players field of view
+int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float FOV, Enemy foe1);
 #endif
 
 #ifndef MAPH
