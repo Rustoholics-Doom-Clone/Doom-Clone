@@ -71,6 +71,7 @@ CollisionData *checkCollision(Wall w1, Ray3D r1)
     CollisionData *data = malloc(sizeof(CollisionData));
     data->d = result.x;
     data->angle = NAN;
+    data->texture = NULL;
 
     Vec2 temp = VECINIT;
     vectorScale(r1.dir, result.x, &temp);
