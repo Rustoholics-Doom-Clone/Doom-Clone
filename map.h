@@ -30,7 +30,7 @@ typedef struct Enemy
     Status status;
     Visibility visibility;
     float hitRadius;
-    char sprite[64];
+    char *sprite;
     Vec2 pos;
     Vec2 dir;
     int hp;
