@@ -13,6 +13,12 @@ typedef struct
 #ifndef ENEMY
 #define ENEMY
 
+typedef enum Visibility
+{
+    VISIBLE,
+    INVISIBLE
+} Visibility;
+
 #endif
 
 #ifndef MAPH
