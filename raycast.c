@@ -85,7 +85,7 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
 
     if (det == 0.0f)
     {
-        printf("Parallel or singular system\n");
+        // printf("Parallel or singular system\n");
         return 0;
     }
 
