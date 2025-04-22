@@ -19,6 +19,12 @@ typedef enum Visibility
     INVISIBLE
 } Visibility;
 
+typedef enum Status
+{
+    DEAD,
+    ALIVE
+} Status;
+
 #endif
 
 #ifndef MAPH
