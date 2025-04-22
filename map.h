@@ -25,6 +25,18 @@ typedef enum Status
     ALIVE
 } Status;
 
+typedef struct Enemy
+{
+    Status status;
+    Visibility visibility;
+    float hitRadius;
+    char sprite[64];
+    Vec2 pos;
+    Vec2 dir;
+    int hp;
+    int id;
+} Enemy;
+
 #endif
 
 #ifndef MAPH
