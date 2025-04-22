@@ -70,7 +70,7 @@ void draw3DView(CollisionData **hits, int rayCount)
             brightness = 255;
 
         Color wallColor = (Color){brightness, brightness, brightness, 255};
-        DrawRectangle(i, (SCREEN_HEIGHT / 2) - (wallHeight / 2), 1, wallHeight, wallColor);
+        DrawRectangle(i * SCREEN_WIDTH / NUM_RAYS, (SCREEN_HEIGHT / 2) - (wallHeight / 2), SCREEN_WIDTH / NUM_RAYS, wallHeight, wallColor);
     }
 }
 
