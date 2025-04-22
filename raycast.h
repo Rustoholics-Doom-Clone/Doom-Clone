@@ -36,6 +36,7 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 typedef struct
 {
     Vec2 start, stop; // Both ends of the wall
+    char *texture;
 } Wall;
 
 #endif
