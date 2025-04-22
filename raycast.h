@@ -1,7 +1,3 @@
-#ifndef PICONST
-#define PICONST
-#endif
-
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
@@ -56,9 +52,8 @@ typedef struct
 
 typedef struct
 {
-    Vec2 start, dir; 
+    Vec2 start, dir;
 } Ray3D;
-
 
 // Returns info on if and where a ray hits a wall. NULL == Doesn't hit, Remember to free the result
 CollisionData *checkCollision(Wall w1, Ray3D r1);
