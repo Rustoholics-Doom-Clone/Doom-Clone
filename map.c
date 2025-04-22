@@ -16,6 +16,46 @@ int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
     }
     return 1;
 }
+
+CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *wls, int wn, Enemy *enemies, int ec)
+{
+    CollisionData **result = malloc(sizeof(CollisionData *) * ec);
+
+    for (int i = 0; i < ec; i++)
+    {
+        result[i] = NULL;
+        if (!inFieldOfView(playerpos, playerdir, fov, enemies[i])) // checks if enemy is outside of fov
+            continue;
+
+        Vec2 diffvec;
+        vectorSub(enemies[i].pos, playerpos, &diffvec);
+        float diff = vectorLenght(diffvec);
+        normalize(&diffvec);
+
+        int fl = 1;
+        for (int j = 0; j < wn; j++)
+        {
+            CollisionData *temp = checkCollision(wls[j], (Ray3D){playerpos, diffvec}); // checks if a wall is in the way of the enemy
+            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+            if (temp && temp->d < diff)
+            {
+                fl = 0;
+                break;
+            }
+        }
+        if (!fl)
+            continue;
+
+        result[i] = malloc(sizeof(CollisionData));
+
+        result[i]->d = diff;
+        result[i]->position = enemies[i].pos;
+        result[i]->angle = NAN;
+        result[i]->texture = enemies[i].sprite;
+    }
+    return result;
+}
+
 int saveMap(int numOfWalls, Wall *walls, char *filename)
 {
     FILE *mfile = fopen(filename, "w");
