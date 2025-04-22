@@ -48,6 +48,7 @@ typedef struct
     Vec2 position; // where the collision happened
     float d;       // how far away it happened
     float angle;   // used when firing multiple rays to determine the angle from the source.
+    char *texture;
 } CollisionData;
 
 typedef struct
