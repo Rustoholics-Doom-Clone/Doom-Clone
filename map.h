@@ -39,6 +39,9 @@ typedef struct Enemy
 
 // Checks if enemy is in players field of view
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float FOV, Enemy foe1);
+// Checks if there is a clear line of sight between a player and enemy. If not then Collisiondata* == NULL
+CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float FOV, Wall *wls, int wn, Enemy *enemies, int ec);
+
 #endif
 
 #ifndef MAPH
