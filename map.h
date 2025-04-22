@@ -10,6 +10,11 @@ typedef struct
 
 #endif
 
+#ifndef ENEMY
+#define ENEMY
+
+#endif
+
 #ifndef MAPH
 #define MAPH
 
