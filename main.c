@@ -75,6 +75,17 @@ void draw3DView(CollisionData **hits, int rayCount)
     }
 }
 
+void drawEnemies(CollisionData **enemyColl, int enemyCount)
+{
+    for (int i = 0; i < enemyCount; i++)
+    {
+        if (!enemyColl[i])
+            continue;
+        Texture2D sprite = LoadTextureFromImage(LoadImage(enemyColl[i]->texture));
+        DrawTexture(sprite, 50, 50, WHITE);
+    }
+}
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
