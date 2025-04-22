@@ -46,8 +46,8 @@ typedef struct Map
 {
     int numOfWalls;
     Wall *walls;
-    int enemyCount; // Will most definetly be reworked when enemy logic is made
-    Vec2 *enemyPos; // Will most definetly be reworked when enemy logic is made
+    int enemyCount;
+    Enemy *enemies;
 } Map;
 
 // saves an array of walls as a map.
