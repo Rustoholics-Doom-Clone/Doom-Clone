@@ -118,7 +118,7 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
         for (int j = 0; j < wn; j++)
         {
             CollisionData *temp = checkCollision(walls[j], (Ray3D){campos, camdir});
-            printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
             if (temp && (!result[i] || result[i]->d > temp->d))
             {
                 if (!result[i])
