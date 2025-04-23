@@ -24,7 +24,7 @@ CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *
     for (int i = 0; i < ec; i++)
     {
         result[i] = NULL;
-        if (!inFieldOfView(playerpos, playerdir, fov, enemies[i]) || enemies[i].visibility == INVISIBLE || enemies[i].status == DEAD) // checks if enemy is outside of fov
+        if (!inFieldOfView(playerpos, playerdir, fov, enemies[i]) || (enemies[i].visibility == INVISIBLE) || (enemies[i].status == DEAD)) // checks if enemy is outside of fov
             continue;
 
         Vec2 diffvec;
@@ -57,23 +57,60 @@ CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *
     return result;
 }
 
-void updateEnemy(Enemy *foe, Vec2 playerPos, int *playerHealth)
+void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
+{
+    // Apply acceleration
+    Vec2 acc;
+    vectorScale(dir, foe->acceleration / (float)targetFPS, &acc);
+    vectorAdd(acc, foe->velocity, &foe->velocity);
+
+    // Cap speed
+    float speed = vectorLenght(foe->velocity);
+    if (speed > foe->maxSpeed)
+        vectorScale(foe->velocity, foe->maxSpeed / speed, &foe->velocity);
+
+    // Apply friction
+    float friction = 0.95f; // Tweak to taste
+    float frictionPerFrame = powf(friction, 60.0f / (float)targetFPS);
+    vectorScale(foe->velocity, frictionPerFrame, &foe->velocity);
+
+    // Move position
+    Vec2 ds;
+    vectorScale(foe->velocity, 1.0f / (float)targetFPS, &ds);
+    vectorAdd(ds, foe->pos, &foe->pos);
+}
+
+void updateEnemy(Enemy *foe, Vec2 playerPos, Vec2 playerdir, int *playerHealth, int targetFPS, float fov, Wall *wls, int wn)
 {
 
     if (foe->hp <= 0)
         foe->status = DEAD;
-    if (foe->status = DEAD)
+    if (foe->status == DEAD)
         return;
+
+    CollisionData **seePLayer = rayShotEnemies(playerPos, playerdir, fov, wls, wn, foe, 1);
+
+    switch (seePLayer[0] == NULL)
+    {
+    case 0:
+        Vec2 dir;
+        vectorSub(playerPos, foe->pos, &dir);
+        normalize(&dir);
+        moveEnemy(foe, dir, targetFPS);
+    case 1:
+    }
+
+    freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy **Queue, int qSize, Vec2 playerPos, int *playerHealth)
+void updateEnemies(Enemy **Queue, int qSize, Vec2 playerPos, Vec2 playerdir, int *playerHealth, int targetFPS, float fov, Wall *wls, int wn)
 {
     static int currentIndex = 0;
 
     if (qSize == 0)
         return;
 
-    updateEnemy(Queue[currentIndex], playerPos, playerHealth);
+    updateEnemy(Queue[currentIndex], playerPos, playerdir, playerHealth, targetFPS, fov, wls, wn);
     currentIndex = (currentIndex + 1) % qSize;
 }
 
