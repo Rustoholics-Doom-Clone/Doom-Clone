@@ -45,7 +45,7 @@ CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float FOV, Wall *
 // Updates an enemy
 void updateEnemy(Enemy *foe, Vec2 playerPos, int *playerHealth);
 // Handles a the queue of enemies to be updated
-void updateEnemies(Enemy **Queue, Vec2 playerPos, int *playerHealth);
+void updateEnemies(Enemy **Queue, int qSize, Vec2 playerPos, int *playerHealth);
 
 #endif
 

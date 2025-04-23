@@ -24,7 +24,7 @@ CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *
     for (int i = 0; i < ec; i++)
     {
         result[i] = NULL;
-        if (!inFieldOfView(playerpos, playerdir, fov, enemies[i])) // checks if enemy is outside of fov
+        if (!inFieldOfView(playerpos, playerdir, fov, enemies[i]) || enemies[i].visibility == INVISIBLE || enemies[i].status == DEAD) // checks if enemy is outside of fov
             continue;
 
         Vec2 diffvec;
