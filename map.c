@@ -57,6 +57,15 @@ CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *
     return result;
 }
 
+void updateEnemy(Enemy *foe, Vec2 playerPos, int *playerHealth)
+{
+
+    if (foe->hp <= 0)
+        foe->status = DEAD;
+    if (foe->status = DEAD)
+        return;
+}
+
 void updateEnemies(Enemy **Queue, int qSize, Vec2 playerPos, int *playerHealth)
 {
     static int currentIndex = 0;
