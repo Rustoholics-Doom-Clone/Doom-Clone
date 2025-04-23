@@ -140,11 +140,20 @@ int main(void)
 
     Player player = PLAYERINIT;
     player.pos = (Vec2){0.0, 0.0};
+    player.dir = (Vec2){1.0, 1.0};
+    normalize(&player.dir);
 
     /*
     Wall walls[MAX_WALLS];
     int wallCount = buildWallsFromMap(walls, MAX_WALLS);
+
+
     */
+
+    Enemy test;
+    test.pos = (Vec2){80.0, 80.0};
+    test.sprite = LoadTexture("Sprites/D-Chopp-var.png");
+
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
