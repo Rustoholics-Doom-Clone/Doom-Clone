@@ -36,6 +36,7 @@ typedef struct Enemy
     Vec2 dir;
     int hp;
     int id;
+    float speed;
 } Enemy;
 
 // Checks if enemy is in players field of view
