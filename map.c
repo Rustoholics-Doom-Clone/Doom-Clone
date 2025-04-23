@@ -50,7 +50,8 @@ CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *
 
         result[i]->d = diff;
         result[i]->position = enemies[i].pos;
-        result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
+        // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
+        result[i]->angle = vectorDot(playerdir, diffvec);
         result[i]->texture = enemies[i].sprite;
     }
     return result;
