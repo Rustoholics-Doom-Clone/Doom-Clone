@@ -4,6 +4,7 @@
 #include "map.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -76,8 +77,26 @@ void draw3DView(CollisionData **hits, int rayCount)
     }
 }
 
+int compareEnemyDistance(const void *a, const void *b)
+{
+
+    CollisionData *f1 = *(CollisionData **)a;
+    CollisionData *f2 = *(CollisionData **)b;
+    if (!f1 || !f2)
+        return -1;
+
+    float cmp = f1->d - f2->d;
+    if (cmp == 0.0)
+        return 0;
+    if (cmp < 0.0)
+        return 1;
+    return -1;
+}
+
 void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
 {
+    qsort(enemyColl, enemyCount, sizeof(CollisionData *), compareEnemyDistance);
+
     Vec2 plane = {
         -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
         p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
@@ -140,34 +159,41 @@ int main(void)
     SetTargetFPS(60);
 
     Player player = PLAYERINIT;
-
+    player.pos = (Vec2){0.0, 0.0};
+    player.dir = (Vec2){1.0, 1.0};
+    normalize(&player.dir);
 
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
 
-        
-        if(IsKeyDown(KEY_RIGHT)) {
+        if (IsKeyDown(KEY_RIGHT))
+        {
             rotateRight(&player);
         }
 
-        if(IsKeyDown(KEY_LEFT)) {
+        if (IsKeyDown(KEY_LEFT))
+        {
             rotateLeft(&player);
         }
-        if(IsKeyDown('W')) {
+        if (IsKeyDown('W'))
+        {
             wishMoveForward(&player);
         }
 
-        if(IsKeyDown('A')) {
+        if (IsKeyDown('A'))
+        {
             wishMoveLeft(&player);
         }
 
-        if(IsKeyDown('S')) {
+        if (IsKeyDown('S'))
+        {
             wishMoveBack(&player);
         }
 
-        if(IsKeyDown('D')) {
+        if (IsKeyDown('D'))
+        {
             wishMoveRight(&player);
         }
         executeMovement(&player, mp->walls, mp->numOfWalls);
@@ -176,11 +202,13 @@ int main(void)
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
 
-
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
         draw3DView(hits, NUM_RAYS);
+        drawEnemies(player, enemyData, mp->enemyCount);
+
+        updateEnemies(mp->enemies, mp->enemyCount, player, 60, FOV, mp);
         drawEnemies(player, enemyData, mp->enemyCount);
 
         updateEnemies(mp->enemies, mp->enemyCount, player, 60, FOV, mp);
@@ -195,7 +223,7 @@ int main(void)
         EndDrawing();
 
         freeCollisionData(hits, NUM_RAYS);
-        freeCollisionData(enemyData, 1);
+        freeCollisionData(enemyData, mp->enemyCount);
     }
 
     CloseWindow();
