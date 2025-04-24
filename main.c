@@ -184,7 +184,7 @@ int main(void)
         draw3DView(hits, NUM_RAYS);
         drawEnemies(player.pos, player.dir, enemyData, 2);
 
-        updateEnemies(tests, 2, player.pos, player.dir, &player.hp, 60, FOV, mp->walls, mp->numOfWalls);
+        updateEnemies(tests, 2, player, 60, FOV, mp->walls, mp->numOfWalls);
 
         char buffer[64];
 

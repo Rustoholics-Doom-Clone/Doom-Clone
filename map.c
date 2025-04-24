@@ -4,6 +4,7 @@
 #include <float.h>
 #include "raylib.h"
 #include "map.h"
+#include "movement.h"
 
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
 {
@@ -103,14 +104,14 @@ void updateEnemy(Enemy *foe, Vec2 playerPos, Vec2 playerdir, int *playerHealth, 
     freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy *Queue, int qSize, Vec2 playerPos, Vec2 playerdir, int *playerHealth, int targetFPS, float fov, Wall *wls, int wn)
+void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov, Wall *wls, int wn)
 {
     static int currentIndex = 0;
 
     if (qSize == 0)
         return;
 
-    updateEnemy(Queue + currentIndex, playerPos, playerdir, playerHealth, targetFPS, fov, wls, wn);
+    updateEnemy(Queue + currentIndex, p1.pos, p1.dir, &p1.hp, targetFPS, fov, wls, wn);
     currentIndex = (currentIndex + 1) % qSize;
 }
 
