@@ -50,7 +50,7 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS);
 // Updates an enemy
 void updateEnemy(Enemy *foe, Vec2 playerPos, Vec2 playerdir, int *playerHealth, int targetFPS, float fov, Wall *wls, int wn);
 // Handles a the queue of enemies to be updated
-void updateEnemies(Enemy **Queue, int qSize, Vec2 playerPos, Vec2 playerdir, int *playerHealth, int targetFPS, float fov, Wall *wls, int wn);
+void updateEnemies(Enemy *Queue, int qSize, Vec2 playerPos, Vec2 playerdir, int *playerHealth, int targetFPS, float fov, Wall *wls, int wn);
 
 #endif
 
