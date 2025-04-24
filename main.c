@@ -71,6 +71,7 @@ void draw3DView(CollisionData **hits, int rayCount)
             brightness = 255;
 
         Color wallColor = (Color){brightness, brightness, brightness, 255};
+
         DrawRectangle(i * SCREEN_WIDTH / NUM_RAYS, (SCREEN_HEIGHT / 2) - (wallHeight / 2), SCREEN_WIDTH / NUM_RAYS, wallHeight, wallColor);
     }
 }
@@ -139,18 +140,42 @@ int main(void)
     SetTargetFPS(60);
 
     Player player = PLAYERINIT;
-    player.pos = (Vec2){0.0, 0.0};
-    player.dir = (Vec2){1.0, 1.0};
-    normalize(&player.dir);
+
 
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
-        rotateRight(&player);
+
+        
+        if(IsKeyDown(KEY_RIGHT)) {
+            rotateRight(&player);
+        }
+
+        if(IsKeyDown(KEY_LEFT)) {
+            rotateLeft(&player);
+        }
+        if(IsKeyDown('W')) {
+            wishMoveForward(&player);
+        }
+
+        if(IsKeyDown('A')) {
+            wishMoveLeft(&player);
+        }
+
+        if(IsKeyDown('S')) {
+            wishMoveBack(&player);
+        }
+
+        if(IsKeyDown('D')) {
+            wishMoveRight(&player);
+        }
+        executeMovement(&player, mp->walls, mp->numOfWalls);
+
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
+
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
@@ -161,7 +186,6 @@ int main(void)
         updateEnemies(mp->enemies, mp->enemyCount, player, 60, FOV, mp);
 
         char buffer[64];
-
         sprintf(buffer, "HP: %d", player.hp);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
 
