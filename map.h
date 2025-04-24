@@ -41,6 +41,8 @@ typedef struct Enemy
     Vec2 velocity;
     int hp;
     int id;
+    int baseCoolDown;
+    int coolDown;
     float acceleration;
     float maxSpeed;
 } Enemy;

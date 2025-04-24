@@ -109,8 +109,17 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
     if (vectorLenght(dir) <= foe->attackRadius) // If player is withing attackRadius
     {
         foe->velocity = VECINIT; // Stop!
-        *playerHealth -= 1;      // Lower player health
-        return;                  // early return
+        if (foe->coolDown <= 0)
+        {
+            *playerHealth -= 1; // Lower player health
+            foe->coolDown = foe->baseCoolDown;
+        }
+        else
+        {
+            foe->coolDown -= 1;
+        }
+
+        return; // early return
     }
 
     CollisionData **seePLayer = rayShotEnemies(p1, fov, mp, foe, 1); // shoots a ray at the player to see if there is line of sight.
@@ -285,6 +294,8 @@ Map *loadMap(char *filename)
         result->enemies[i].status = ALIVE;
         result->enemies[i].velocity = VECINIT;
         result->enemies[i].visibility = VISIBLE;
+        result->enemies[i].baseCoolDown = 50;
+        result->enemies[i].coolDown = 0;
     }
 
     fclose(mfile); // close file
