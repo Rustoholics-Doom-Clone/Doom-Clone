@@ -75,11 +75,11 @@ void draw3DView(CollisionData **hits, int rayCount)
     }
 }
 
-void drawEnemies(Vec2 playerPos, Vec2 playerDir, CollisionData **enemyColl, int enemyCount)
+void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
 {
     Vec2 plane = {
-        -playerDir.y * tanf(DEG_TO_RAD(FOV / 2)),
-        playerDir.x * tanf(DEG_TO_RAD(FOV / 2))};
+        -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
+        p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
 
     for (int i = 0; i < enemyCount; i++)
     {
@@ -89,13 +89,13 @@ void drawEnemies(Vec2 playerPos, Vec2 playerDir, CollisionData **enemyColl, int 
         Vec2 enemyPos = enemyColl[i]->position;
 
         // Vector from player to enemy
-        float dx = enemyPos.x - playerPos.x;
-        float dy = enemyPos.y - playerPos.y;
+        float dx = enemyPos.x - p1.pos.x;
+        float dy = enemyPos.y - p1.pos.y;
 
         // Inverse camera transform
-        float invDet = 1.0f / (plane.x * playerDir.y - playerDir.x * plane.y);
+        float invDet = 1.0f / (plane.x * p1.dir.y - p1.dir.x * plane.y);
 
-        float transformX = invDet * (playerDir.y * dx - playerDir.x * dy);
+        float transformX = invDet * (p1.dir.y * dx - p1.dir.x * dy);
         float transformY = invDet * (-plane.y * dx + plane.x * dy);
 
         if (transformY <= 0)
@@ -182,9 +182,9 @@ int main(void)
         ClearBackground(DARKBLUE);
 
         draw3DView(hits, NUM_RAYS);
-        drawEnemies(player.pos, player.dir, enemyData, 2);
+        drawEnemies(player, enemyData, 2);
 
-        updateEnemies(tests, 2, player, 60, FOV, mp->walls, mp->numOfWalls);
+        updateEnemies(tests, 2, player, 60, FOV, *mp);
 
         char buffer[64];
 
