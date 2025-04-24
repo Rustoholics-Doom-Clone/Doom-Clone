@@ -3,6 +3,7 @@
 #include "movement.h"
 #include "map.h"
 #include <math.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -157,6 +158,7 @@ int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
+    srand(time(NULL));
 
     Player player = PLAYERINIT;
     player.pos = (Vec2){0.0, 0.0};
@@ -208,10 +210,10 @@ int main(void)
         draw3DView(hits, NUM_RAYS);
         drawEnemies(player, enemyData, mp->enemyCount);
 
-        updateEnemies(mp->enemies, mp->enemyCount, player, 60, FOV, mp);
+        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
         drawEnemies(player, enemyData, mp->enemyCount);
 
-        updateEnemies(mp->enemies, mp->enemyCount, player, 60, FOV, mp);
+        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
 
         char buffer[64];
         sprintf(buffer, "HP: %d", player.hp);

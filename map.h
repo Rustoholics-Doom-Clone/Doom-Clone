@@ -41,6 +41,8 @@ typedef struct Enemy
     Vec2 velocity;
     int hp;
     int id;
+    int baseCoolDown;
+    int coolDown;
     float acceleration;
     float maxSpeed;
 } Enemy;
@@ -54,7 +56,7 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS);
 // Updates an enemy
 void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp);
 // Handles a the queue of enemies to be updated
-void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov, Map *mp);
+void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp);
 
 #endif
 
