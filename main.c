@@ -140,30 +140,14 @@ int main(void)
     SetTargetFPS(60);
 
     Player player = PLAYERINIT;
-    player.pos = (Vec2){0.0, 0.0};
-    player.dir = (Vec2){1.0, 1.0};
-    normalize(&player.dir);
+
 
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
-        if(IsKeyDown('W')) {
-            moveForward(&player);
-        }
 
-        if(IsKeyDown('A')) {
-            moveLeft(&player);
-        }
-
-        if(isKeyDown('S')) {
-            moveBack(&player);
-        }
-
-        if(IsKeyDown('D')) {
-            moveRight(&player);
-        }
-
+        
         if(IsKeyDown(KEY_RIGHT)) {
             rotateRight(&player);
         }
@@ -171,7 +155,23 @@ int main(void)
         if(IsKeyDown(KEY_LEFT)) {
             rotateLeft(&player);
         }
-        rotateRight(&player);
+        if(IsKeyDown('W')) {
+            wishMoveForward(&player);
+        }
+
+        if(IsKeyDown('A')) {
+            wishMoveLeft(&player);
+        }
+
+        if(IsKeyDown('S')) {
+            wishMoveBack(&player);
+        }
+
+        if(IsKeyDown('D')) {
+            wishMoveRight(&player);
+        }
+        executeMovement(&player, mp->walls, mp->numOfWalls);
+
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
