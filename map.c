@@ -102,29 +102,60 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
     if (foe->status == DEAD)
         return;
 
+    Vec2 dir;
+    vectorSub(p1.pos, foe->pos, &dir);
+
+    if (vectorLenght(dir) <= foe->attackRadius)
+    {
+        foe->velocity = VECINIT;
+        *playerHealth -= 1;
+        return;
+    }
+
     CollisionData **seePLayer = rayShotEnemies(p1, fov, mp, foe, 1);
 
     switch (seePLayer[0] == NULL)
     {
     case 0:
-        Vec2 dir;
-        vectorSub(p1.pos, foe->pos, &dir);
+
         normalize(&dir);
-        moveEnemy(foe, dir, targetFPS);
+        foe->dir = dir;
+        moveEnemy(foe, foe->dir, targetFPS);
+        break;
+
     case 1:
+        int choice = rand() % 4;
+        switch (choice)
+        {
+        case 0:
+            moveEnemy(foe, foe->dir, targetFPS);
+            break;
+        case 1:
+            moveEnemy(foe, foe->dir, targetFPS);
+            break;
+        case 2:
+            rotate(&foe->dir, DEG_TO_RAD(10.0));
+            break;
+        case 3:
+            rotate(&foe->dir, DEG_TO_RAD(-10.0));
+            break;
+        default:
+            break;
+        }
+        break;
     }
 
     freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov, Map *mp)
+void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp)
 {
     static int currentIndex = 0;
 
     if (qSize == 0)
         return;
 
-    updateEnemy(Queue + currentIndex, p1, &p1.hp, targetFPS, fov, mp);
+    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp);
     currentIndex = (currentIndex + 1) % qSize;
 }
 
