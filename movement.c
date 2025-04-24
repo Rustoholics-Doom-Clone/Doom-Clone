@@ -6,7 +6,6 @@
 
 /*TODO: 
 Add rotation by mouse (?)
-Add acceleration based movement (?)
 */
 
 void wishMoveForward(Player *player) {
@@ -121,6 +120,10 @@ void executeMovement(Player *player, Wall *walls, int wallcount) {
             float len = vectorLenght(wall_res);
             float k = dot/(len*len);
             vectorScale(wall_res, k, &new_pos);
+            if (vectorLenght(new_pos) < 0.5) {
+                res = old_pos;
+                break;
+            }
             vectorSub(old_pos, new_pos, &res);
             i = 0;
         }
