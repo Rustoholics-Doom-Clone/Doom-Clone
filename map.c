@@ -104,14 +104,14 @@ void updateEnemy(Enemy *foe, Vec2 playerPos, Vec2 playerdir, int *playerHealth, 
     freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov, Wall *wls, int wn)
+void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov, Map mp)
 {
     static int currentIndex = 0;
 
     if (qSize == 0)
         return;
 
-    updateEnemy(Queue + currentIndex, p1.pos, p1.dir, &p1.hp, targetFPS, fov, wls, wn);
+    updateEnemy(Queue + currentIndex, p1.pos, p1.dir, &p1.hp, targetFPS, fov, mp.walls, mp.numOfWalls);
     currentIndex = (currentIndex + 1) % qSize;
 }
 
