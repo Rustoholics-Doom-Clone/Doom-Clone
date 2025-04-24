@@ -92,7 +92,6 @@ bool vecCompare(Vec2 v1, Vec2 v2) {
     }
     return false;
 }
-
 void executeMovement(Player *player, Wall *walls, int wallcount) {
     Vec2 old_vel = player->vel;
     Vec2 old_pos = player->pos;

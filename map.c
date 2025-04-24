@@ -5,17 +5,30 @@
 #include "raylib.h"
 #include "map.h"
 #include "movement.h"
+#include "raycast.h"
 
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
 {
-    Vec2 diffvec;
-    vectorSub(foe1.pos, playerpos, &diffvec);
-    normalize(&diffvec);
-    if (vectorDot(diffvec, playerdir) < cosf(DEG_TO_RAD(fov / 2)))
-    {
-        return 0;
-    }
-    return 1;
+    Vec2 toEnemy;
+    vectorSub(foe1.pos, playerpos, &toEnemy);
+
+    float distance = vectorLenght(toEnemy);
+    if (distance < 0.001f)
+        return 1; // Player is on top of the enemy — it's visible
+
+    // Angle offset from enemy center to its edge (projected angle)
+    float spriteHalfAngle = atanf(foe1.sprite.width / (2.0f * distance));
+
+    // Normalize direction to enemy
+    Vec2 toEnemyNorm = toEnemy;
+    normalize(&toEnemyNorm);
+
+    // Angle between player direction and vector to enemy center
+    float centerDot = vectorDot(toEnemyNorm, playerdir);
+    float angleToCenter = acosf(CLAMP(centerDot, -1.0f, 1.0f)); // Ensure safe acos
+
+    // Check if **any** part of the sprite is within the FOV
+    return angleToCenter - spriteHalfAngle <= DEG_TO_RAD(fov / 2.0f);
 }
 
 CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, int ec)
