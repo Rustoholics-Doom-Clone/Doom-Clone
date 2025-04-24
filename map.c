@@ -18,25 +18,25 @@ int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
     return 1;
 }
 
-CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *wls, int wn, Enemy *enemies, int ec)
+CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, int ec)
 {
     CollisionData **result = malloc(sizeof(CollisionData *) * ec);
 
     for (int i = 0; i < ec; i++)
     {
         result[i] = NULL;
-        if (!inFieldOfView(playerpos, playerdir, fov, enemies[i]) || (enemies[i].visibility == INVISIBLE) || (enemies[i].status == DEAD)) // checks if enemy is outside of fov
+        if (!inFieldOfView(p1.pos, p1.dir, fov, enemies[i]) || (enemies[i].visibility == INVISIBLE) || (enemies[i].status == DEAD)) // checks if enemy is outside of fov
             continue;
 
         Vec2 diffvec;
-        vectorSub(enemies[i].pos, playerpos, &diffvec);
+        vectorSub(enemies[i].pos, p1.pos, &diffvec);
         float diff = vectorLenght(diffvec);
         normalize(&diffvec);
 
         int fl = 1;
-        for (int j = 0; j < wn; j++)
+        for (int j = 0; j < mp->numOfWalls; j++)
         {
-            CollisionData *temp = checkCollision(wls[j], (Ray3D){playerpos, diffvec}); // checks if a wall is in the way of the enemy
+            CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
             // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
             if (temp && temp->d < diff)
             {
@@ -52,7 +52,7 @@ CollisionData **rayShotEnemies(Vec2 playerpos, Vec2 playerdir, float fov, Wall *
         result[i]->d = diff;
         result[i]->position = enemies[i].pos;
         // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
-        result[i]->angle = vectorDot(playerdir, diffvec);
+        result[i]->angle = vectorDot(p1.dir, diffvec);
         result[i]->texture = enemies[i].sprite;
     }
     return result;
@@ -81,7 +81,7 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
     vectorAdd(ds, foe->pos, &foe->pos);
 }
 
-void updateEnemy(Enemy *foe, Vec2 playerPos, Vec2 playerdir, int *playerHealth, int targetFPS, float fov, Wall *wls, int wn)
+void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp)
 {
 
     if (foe->hp <= 0)
@@ -89,13 +89,13 @@ void updateEnemy(Enemy *foe, Vec2 playerPos, Vec2 playerdir, int *playerHealth, 
     if (foe->status == DEAD)
         return;
 
-    CollisionData **seePLayer = rayShotEnemies(playerPos, playerdir, fov, wls, wn, foe, 1);
+    CollisionData **seePLayer = rayShotEnemies(p1, fov, mp, foe, 1);
 
     switch (seePLayer[0] == NULL)
     {
     case 0:
         Vec2 dir;
-        vectorSub(playerPos, foe->pos, &dir);
+        vectorSub(p1.pos, foe->pos, &dir);
         normalize(&dir);
         moveEnemy(foe, dir, targetFPS);
     case 1:
@@ -104,14 +104,14 @@ void updateEnemy(Enemy *foe, Vec2 playerPos, Vec2 playerdir, int *playerHealth, 
     freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov, Map mp)
+void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov, Map *mp)
 {
     static int currentIndex = 0;
 
     if (qSize == 0)
         return;
 
-    updateEnemy(Queue + currentIndex, p1.pos, p1.dir, &p1.hp, targetFPS, fov, mp.walls, mp.numOfWalls);
+    updateEnemy(Queue + currentIndex, p1, &p1.hp, targetFPS, fov, mp);
     currentIndex = (currentIndex + 1) % qSize;
 }
 

@@ -165,8 +165,8 @@ int main(void)
     tests[1].hp = 1;
     tests[1].pos = (Vec2){-80.0, -80.0};
     tests[1].velocity = VECINIT;
-    tests[1].maxSpeed = 30.0;
-    tests[1].acceleration = 10.0;
+    tests[1].maxSpeed = 50.0;
+    tests[1].acceleration = 15.0;
     tests[1].sprite = LoadTexture("Sprites/D-Chopp-var.png");
 
     Map *mp = loadMap("testmap1.csv");
@@ -176,7 +176,7 @@ int main(void)
         rotateRight(&player);
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
-        CollisionData **enemyData = rayShotEnemies(player.pos, player.dir, FOV, mp->walls, mp->numOfWalls, tests, 2);
+        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, tests, 2);
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
@@ -184,7 +184,7 @@ int main(void)
         draw3DView(hits, NUM_RAYS);
         drawEnemies(player, enemyData, 2);
 
-        updateEnemies(tests, 2, player, 60, FOV, *mp);
+        updateEnemies(tests, 2, player, 60, FOV, mp);
 
         char buffer[64];
 
