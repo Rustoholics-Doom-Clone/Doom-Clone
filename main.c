@@ -165,30 +165,6 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-
-<<<<<<< HEAD
-        
-        if(IsKeyDown(KEY_RIGHT)) {
-            rotateRight(&player);
-        }
-
-        if(IsKeyDown(KEY_LEFT)) {
-            rotateLeft(&player);
-        }
-        if(IsKeyDown('W')) {
-            wishMoveForward(&player);
-        }
-
-        if(IsKeyDown('A')) {
-            wishMoveLeft(&player);
-        }
-
-        if(IsKeyDown('S')) {
-            wishMoveBack(&player);
-        }
-
-        if(IsKeyDown('D')) {
-=======
         if (IsKeyDown(KEY_RIGHT))
         {
             rotateRight(&player);
@@ -215,7 +191,6 @@ int main(void)
 
         if (IsKeyDown('D'))
         {
->>>>>>> origin/main
             wishMoveRight(&player);
         }
         executeMovement(&player, mp->walls, mp->numOfWalls);

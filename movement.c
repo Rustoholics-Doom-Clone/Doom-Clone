@@ -109,8 +109,8 @@ void executeMovement(Player *player, Wall *walls, int wallcount) {
         new_vel = VECINIT;
     }
     vectorAdd(old_pos, new_vel, &res);
-
-    for (int i = 0; i < wallcount; i++) {
+    int i = 0;
+    while (i < wallcount) {
         if (intersect(old_pos, res, walls[i].start, walls[i].stop)) {
             Vec2 pos_res = VECINIT;
             Vec2 wall_res = VECINIT;
@@ -123,6 +123,10 @@ void executeMovement(Player *player, Wall *walls, int wallcount) {
             vectorScale(wall_res, k, &new_pos);
             vectorSub(old_pos, new_pos, &res);
             i = 0;
+        }
+        else 
+        {
+            i += 1;
         }
     }
 
