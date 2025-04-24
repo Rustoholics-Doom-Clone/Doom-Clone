@@ -15,6 +15,8 @@ typedef struct
 #ifndef ENEMY
 #define ENEMY
 
+#define CLAMP(x, lower, upper) ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)))
+
 typedef enum Visibility
 {
     VISIBLE,
