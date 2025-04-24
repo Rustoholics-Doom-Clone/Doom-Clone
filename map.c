@@ -162,7 +162,7 @@ Map *loadMap(char *filename)
         return NULL;
     }
 
-    char buffer[50];
+    char buffer[128];
     if (!fgets(buffer, sizeof(buffer), mfile))
     {
         printf("Could not read format of file");
@@ -185,9 +185,17 @@ Map *loadMap(char *filename)
     }
     // Enemies here. TODO!
     result->enemies = NULL;
-
     for (int i = 0; i < nwalls && fgets(buffer, sizeof(buffer), mfile); i++)
-        sscanf(buffer, "%f,%f,%f,%f", &result->walls[i].start.x, &result->walls[i].start.y, &result->walls[i].stop.x, &result->walls[i].stop.y);
+    {
+        char textbuff[64];
+
+        sscanf(buffer, "%f,%f,%f,%f,%63s", &result->walls[i].start.x, &result->walls[i].start.y, &result->walls[i].stop.x, &result->walls[i].stop.y, textbuff);
+        result->walls[i].texture = LoadTexture(textbuff);
+        if (result->walls[i].texture.id == 0)
+        {
+            printf("Failed to load texture %s \n", textbuff);
+        }
+    }
 
     fclose(mfile);
     return result;
