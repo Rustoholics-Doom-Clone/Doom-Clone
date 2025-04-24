@@ -27,7 +27,8 @@ void wishMoveRight(Player *player) {
 void wishMoveLeft(Player *player) {
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
-    rotate(&v1, -PI/2);
+    rotate(&v1, PI/2);
+    vectorScale(v1, -1, &v1);
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -35,7 +36,7 @@ void wishMoveLeft(Player *player) {
 void wishMoveBack(Player *player) {
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
-    rotate(&v1, PI);
+    vectorScale(v1, -1, &v1);
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -82,6 +83,13 @@ bool intersect(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2) {
     if (o3 == 0 && onSegment(p2, p1, q2)) return true; 
     if (o4 == 0 && onSegment(p2, q1, q2)) return true; 
 
+    return false;
+}
+
+bool vecCompare(Vec2 v1, Vec2 v2) {
+    if (v1.x == v2.x && v1.y == v2.y) {
+        return true;
+    }
     return false;
 }
 
