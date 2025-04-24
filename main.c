@@ -4,6 +4,7 @@
 #include "map.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -76,8 +77,26 @@ void draw3DView(CollisionData **hits, int rayCount)
     }
 }
 
+int compareEnemyDistance(const void *a, const void *b)
+{
+
+    CollisionData *f1 = *(CollisionData **)a;
+    CollisionData *f2 = *(CollisionData **)b;
+    if (!f1 || !f2)
+        return -1;
+
+    float cmp = f1->d - f2->d;
+    if (cmp == 0.0)
+        return 0;
+    if (cmp < 0.0)
+        return 1;
+    return -1;
+}
+
 void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
 {
+    qsort(enemyColl, enemyCount, sizeof(CollisionData *), compareEnemyDistance);
+
     Vec2 plane = {
         -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
         p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
