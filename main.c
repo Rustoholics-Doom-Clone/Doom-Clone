@@ -70,7 +70,7 @@ void draw3DView(CollisionData **hits, int rayCount)
             brightness = 255;
 
         Color wallColor = (Color){brightness, brightness, brightness, 255};
-        DrawRectangle(i, (SCREEN_HEIGHT / 2) - (wallHeight / 2), 1, wallHeight, wallColor);
+        DrawRectangle(i*SCREEN_WIDTH/rayCount, (SCREEN_HEIGHT / 2) - (wallHeight / 2), SCREEN_WIDTH/rayCount, wallHeight, wallColor);
     }
 }
 
@@ -86,7 +86,31 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        rotateRight(&player);
+        if(IsKeyDown('W')) {
+            moveForward(&player);
+        }
+
+        if(IsKeyDown('A')) {
+            moveLeft(&player);
+        }
+
+        if(isKeyDown('S')) {
+            moveBack(&player);
+        }
+
+        if(IsKeyDown('D')) {
+            moveRight(&player);
+        }
+
+        if(IsKeyDown(KEY_RIGHT)) {
+            rotateRight(&player);
+        }
+
+        if(IsKeyDown(KEY_LEFT)) {
+            rotateLeft(&player);
+        }
+
+
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, wallCount, walls, NUM_RAYS);
 
         BeginDrawing();
