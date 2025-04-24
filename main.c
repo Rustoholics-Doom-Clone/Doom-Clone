@@ -150,15 +150,15 @@ int main(void)
         rotateRight(&player);
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
-        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, 2);
+        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
         draw3DView(hits, NUM_RAYS);
-        drawEnemies(player, enemyData, 2);
+        drawEnemies(player, enemyData, mp->enemyCount);
 
-        updateEnemies(mp->enemies, 2, player, 60, FOV, mp);
+        updateEnemies(mp->enemies, mp->enemyCount, player, 60, FOV, mp);
 
         char buffer[64];
 
