@@ -150,32 +150,41 @@ int main(void)
 
     */
 
-    Enemy test;
-    test.visibility = VISIBLE;
-    test.status = ALIVE;
-    test.hp = 1;
-    test.pos = (Vec2){80.0, 80.0};
-    test.velocity = VECINIT;
-    test.maxSpeed = 30.0;
-    test.acceleration = 10.0;
-    test.sprite = LoadTexture("Sprites/D-Chopp-var.png");
+    Enemy tests[2];
+    tests[0].visibility = VISIBLE;
+    tests[0].status = ALIVE;
+    tests[0].hp = 1;
+    tests[0].pos = (Vec2){80.0, 80.0};
+    tests[0].velocity = VECINIT;
+    tests[0].maxSpeed = 30.0;
+    tests[0].acceleration = 10.0;
+    tests[0].sprite = LoadTexture("Sprites/D-Chopp-var.png");
+
+    tests[1].visibility = VISIBLE;
+    tests[1].status = ALIVE;
+    tests[1].hp = 1;
+    tests[1].pos = (Vec2){-80.0, -80.0};
+    tests[1].velocity = VECINIT;
+    tests[1].maxSpeed = 30.0;
+    tests[1].acceleration = 10.0;
+    tests[1].sprite = LoadTexture("Sprites/D-Chopp-var.png");
 
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
-        // rotateRight(&player);
+        rotateRight(&player);
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
-        CollisionData **enemyData = rayShotEnemies(player.pos, player.dir, FOV, mp->walls, mp->numOfWalls, &test, 1);
+        CollisionData **enemyData = rayShotEnemies(player.pos, player.dir, FOV, mp->walls, mp->numOfWalls, tests, 2);
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
         draw3DView(hits, NUM_RAYS);
-        drawEnemies(player.pos, player.dir, enemyData, 1);
+        drawEnemies(player.pos, player.dir, enemyData, 2);
 
-        updateEnemy(&test, player.pos, player.dir, &player.hp, 60, FOV, mp->walls, mp->numOfWalls);
+        updateEnemies(tests, 2, player.pos, player.dir, &player.hp, 60, FOV, mp->walls, mp->numOfWalls);
 
         char buffer[64];
 
