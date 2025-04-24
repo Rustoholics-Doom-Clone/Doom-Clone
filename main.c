@@ -143,33 +143,7 @@ int main(void)
     player.dir = (Vec2){1.0, 1.0};
     normalize(&player.dir);
 
-    /*
-    Wall walls[MAX_WALLS];
-    int wallCount = buildWallsFromMap(walls, MAX_WALLS);
-
-
-    */
-    /*
-    Enemy tests[2];
-    tests[0].visibility = VISIBLE;
-    tests[0].status = ALIVE;
-    tests[0].hp = 1;
-    tests[0].pos = (Vec2){80.0, 80.0};
-    tests[0].velocity = VECINIT;
-    tests[0].maxSpeed = 30.0;
-    tests[0].acceleration = 10.0;
-    tests[0].sprite = LoadTexture("Sprites/D-Chopp-var.png");
-
-    tests[1].visibility = VISIBLE;
-    tests[1].status = ALIVE;
-    tests[1].hp = 1;
-    tests[1].pos = (Vec2){-80.0, -80.0};
-    tests[1].velocity = VECINIT;
-    tests[1].maxSpeed = 50.0;
-    tests[1].acceleration = 15.0;
-    tests[1].sprite = LoadTexture("Sprites/D-Chopp-var.png");*/
-
-    Map *mp = loadMap("newfunktest.csv");
+    Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
