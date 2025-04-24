@@ -1,7 +1,4 @@
-#ifndef PICONST
-#define PICONST
-#endif
-
+#include "raylib.h"
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
@@ -12,6 +9,7 @@ typedef struct
 } Vec2;
 
 #define DEG_TO_RAD(deg) ((deg) * (PI / 180.0))
+#define RAD_TO_DEG(rad) ((rad) * (180.0 / PI))
 
 #define VECINIT (Vec2){0.0, 0.0}
 
@@ -40,6 +38,7 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 typedef struct
 {
     Vec2 start, stop; // Both ends of the wall
+    Texture2D texture;
 } Wall;
 
 #endif
@@ -52,13 +51,13 @@ typedef struct
     Vec2 position; // where the collision happened
     float d;       // how far away it happened
     float angle;   // used when firing multiple rays to determine the angle from the source.
+    Texture2D texture;
 } CollisionData;
 
 typedef struct
 {
-    Vec2 start, dir; 
+    Vec2 start, dir;
 } Ray3D;
-
 
 // Returns info on if and where a ray hits a wall. NULL == Doesn't hit, Remember to free the result
 CollisionData *checkCollision(Wall w1, Ray3D r1);
