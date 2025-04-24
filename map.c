@@ -135,6 +135,8 @@ int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int
     return 1;
 }
 
+int addEnemy(FILE *map, Vec2 pos, int id, float acceleration, float maxSpeed, const char *sprite) {}
+
 int saveMap(int numOfWalls, Wall *walls, char *filename)
 {
     FILE *mfile = fopen(filename, "w");
