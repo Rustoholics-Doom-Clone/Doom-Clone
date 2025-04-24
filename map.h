@@ -1,5 +1,6 @@
 #include "raycast.h"
 #include "movement.h"
+#include <stdio.h>
 
 #ifndef WALLSTRUCT
 #define WALLSTRUCT
@@ -65,6 +66,10 @@ typedef struct Map
     int enemyCount;
     Enemy *enemies;
 } Map;
+
+FILE *newMap(const char *filename);
+
+int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int closed);
 
 // saves an array of walls as a map.
 int saveMap(int numOfWalls, Wall *walls, char *filename);

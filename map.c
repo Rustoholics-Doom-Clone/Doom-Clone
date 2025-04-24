@@ -115,6 +115,26 @@ void updateEnemies(Enemy *Queue, int qSize, Player p1, int targetFPS, float fov,
     currentIndex = (currentIndex + 1) % qSize;
 }
 
+FILE *newMap(const char *filename)
+{
+    return fopen(filename, "w");
+}
+
+int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int closed)
+{
+    if (!map)
+        return 0;
+    for (int i = 0; i < (cornercount - 1); i++)
+    {
+        fprintf(map, "%f,%f,%f,%f,%s\n", corners[i].x, corners[i].y, corners[i + 1].x, corners[i + 1].y, texture);
+    }
+    if (closed)
+    {
+        fprintf(map, "%f,%f,%f,%f,%s\n", corners[cornercount - 1].x, corners[cornercount - 1].y, corners[0].x, corners[0].y, texture);
+    }
+    return 1;
+}
+
 int saveMap(int numOfWalls, Wall *walls, char *filename)
 {
     FILE *mfile = fopen(filename, "w");
