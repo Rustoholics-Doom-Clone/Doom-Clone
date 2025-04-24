@@ -71,6 +71,7 @@ CollisionData *checkCollision(Wall w1, Ray3D r1)
     CollisionData *data = malloc(sizeof(CollisionData));
     data->d = result.x;
     data->angle = NAN;
+    data->texture = w1.texture;
 
     Vec2 temp = VECINIT;
     vectorScale(r1.dir, result.x, &temp);
@@ -85,7 +86,7 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
 
     if (det == 0.0f)
     {
-        printf("Parallel or singular system\n");
+        // printf("Parallel or singular system\n");
         return 0;
     }
 
@@ -128,7 +129,8 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
                     *result[i] = *temp;
             }
         }
-        result[i]->angle = start + i * step;
+        if (result[i])
+            result[i]->angle = start + i * step;
         rotate(&camdir, DEG_TO_RAD(step));
     }
     rotate(&camdir, DEG_TO_RAD(start));
