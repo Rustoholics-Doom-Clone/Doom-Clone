@@ -33,39 +33,40 @@ int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
 
 CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, int ec)
 {
-    CollisionData **result = malloc(sizeof(CollisionData *) * ec);
+    CollisionData **result = malloc(sizeof(CollisionData *) * ec); // allocate memory for the data
 
     for (int i = 0; i < ec; i++)
     {
         result[i] = NULL;
-        if (!inFieldOfView(p1.pos, p1.dir, fov, enemies[i]) || (enemies[i].visibility == INVISIBLE) || (enemies[i].status == DEAD)) // checks if enemy is outside of fov
+        if (!inFieldOfView(p1.pos, p1.dir, fov, enemies[i]) || (enemies[i].visibility == INVISIBLE) || (enemies[i].status == DEAD)) // checks if enemy is outside of fov or dead or invisible
             continue;
 
+        // make a normalized vector pointing towards the enemy from the player
         Vec2 diffvec;
         vectorSub(enemies[i].pos, p1.pos, &diffvec);
         float diff = vectorLenght(diffvec);
         normalize(&diffvec);
 
-        int fl = 1;
+        int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
         for (int j = 0; j < mp->numOfWalls; j++)
         {
             CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
             // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
-            if (temp && temp->d < diff)
+            if (temp && temp->d < diff) // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
             {
-                fl = 0;
-                break;
+                fl = 0; // flag is false
+                break;  // break loop early
             }
         }
-        if (!fl)
-            continue;
+        if (!fl)      // if flag is false
+            continue; // check next enemy
 
-        result[i] = malloc(sizeof(CollisionData));
+        result[i] = malloc(sizeof(CollisionData)); // allocate memory for this collision
 
         result[i]->d = diff;
         result[i]->position = enemies[i].pos;
         // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
-        result[i]->angle = vectorDot(p1.dir, diffvec);
+        result[i]->angle = vectorDot(p1.dir, diffvec); // well be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
         result[i]->texture = enemies[i].sprite;
     }
     return result;
@@ -97,7 +98,7 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
 void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp)
 {
 
-    if (foe->hp <= 0)
+    if (foe->hp <= 0) // Check if enemy is or should be dead
         foe->status = DEAD;
     if (foe->status == DEAD)
         return;
@@ -105,39 +106,39 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
     Vec2 dir;
     vectorSub(p1.pos, foe->pos, &dir);
 
-    if (vectorLenght(dir) <= foe->attackRadius)
+    if (vectorLenght(dir) <= foe->attackRadius) // If player is withing attackRadius
     {
-        foe->velocity = VECINIT;
-        *playerHealth -= 1;
-        return;
+        foe->velocity = VECINIT; // Stop!
+        *playerHealth -= 1;      // Lower player health
+        return;                  // early return
     }
 
-    CollisionData **seePLayer = rayShotEnemies(p1, fov, mp, foe, 1);
+    CollisionData **seePLayer = rayShotEnemies(p1, fov, mp, foe, 1); // shoots a ray at the player to see if there is line of sight.
 
     switch (seePLayer[0] == NULL)
     {
-    case 0:
+    case 0: // If there is line of sight
 
         normalize(&dir);
-        foe->dir = dir;
-        moveEnemy(foe, foe->dir, targetFPS);
+        foe->dir = dir;                      // Turn toward player
+        moveEnemy(foe, foe->dir, targetFPS); // Walk forward
         break;
 
-    case 1:
-        int choice = rand() % 4;
+    case 1:                      // No line of sight
+        int choice = rand() % 4; // Roll the dice
         switch (choice)
         {
         case 0:
-            moveEnemy(foe, foe->dir, targetFPS);
+            moveEnemy(foe, foe->dir, targetFPS); // Move forward
             break;
         case 1:
-            moveEnemy(foe, foe->dir, targetFPS);
+            moveEnemy(foe, foe->dir, targetFPS); // Move forward
             break;
         case 2:
-            rotate(&foe->dir, DEG_TO_RAD(10.0));
+            rotate(&foe->dir, DEG_TO_RAD(10.0)); // turn left
             break;
         case 3:
-            rotate(&foe->dir, DEG_TO_RAD(-10.0));
+            rotate(&foe->dir, DEG_TO_RAD(-10.0)); // turn right
             break;
         default:
             break;
@@ -150,13 +151,13 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
 
 void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp)
 {
-    static int currentIndex = 0;
+    static int currentIndex = 0; // Index is saved between calls
 
-    if (qSize == 0)
+    if (qSize == 0) // if no enemies return
         return;
 
-    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp);
-    currentIndex = (currentIndex + 1) % qSize;
+    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp); // update the enemy at index
+    currentIndex = (currentIndex + 1) % qSize;                           // move index
 }
 
 FILE *newMap(const char *filename)
@@ -166,29 +167,29 @@ FILE *newMap(const char *filename)
 
 int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int closed)
 {
-    if (!map)
-        return 0;
-    for (int i = 0; i < (cornercount - 1); i++)
+    if (!map)                                   // if the file isn't opened properly
+        return 0;                               // Fail
+    for (int i = 0; i < (cornercount - 1); i++) // Move through all corners in order and create walls as you go along
     {
         fprintf(map, "%f,%f,%f,%f,%s\n", corners[i].x, corners[i].y, corners[i + 1].x, corners[i + 1].y, texture);
     }
-    if (closed)
+    if (closed) // if the shape is closed make a wall between the start and end
     {
         fprintf(map, "%f,%f,%f,%f,%s\n", corners[cornercount - 1].x, corners[cornercount - 1].y, corners[0].x, corners[0].y, texture);
     }
-    return 1;
+    return 1; // Success
 }
 
 int addEnemy(FILE *map, Vec2 pos, int id, float acceleration, float maxSpeed, const char *sprite)
 {
 
-    if (!map)
-        return 0;
-    fprintf(map, "%f,%f,%d,%f,%f,%s\n", pos.x, pos.y, id, acceleration, maxSpeed, sprite);
-    return 1;
+    if (!map)                                                                              // if the file isn't opened properly
+        return 0;                                                                          // Fail
+    fprintf(map, "%f,%f,%d,%f,%f,%s\n", pos.x, pos.y, id, acceleration, maxSpeed, sprite); // write enemy properties to file
+    return 1;                                                                              // success
 }
 
-int saveMap(int numOfWalls, Wall *walls, char *filename)
+int saveMap(int numOfWalls, Wall *walls, char *filename) // kindof redundant right now. Don't use
 {
     FILE *mfile = fopen(filename, "w");
     if (!mfile)
@@ -202,12 +203,14 @@ int saveMap(int numOfWalls, Wall *walls, char *filename)
 
 Map *loadMap(char *filename)
 {
+    // Opening file
     FILE *mfile = fopen(filename, "r");
     if (!mfile)
     {
         printf("Could not open file");
         return NULL;
     }
+    // Allocating memory
     Map *result = malloc(sizeof(Map));
     if (!result)
     {
@@ -216,6 +219,7 @@ Map *loadMap(char *filename)
     }
 
     char buffer[128];
+    // Read the format line of the file. I.E the first line
     if (!fgets(buffer, sizeof(buffer), mfile))
     {
         printf("Could not read format of file");
@@ -224,11 +228,11 @@ Map *loadMap(char *filename)
         return NULL;
     }
     int nwalls, nenemy;
-    sscanf(buffer, "%d,%d", &nwalls, &nenemy);
+    sscanf(buffer, "%d,%d", &nwalls, &nenemy); // decipher the format
     result->numOfWalls = nwalls;
     result->enemyCount = nenemy;
 
-    result->walls = malloc(sizeof(Wall) * nwalls);
+    result->walls = malloc(sizeof(Wall) * nwalls); // Allocate memory for walls according to format
     if (!result->walls)
     {
         printf("Malloc error");
@@ -238,7 +242,7 @@ Map *loadMap(char *filename)
     }
     if (nenemy)
     {
-        result->enemies = malloc(sizeof(Enemy) * nenemy);
+        result->enemies = malloc(sizeof(Enemy) * nenemy); // Allocate memory for enemies according to format
         if (!result->enemies)
         {
             printf("Malloc error");
@@ -252,7 +256,7 @@ Map *loadMap(char *filename)
     {
         result->enemies = NULL;
     }
-
+    // read the first lines as walls. Loads coordinates and textures
     for (int i = 0; i < nwalls && fgets(buffer, sizeof(buffer), mfile); i++)
     {
         char textbuff[64];
@@ -264,6 +268,7 @@ Map *loadMap(char *filename)
             printf("Failed to load texture %s \n", textbuff);
         }
     }
+    // Read the remaining lines as enemies. Loads attributes and sets som default attributes and also loads sprite.
     for (int i = 0; i < nenemy && fgets(buffer, sizeof(buffer), mfile) && nenemy; i++)
     {
         char textbuff[64];
@@ -282,12 +287,13 @@ Map *loadMap(char *filename)
         result->enemies[i].visibility = VISIBLE;
     }
 
-    fclose(mfile);
-    return result;
+    fclose(mfile); // close file
+    return result; // return map
 }
 
 void freeMap(Map *m)
 {
+    // If memory allocated -> free memory allocated.
     if (m->walls)
         free(m->walls);
     if (m->enemies)
