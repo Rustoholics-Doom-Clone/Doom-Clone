@@ -135,7 +135,14 @@ int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int
     return 1;
 }
 
-int addEnemy(FILE *map, Vec2 pos, int id, float acceleration, float maxSpeed, const char *sprite) {}
+int addEnemy(FILE *map, Vec2 pos, int id, float acceleration, float maxSpeed, const char *sprite)
+{
+
+    if (!map)
+        return 0;
+    fprintf(map, "%f,%f,%d,%f,%f,%s\n", pos.x, pos.y, id, acceleration, maxSpeed, sprite);
+    return 1;
+}
 
 int saveMap(int numOfWalls, Wall *walls, char *filename)
 {
@@ -185,8 +192,23 @@ Map *loadMap(char *filename)
         free(result);
         return NULL;
     }
-    // Enemies here. TODO!
-    result->enemies = NULL;
+    if (nenemy)
+    {
+        result->enemies = malloc(sizeof(Enemy) * nenemy);
+        if (!result->enemies)
+        {
+            printf("Malloc error");
+            fclose(mfile);
+            free(result->walls);
+            free(result);
+            return NULL;
+        }
+    }
+    else
+    {
+        result->enemies = NULL;
+    }
+
     for (int i = 0; i < nwalls && fgets(buffer, sizeof(buffer), mfile); i++)
     {
         char textbuff[64];
@@ -197,6 +219,23 @@ Map *loadMap(char *filename)
         {
             printf("Failed to load texture %s \n", textbuff);
         }
+    }
+    for (int i = 0; i < nenemy && fgets(buffer, sizeof(buffer), mfile) && nenemy; i++)
+    {
+        char textbuff[64];
+        sscanf(buffer, "%f,%f,%d,%f,%f,%63s", &result->enemies[i].pos.x, &result->enemies[i].pos.y, &result->enemies[i].id, &result->enemies[i].acceleration, &result->enemies[i].maxSpeed, textbuff);
+        result->enemies[i].sprite = LoadTexture(textbuff);
+        if (result->enemies[i].sprite.id == 0)
+        {
+            printf("Failed to load texture %s \n", textbuff);
+        }
+        result->enemies[i].attackRadius = 50.0f;
+        result->enemies[i].dir = (Vec2){1.0, 0.0};
+        result->enemies[i].hitRadius = 50.0f;
+        result->enemies[i].hp = 100;
+        result->enemies[i].status = ALIVE;
+        result->enemies[i].velocity = VECINIT;
+        result->enemies[i].visibility = VISIBLE;
     }
 
     fclose(mfile);
