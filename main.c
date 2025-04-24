@@ -161,15 +161,12 @@ int main(void)
     srand(time(NULL));
 
     Player player = PLAYERINIT;
-    player.pos = (Vec2){0.0, 0.0};
-    player.dir = (Vec2){1.0, 1.0};
-    normalize(&player.dir);
+
 
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
-
         if (IsKeyDown(KEY_RIGHT))
         {
             rotateRight(&player);
@@ -203,6 +200,7 @@ int main(void)
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
+
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
