@@ -66,15 +66,28 @@ void draw3DView(CollisionData **hits, int rayCount)
         float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));  // Correct fisheye effect
         float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
 
-        float brightness = 255 - (dist * 0.5f);
-        if (brightness < 0)
-            brightness = 0;
-        if (brightness > 255)
-            brightness = 255;
+        Texture2D texture = hits[i]->texture;
 
-        Color wallColor = (Color){brightness, brightness, brightness, 255};
+        float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
 
-        DrawRectangle(i * SCREEN_WIDTH / NUM_RAYS, (SCREEN_HEIGHT / 2) - (wallHeight / 2), SCREEN_WIDTH / NUM_RAYS, wallHeight, wallColor);
+        // Source rectangle: a vertical slice of the wall texture
+        Rectangle source = {
+            texture.width, // X position in texture
+            0,
+            10, // how many px wide
+            (float)texture.height
+        };
+
+        // Destination rectangle: the scaled vertical slice on screen
+        Rectangle destination = {
+            i * sliceWidth, // X on screen
+            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f),
+            sliceWidth,     // stretches pixels in source retangel to slicewith
+            wallHeight
+        };
+
+        DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
+
     }
 }
 
