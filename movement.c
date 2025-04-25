@@ -6,7 +6,6 @@
 
 /*TODO: 
 Add rotation by mouse (?)
-Add acceleration based movement (?)
 */
 
 void wishMoveForward(Player *player) {
@@ -27,7 +26,8 @@ void wishMoveRight(Player *player) {
 void wishMoveLeft(Player *player) {
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
-    rotate(&v1, -PI/2);
+    rotate(&v1, PI/2);
+    vectorScale(v1, -1, &v1);
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -35,7 +35,7 @@ void wishMoveLeft(Player *player) {
 void wishMoveBack(Player *player) {
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
-    rotate(&v1, PI);
+    vectorScale(v1, -1, &v1);
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -85,6 +85,12 @@ bool intersect(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2) {
     return false;
 }
 
+bool vecCompare(Vec2 v1, Vec2 v2) {
+    if (v1.x == v2.x && v1.y == v2.y) {
+        return true;
+    }
+    return false;
+}
 void executeMovement(Player *player, Wall *walls, int wallcount) {
     Vec2 old_vel = player->vel;
     Vec2 old_pos = player->pos;
@@ -102,8 +108,8 @@ void executeMovement(Player *player, Wall *walls, int wallcount) {
         new_vel = VECINIT;
     }
     vectorAdd(old_pos, new_vel, &res);
-
-    for (int i = 0; i < wallcount; i++) {
+    int i = 0;
+    while (i < wallcount) {
         if (intersect(old_pos, res, walls[i].start, walls[i].stop)) {
             Vec2 pos_res = VECINIT;
             Vec2 wall_res = VECINIT;
@@ -114,8 +120,16 @@ void executeMovement(Player *player, Wall *walls, int wallcount) {
             float len = vectorLenght(wall_res);
             float k = dot/(len*len);
             vectorScale(wall_res, k, &new_pos);
+            if (vectorLenght(new_pos) < 0.5) {
+                res = old_pos;
+                break;
+            }
             vectorSub(old_pos, new_pos, &res);
             i = 0;
+        }
+        else 
+        {
+            i += 1;
         }
     }
 
