@@ -140,9 +140,6 @@ int main(void)
     SetTargetFPS(60);
 
     Player player = PLAYERINIT;
-    player.pos = (Vec2){0.0, 0.0};
-    player.dir = (Vec2){1.0, 1.0};
-    normalize(&player.dir);
 
     Map *mp = loadMap("testmap1.csv");
 
