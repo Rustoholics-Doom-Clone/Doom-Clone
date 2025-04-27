@@ -128,7 +128,8 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        if (player.shoot_cd > 0) {
+        if (player.shoot_cd > 0)
+        {
             player.shoot_cd--;
         }
 
@@ -162,10 +163,11 @@ int main(void)
         }
 
         if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0)
-        {    
-            for (int i = 0; i < mp->enemyCount; i++) {
+        {
+            for (int i = 0; i < mp->enemyCount; i++)
+            {
                 shootEnemies(&player, mp->enemies, mp->enemyCount, mp->walls, mp->numOfWalls);
-            } 
+            }
             player.shoot_cd = SHOOTDELAY;
             player.ammo--;
         }
@@ -183,7 +185,6 @@ int main(void)
         draw3DView(hits, NUM_RAYS);
         drawEnemies(player, enemyData, mp->enemyCount);
 
-
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
         drawEnemies(player, enemyData, mp->enemyCount);
 
@@ -192,6 +193,9 @@ int main(void)
         char buffer[64];
         sprintf(buffer, "HP: %d", player.hp);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
+
+        sprintf(buffer, "+");
+        DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
 
         sprintf(buffer, "AMMO: %d", player.ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
