@@ -123,6 +123,7 @@ int main(void)
 
     Player player = PLAYERINIT;
 
+
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
@@ -177,6 +178,7 @@ int main(void)
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
 
+
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
@@ -197,6 +199,7 @@ int main(void)
 
         sprintf(buffer, "AMMO: %d", player.ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+
 
         EndDrawing();
 
