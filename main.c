@@ -123,10 +123,15 @@ int main(void)
 
     Player player = PLAYERINIT;
 
+
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
+        if (player.shoot_cd > 0) {
+            player.shoot_cd--;
+        }
+
         if (IsKeyDown(KEY_RIGHT))
         {
             rotateRight(&player);
@@ -155,11 +160,22 @@ int main(void)
         {
             wishMoveRight(&player);
         }
+
+        if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0)
+        {    
+            for (int i = 0; i < mp->enemyCount; i++) {
+                shootEnemies(&player, mp->enemies, mp->enemyCount, mp->walls, mp->numOfWalls);
+            } 
+            player.shoot_cd = SHOOTDELAY;
+            player.ammo--;
+        }
+
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
+
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
@@ -179,6 +195,7 @@ int main(void)
 
         sprintf(buffer, "AMMO: %d", player.ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+
 
         EndDrawing();
 
