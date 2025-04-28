@@ -77,6 +77,21 @@ CollisionData *checkCollision(Wall w1, Ray3D r1)
     vectorScale(r1.dir, result.x, &temp);
     vectorAdd(r1.start, temp, &data->position);
 
+    Vec2 wallVec;
+    vectorSub(w1.stop, w1.start, &wallVec);
+    float wallLength = vectorLenght(wallVec);
+
+    Vec2 hitVec;
+    vectorSub(data->position, w1.start, &hitVec);
+
+    float hitDist = vectorDot(hitVec, wallVec) / wallLength;
+
+    float textureOffset = hitDist / wallLength;
+
+
+    data->textureOffset = textureOffset;
+
+
     return data;
 }
 int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)

@@ -2,6 +2,7 @@
     "files.associations": {
         "raylib.h": "c",
         "algorithm": "c",
-        "format": "c"
+        "format": "c",
+        "movement.h": "c"
     }
 }
