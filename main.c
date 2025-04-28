@@ -64,11 +64,20 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         float dist = hits[i]->d;
         float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));  // Correct fisheye effect
-        float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
+        float wallHeight = ((TILE_SIZE * SCREEN_HEIGHT) / corrected); // Wall height based on screen size
 
         Texture2D texture = hits[i]->texture;
 
         float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
+
+        // --- Draw ceiling ---
+        DrawRectangle(
+            i * sliceWidth,               // X
+            0,                             // Y (top)
+            sliceWidth,                    // Width
+            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f), // Height up to start of wall
+            DARKGRAY                       // Color of ceiling
+        );
 
         float texX = hits[i]->textureOffset * texture.width;
         // Source rectangle: a vertical slice of the wall texture
@@ -89,6 +98,14 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
 
+        // --- Draw floor ---
+        DrawRectangle(
+            i * sliceWidth,                                      // X
+            (SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f),        // Y (bottom of wall)
+            sliceWidth,                                          // Width
+            SCREEN_HEIGHT - ((SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f)), // Height from wall bottom to screen bottom
+            DARKBROWN                                            // Color of floor
+        );
     }
 }
 
