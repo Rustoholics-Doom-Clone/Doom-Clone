@@ -213,7 +213,7 @@ int main(void)
             wishMoveRight(&player);
         }
 
-        if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0)
+        if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0 && player.ammo > 0)
         {
             for (int i = 0; i < mp->enemyCount; i++)
             {

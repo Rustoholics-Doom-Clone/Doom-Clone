@@ -38,7 +38,7 @@ typedef struct
     int shoot_cd;
 } Player;
 
-#define PLAYERINIT (Player){STARTPOS, (Vec2){1.0, 0.0}, VECINIT, VECINIT, MAXHP, MAXAMMO, 0}
+#define PLAYERINIT (Player){STARTPOS, (Vec2){0.0, 1.0}, VECINIT, VECINIT, MAXHP, MAXAMMO, 0}
 
 // move character forwards, requires current position and angle in radians
 void wishMoveForward(Player *player);

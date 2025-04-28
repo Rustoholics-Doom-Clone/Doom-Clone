@@ -112,9 +112,16 @@ float lenFromPointToLine(Vec2 vec, Line line)
 
 Line vecsToLine(Vec2 v1, Vec2 v2)
 {
-    Vec2 n = (Vec2){1.0, (v2.y - v1.y) / (v2.x - v1.x)};
-    Vec2 a = (Vec2){0, v1.y - n.y * v1.x};
-    normalize(&n);
+    Vec2 n = VECINIT;
+    Vec2 a = VECINIT;
+    if (v2.x - v1.x != 0.0) {
+        n = (Vec2){1.0, (v2.y - v1.y) / (v2.x - v1.x)};
+        a = (Vec2){0, v1.y - n.y * v1.x};
+        normalize(&n);
+    } else {
+        n = (Vec2){0.0, 1.0};
+        a = (Vec2){0.0, 0.0};
+    }
 
     return (Line){n, a};
 };
