@@ -200,7 +200,7 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
     }
     if (nbwall == wallcount)
     {
-        if (lenFromPointToLine(enemy->pos, vecsToLine(player->pos, player_look)) < 30)
+        if (lenFromPointToLine(enemy->pos, vecsToLine(player->pos, player_look)) < enemy->hitRadius)
         {
             int old_health = enemy->hp;
             enemy->hp = old_health - 35;
