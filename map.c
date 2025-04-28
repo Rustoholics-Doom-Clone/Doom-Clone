@@ -327,7 +327,7 @@ Map *loadMap(char *filename)
         result->enemies[i].status = ALIVE;
         result->enemies[i].visibility = VISIBLE;
         result->enemies[i].velocity = VECINIT;
-        result->enemies[i].dir = (Vec2){0.0, -1.0};
+        result->enemies[i].dir = (Vec2){0.0, 1.0};
         result->enemies[i].hitRadius = result->enemies[i].sprite.width / 2;
         result->enemies[i].acceleration *= nenemy;
         result->enemies[i].maxSpeed *= nenemy;
