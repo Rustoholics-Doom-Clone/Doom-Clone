@@ -29,6 +29,14 @@ typedef enum Status
     ALIVE
 } Status;
 
+typedef enum EnemyType
+{
+
+    MELEE,
+    MIDRANGE,
+    SNIPER
+} EnemyType;
+
 typedef struct Enemy
 {
     Status status;
@@ -40,6 +48,7 @@ typedef struct Enemy
     Vec2 dir;
     Vec2 velocity;
     int hp;
+    int dmg;
     int id;
     int baseCoolDown;
     int coolDown;
@@ -54,7 +63,7 @@ CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, in
 // Applies a force to an enemy in the dir direction.
 void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS);
 // Updates an enemy
-void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp);
+void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy);
 // Handles a the queue of enemies to be updated
 void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp);
 
@@ -75,7 +84,7 @@ FILE *newMap(const char *filename);
 // Adds a shape to the map file. Makes the shapes out of vertices.
 int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int closed);
 // Adds an enemy to the map file.
-int addEnemy(FILE *map, Vec2 pos, int id, float acceleration, float maxSpeed, const char *sprite);
+int addEnemy(FILE *map, Vec2 pos, int id, EnemyType type);
 // saves an array of walls as a map.
 int saveMap(int numOfWalls, Wall *walls, char *filename);
 // reads a map from a file.

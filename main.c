@@ -24,7 +24,7 @@ void draw3DView(CollisionData **hits, int rayCount)
             continue;
 
         float dist = hits[i]->d;
-        float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));  // Correct fisheye effect
+        float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));    // Correct fisheye effect
         float wallHeight = ((TILE_SIZE * SCREEN_HEIGHT) / corrected); // Wall height based on screen size
 
         Texture2D texture = hits[i]->texture;
@@ -33,11 +33,11 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         // --- Draw ceiling ---
         DrawRectangle(
-            i * sliceWidth,               // X
-            0,                             // Y (top)
-            sliceWidth,                    // Width
+            i * sliceWidth,                               // X
+            0,                                            // Y (top)
+            sliceWidth,                                   // Width
             (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f), // Height up to start of wall
-            DARKGRAY                       // Color of ceiling
+            DARKGRAY                                      // Color of ceiling
         );
 
         // --- Draw walls ---
@@ -47,28 +47,26 @@ void draw3DView(CollisionData **hits, int rayCount)
             texX,
             0,
             1,
-            (float)texture.height
-        };
+            (float)texture.height};
 
         // Destination rectangle: the scaled vertical slice on screen
         Rectangle destination = {
             i * sliceWidth, // X on screen
             (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f),
-            sliceWidth,     // stretches pixels in source retangel to slicewith
-            wallHeight
-        };
+            sliceWidth, // stretches pixels in source retangel to slicewith
+            wallHeight};
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw floor ---
         DrawRectangle(
-            i * sliceWidth,                                      // X
-            (SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f),        // Y (bottom of wall)
-            sliceWidth,                                          // Width
+            i * sliceWidth,                                                 // X
+            (SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f),                   // Y (bottom of wall)
+            sliceWidth,                                                     // Width
             SCREEN_HEIGHT - ((SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f)), // Height from wall bottom to screen bottom
-            DARKBROWN                                            // Color of floor
+            DARKBROWN                                                       // Color of floor
         );
-        
+
         // Failed atempt at texturing floor. Leaving for now to return to later. Currently butcher framerate
         /*Texture2D floorTexture = LoadTexture("Sprites/Tiles.png");
 
@@ -90,7 +88,6 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         // Draw a piece of floor texture stretched to fit
         DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);*/
-
     }
 }
 
@@ -178,7 +175,6 @@ int main(void)
 
     Player player = PLAYERINIT;
 
-
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
@@ -233,7 +229,6 @@ int main(void)
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
 
-
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
@@ -254,7 +249,6 @@ int main(void)
 
         sprintf(buffer, "AMMO: %d", player.ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
-
 
         EndDrawing();
 
