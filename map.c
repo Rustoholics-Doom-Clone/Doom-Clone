@@ -111,7 +111,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         foe->velocity = VECINIT; // Stop!
         if (foe->coolDown <= 0)
         {
-            *playerHealth -= 1; // Lower player health
+            *playerHealth -= 15; // Lower player health
             foe->coolDown = foe->baseCoolDown;
         }
         else
@@ -289,7 +289,7 @@ Map *loadMap(char *filename)
         }
         result->enemies[i].attackRadius = 50.0f;
         result->enemies[i].dir = (Vec2){1.0, 0.0};
-        result->enemies[i].hitRadius = 50.0f;
+        result->enemies[i].hitRadius = 100.0f;
         result->enemies[i].hp = 100;
         result->enemies[i].status = ALIVE;
         result->enemies[i].velocity = VECINIT;

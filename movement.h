@@ -1,12 +1,14 @@
 #include "raycast.h"
 #include "raylib.h"
 
+
 //how long a step should be
 #define STEP (Vec2){1.0, 0.0}
 #define MAXHP 100
 #define MAXAMMO 100
 #define STARTPOS (Vec2){0.0, 0.0}
 #define MAXSPEED 320
+#define SHOOTDELAY 30
 
 //How fast character rotates
 #define ROTSPEED PI/120
@@ -18,7 +20,13 @@
 #ifndef MOVEMENT_H
 #define MOVEMENT_H
 
+typedef struct
+{
+    Vec2 n;
+    Vec2 a;
+} Line;
 
+typedef struct Enemy Enemy;
 
 typedef struct
 {
@@ -28,9 +36,10 @@ typedef struct
     Vec2 wishDir;
     int hp;
     int ammo;
+    int shoot_cd;
 } Player;
 
-#define PLAYERINIT (Player){STARTPOS, (Vec2){1.0, 0.0}, VECINIT, VECINIT, MAXHP, MAXAMMO}
+#define PLAYERINIT (Player){STARTPOS, (Vec2){0.0, 1.0}, VECINIT, VECINIT, MAXHP, MAXAMMO, 0}
 
 
 
@@ -48,8 +57,8 @@ void rotateRight(Player *player);
 void rotateLeft(Player *player);
 //executes current movement in current wishDir
 void executeMovement(Player *player, Wall *walls, int wallCount);
-//Checks if there is collision between player and wall, and pushes away player if so
-void collideWithWall(Player *player, Wall wall);
+//Shoots an enemy if they are within line of sight and close enough to the crosshair
+void shootEnemy(Player *player, Enemy *Queue, Wall *walls, int wallcount);
 //Makes sure player health doesn't go over max health
 void healPlayer(Player *player, int heal);
 //Makes sure player ammo doesn't go over max ammo

@@ -52,6 +52,7 @@ typedef struct
     float d;       // how far away it happened
     float angle;   // used when firing multiple rays to determine the angle from the source.
     Texture2D texture;
+    float textureOffset;
 } CollisionData;
 
 typedef struct

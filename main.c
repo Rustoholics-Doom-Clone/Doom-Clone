@@ -16,45 +16,6 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-int map[MAP_HEIGHT][MAP_WIDTH] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-
-int buildWallsFromMap(Wall *walls, int maxWalls)
-{
-    int count = 0;
-    for (int y = 0; y < MAP_HEIGHT; y++)
-    {
-        for (int x = 0; x < MAP_WIDTH; x++)
-        {
-            if (map[y][x] == 1)
-            {
-                Vec2 tl = {x * TILE_SIZE, y * TILE_SIZE};
-                Vec2 tr = {(x + 1) * TILE_SIZE, y * TILE_SIZE};
-                Vec2 bl = {x * TILE_SIZE, (y + 1) * TILE_SIZE};
-                Vec2 br = {(x + 1) * TILE_SIZE, (y + 1) * TILE_SIZE};
-
-                if (count + 4 < maxWalls)
-                {
-                    walls[count++] = (Wall){tl, tr};
-                    walls[count++] = (Wall){tr, br};
-                    walls[count++] = (Wall){br, bl};
-                    walls[count++] = (Wall){bl, tl};
-                }
-            }
-        }
-    }
-    return count;
-}
-
 void draw3DView(CollisionData **hits, int rayCount)
 {
     for (int i = 0; i < rayCount; i++)
@@ -64,17 +25,72 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         float dist = hits[i]->d;
         float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));  // Correct fisheye effect
-        float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
+        float wallHeight = ((TILE_SIZE * SCREEN_HEIGHT) / corrected); // Wall height based on screen size
 
-        float brightness = 255 - (dist * 0.5f);
-        if (brightness < 0)
-            brightness = 0;
-        if (brightness > 255)
-            brightness = 255;
+        Texture2D texture = hits[i]->texture;
 
-        Color wallColor = (Color){brightness, brightness, brightness, 255};
+        float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
 
-        DrawRectangle(i * SCREEN_WIDTH / NUM_RAYS, (SCREEN_HEIGHT / 2) - (wallHeight / 2), SCREEN_WIDTH / NUM_RAYS, wallHeight, wallColor);
+        // --- Draw ceiling ---
+        DrawRectangle(
+            i * sliceWidth,               // X
+            0,                             // Y (top)
+            sliceWidth,                    // Width
+            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f), // Height up to start of wall
+            DARKGRAY                       // Color of ceiling
+        );
+
+        // --- Draw walls ---
+        float texX = hits[i]->textureOffset * texture.width;
+        // Source rectangle: a vertical slice of the wall texture
+        Rectangle source = {
+            texX,
+            0,
+            1,
+            (float)texture.height
+        };
+
+        // Destination rectangle: the scaled vertical slice on screen
+        Rectangle destination = {
+            i * sliceWidth, // X on screen
+            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f),
+            sliceWidth,     // stretches pixels in source retangel to slicewith
+            wallHeight
+        };
+
+        DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
+
+        // --- Draw floor ---
+        DrawRectangle(
+            i * sliceWidth,                                      // X
+            (SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f),        // Y (bottom of wall)
+            sliceWidth,                                          // Width
+            SCREEN_HEIGHT - ((SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f)), // Height from wall bottom to screen bottom
+            DARKBROWN                                            // Color of floor
+        );
+        
+        // Failed atempt at texturing floor. Leaving for now to return to later. Currently butcher framerate
+        /*Texture2D floorTexture = LoadTexture("Sprites/Tiles.png");
+
+        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
+        float wallBottom = wallTop + wallHeight;
+
+       // Compute floor rect
+        Rectangle srcFloor = {
+            0, 0,
+            floorTexture.width, floorTexture.height
+        };
+
+        Rectangle destFloor = {
+            i * sliceWidth,          // X position on screen
+            wallBottom,              // Y position (below wall)
+            sliceWidth,              // Width on screen (same as wall slice width)
+            SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
+        };
+
+        // Draw a piece of floor texture stretched to fit
+        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);*/
+
     }
 }
 
@@ -161,14 +177,16 @@ int main(void)
     srand(time(NULL));
 
     Player player = PLAYERINIT;
-    player.pos = (Vec2){0.0, 0.0};
-    player.dir = (Vec2){1.0, 1.0};
-    normalize(&player.dir);
+
 
     Map *mp = loadMap("testmap1.csv");
 
     while (!WindowShouldClose())
     {
+        if (player.shoot_cd > 0)
+        {
+            player.shoot_cd--;
+        }
 
         if (IsKeyDown(KEY_RIGHT))
         {
@@ -198,11 +216,23 @@ int main(void)
         {
             wishMoveRight(&player);
         }
+
+        if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0)
+        {
+            for (int i = 0; i < mp->enemyCount; i++)
+            {
+                shootEnemy(&player, mp->enemies + i, mp->walls, mp->numOfWalls);
+            }
+            player.shoot_cd = SHOOTDELAY;
+            player.ammo--;
+        }
+
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
+
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
@@ -219,8 +249,12 @@ int main(void)
         sprintf(buffer, "HP: %d", player.hp);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
 
+        sprintf(buffer, "+");
+        DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
+
         sprintf(buffer, "AMMO: %d", player.ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+
 
         EndDrawing();
 
