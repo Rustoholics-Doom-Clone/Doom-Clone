@@ -25,17 +25,72 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         float dist = hits[i]->d;
         float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));  // Correct fisheye effect
-        float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
+        float wallHeight = ((TILE_SIZE * SCREEN_HEIGHT) / corrected); // Wall height based on screen size
 
-        float brightness = 255 - (dist * 0.5f);
-        if (brightness < 0)
-            brightness = 0;
-        if (brightness > 255)
-            brightness = 255;
+        Texture2D texture = hits[i]->texture;
 
-        Color wallColor = (Color){brightness, brightness, brightness, 255};
+        float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
 
-        DrawRectangle(i * SCREEN_WIDTH / NUM_RAYS, (SCREEN_HEIGHT / 2) - (wallHeight / 2), SCREEN_WIDTH / NUM_RAYS, wallHeight, wallColor);
+        // --- Draw ceiling ---
+        DrawRectangle(
+            i * sliceWidth,               // X
+            0,                             // Y (top)
+            sliceWidth,                    // Width
+            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f), // Height up to start of wall
+            DARKGRAY                       // Color of ceiling
+        );
+
+        // --- Draw walls ---
+        float texX = hits[i]->textureOffset * texture.width;
+        // Source rectangle: a vertical slice of the wall texture
+        Rectangle source = {
+            texX,
+            0,
+            1,
+            (float)texture.height
+        };
+
+        // Destination rectangle: the scaled vertical slice on screen
+        Rectangle destination = {
+            i * sliceWidth, // X on screen
+            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f),
+            sliceWidth,     // stretches pixels in source retangel to slicewith
+            wallHeight
+        };
+
+        DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
+
+        // --- Draw floor ---
+        DrawRectangle(
+            i * sliceWidth,                                      // X
+            (SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f),        // Y (bottom of wall)
+            sliceWidth,                                          // Width
+            SCREEN_HEIGHT - ((SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f)), // Height from wall bottom to screen bottom
+            DARKBROWN                                            // Color of floor
+        );
+        
+        // Failed atempt at texturing floor. Leaving for now to return to later. Currently butcher framerate
+        /*Texture2D floorTexture = LoadTexture("Sprites/Tiles.png");
+
+        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
+        float wallBottom = wallTop + wallHeight;
+
+       // Compute floor rect
+        Rectangle srcFloor = {
+            0, 0,
+            floorTexture.width, floorTexture.height
+        };
+
+        Rectangle destFloor = {
+            i * sliceWidth,          // X position on screen
+            wallBottom,              // Y position (below wall)
+            sliceWidth,              // Width on screen (same as wall slice width)
+            SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
+        };
+
+        // Draw a piece of floor texture stretched to fit
+        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);*/
+
     }
 }
 
