@@ -183,14 +183,4 @@ void shootEnemy(Player *player, Enemy *enemy, Wall* walls, int wallcount) {
     }
 }
 
-void shootEnemies(Player *player, Enemy *Queue, int qSize, Wall *walls, int wallcount) {
-    static int currentIndex = 0;
-
-    if (qSize == 0) // if no enemies return
-        return;
-
-    shootEnemy(player ,Queue + currentIndex, walls, wallcount); // try to shoot the enemy at index
-    currentIndex = (currentIndex + 1) % qSize;  
-}
-
 
