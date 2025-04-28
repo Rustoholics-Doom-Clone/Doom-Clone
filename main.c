@@ -16,45 +16,6 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-int map[MAP_HEIGHT][MAP_WIDTH] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-
-int buildWallsFromMap(Wall *walls, int maxWalls)
-{
-    int count = 0;
-    for (int y = 0; y < MAP_HEIGHT; y++)
-    {
-        for (int x = 0; x < MAP_WIDTH; x++)
-        {
-            if (map[y][x] == 1)
-            {
-                Vec2 tl = {x * TILE_SIZE, y * TILE_SIZE};
-                Vec2 tr = {(x + 1) * TILE_SIZE, y * TILE_SIZE};
-                Vec2 bl = {x * TILE_SIZE, (y + 1) * TILE_SIZE};
-                Vec2 br = {(x + 1) * TILE_SIZE, (y + 1) * TILE_SIZE};
-
-                if (count + 4 < maxWalls)
-                {
-                    walls[count++] = (Wall){tl, tr};
-                    walls[count++] = (Wall){tr, br};
-                    walls[count++] = (Wall){br, bl};
-                    walls[count++] = (Wall){bl, tl};
-                }
-            }
-        }
-    }
-    return count;
-}
-
 void draw3DView(CollisionData **hits, int rayCount)
 {
     for (int i = 0; i < rayCount; i++)
@@ -222,6 +183,11 @@ int main(void)
 
     while (!WindowShouldClose())
     {
+        if (player.shoot_cd > 0)
+        {
+            player.shoot_cd--;
+        }
+
         if (IsKeyDown(KEY_RIGHT))
         {
             rotateRight(&player);
@@ -250,6 +216,17 @@ int main(void)
         {
             wishMoveRight(&player);
         }
+
+        if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0)
+        {
+            for (int i = 0; i < mp->enemyCount; i++)
+            {
+                shootEnemies(&player, mp->enemies, mp->enemyCount, mp->walls, mp->numOfWalls);
+            }
+            player.shoot_cd = SHOOTDELAY;
+            player.ammo--;
+        }
+
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
@@ -272,8 +249,12 @@ int main(void)
         sprintf(buffer, "HP: %d", player.hp);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
 
+        sprintf(buffer, "+");
+        DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
+
         sprintf(buffer, "AMMO: %d", player.ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+
 
         EndDrawing();
 

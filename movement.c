@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "movement.h"
-
+#include "map.h"
 
 
 /*TODO: 
@@ -85,13 +85,29 @@ bool intersect(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2) {
     return false;
 }
 
-bool vecCompare(Vec2 v1, Vec2 v2) {
-    if (v1.x == v2.x && v1.y == v2.y) {
-        return true;
-    }
-    return false;
-}
-void executeMovement(Player *player, Wall *walls, int wallcount) {
+float lenFromPointToLine(Vec2 vec, Line line) {
+    Vec2 ap = VECINIT;
+    vectorSub(line.a, vec, &ap);
+    float apn = vectorDot(ap, line.n);
+    Vec2 apnv = VECINIT;
+    vectorScale(line.n, apn, &apnv);
+    Vec2 dist = VECINIT;
+    vectorSub(ap, apnv, &dist);
+    float len = vectorLenght(dist);
+
+    return len;
+};
+
+Line vecsToLine(Vec2 v1, Vec2 v2) {
+    Vec2 n = (Vec2){1.0, (v2.y-v1.y) / (v2.x-v1.x)};
+    Vec2 a = (Vec2){0, v1.y - n.y * v1.x};
+    normalize(&n);
+ 
+    return (Line){n, a};
+};
+
+
+void executeMovement(Player *player, Wall* walls, int wallcount) {
     Vec2 old_vel = player->vel;
     Vec2 old_pos = player->pos;
     Vec2 wish_dir = player->wishDir;
@@ -146,6 +162,35 @@ void healPlayer(Player *player, int heal) {
 void addAmmo(Player *player, int ammo) {
     int old_ammo = player->ammo;
     player->ammo = MIN(MAXAMMO, old_ammo+ammo);
+}
+
+void shootEnemy(Player *player, Enemy *enemy, Wall* walls, int wallcount) {
+
+    Vec2 player_look = VECINIT;
+    vectorAdd(player->pos, player->dir, &player_look);
+
+    int nbwall = 0;
+    for (int j = 0; j < wallcount; j++) {
+        if (!intersect(player->pos, enemy->pos, walls[j].start, walls[j].stop)) {
+            nbwall++;
+        }
+    }
+    if (nbwall == wallcount) {
+        if(lenFromPointToLine(enemy->pos, vecsToLine(player->pos, player_look)) < 30) {
+            int old_health = enemy->hp;
+            enemy->hp = old_health-34;
+        }
+    }
+}
+
+void shootEnemies(Player *player, Enemy *Queue, int qSize, Wall *walls, int wallcount) {
+    static int currentIndex = 0;
+
+    if (qSize == 0) // if no enemies return
+        return;
+
+    shootEnemy(player ,Queue + currentIndex, walls, wallcount); // try to shoot the enemy at index
+    currentIndex = (currentIndex + 1) % qSize;  
 }
 
 
