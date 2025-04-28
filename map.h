@@ -29,6 +29,14 @@ typedef enum Status
     ALIVE
 } Status;
 
+typedef enum EnemyType
+{
+
+    MELEE,
+    MIDRANGE,
+    SNIPER
+} EnemyType;
+
 typedef struct Enemy
 {
     Status status;
