@@ -79,6 +79,7 @@ void draw3DView(CollisionData **hits, int rayCount)
             DARKGRAY                       // Color of ceiling
         );
 
+        // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
         // Source rectangle: a vertical slice of the wall texture
         Rectangle source = {
@@ -106,6 +107,29 @@ void draw3DView(CollisionData **hits, int rayCount)
             SCREEN_HEIGHT - ((SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f)), // Height from wall bottom to screen bottom
             DARKBROWN                                            // Color of floor
         );
+        
+        // Failed atempt at texturing floor. Leaving for now to return to later. Currently butcher framerate
+        /*Texture2D floorTexture = LoadTexture("Sprites/Tiles.png");
+
+        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
+        float wallBottom = wallTop + wallHeight;
+
+       // Compute floor rect
+        Rectangle srcFloor = {
+            0, 0,
+            floorTexture.width, floorTexture.height
+        };
+
+        Rectangle destFloor = {
+            i * sliceWidth,          // X position on screen
+            wallBottom,              // Y position (below wall)
+            sliceWidth,              // Width on screen (same as wall slice width)
+            SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
+        };
+
+        // Draw a piece of floor texture stretched to fit
+        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);*/
+
     }
 }
 
