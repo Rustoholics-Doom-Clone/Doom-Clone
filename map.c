@@ -95,7 +95,7 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
     vectorAdd(ds, foe->pos, &foe->pos);
 }
 
-void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp)
+void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy)
 {
 
     if (foe->hp <= 0) // Check if enemy is or should be dead
@@ -112,7 +112,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         if (foe->coolDown <= 0)
         {
             *playerHealth -= 15; // Lower player health
-            foe->coolDown = foe->baseCoolDown;
+            foe->coolDown = foe->baseCoolDown / numOfEnemy;
         }
         else
         {
@@ -165,8 +165,8 @@ void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov
     if (qSize == 0) // if no enemies return
         return;
 
-    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp); // update the enemy at index
-    currentIndex = (currentIndex + 1) % qSize;                           // move index
+    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize); // update the enemy at index
+    currentIndex = (currentIndex + 1) % qSize;                                  // move index
 }
 
 FILE *newMap(const char *filename)
@@ -287,6 +287,8 @@ Map *loadMap(char *filename)
         {
             printf("Failed to load texture %s \n", textbuff);
         }
+        result->enemies[i].acceleration *= nenemy;
+        result->enemies[i].maxSpeed *= nenemy;
         result->enemies[i].attackRadius = 50.0f;
         result->enemies[i].dir = (Vec2){1.0, 0.0};
         result->enemies[i].hitRadius = 100.0f;
