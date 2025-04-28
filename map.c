@@ -111,7 +111,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         foe->velocity = VECINIT; // Stop!
         if (foe->coolDown <= 0)
         {
-            *playerHealth -= 15; // Lower player health
+            *playerHealth -= foe->dmg; // Lower player health
             foe->coolDown = foe->baseCoolDown / numOfEnemy;
         }
         else
@@ -133,8 +133,8 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         moveEnemy(foe, foe->dir, targetFPS); // Walk forward
         break;
 
-    case 1:                      // No line of sight
-        int choice = rand() % 4; // Roll the dice
+    case 1:                       // No line of sight
+        int choice = rand() % 10; // Roll the dice
         switch (choice)
         {
         case 0:
@@ -189,13 +189,13 @@ int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int
     return 1; // Success
 }
 
-int addEnemy(FILE *map, Vec2 pos, int id, float acceleration, float maxSpeed, const char *sprite)
+int addEnemy(FILE *map, Vec2 pos, int id, EnemyType type)
 {
 
-    if (!map)                                                                              // if the file isn't opened properly
-        return 0;                                                                          // Fail
-    fprintf(map, "%f,%f,%d,%f,%f,%s\n", pos.x, pos.y, id, acceleration, maxSpeed, sprite); // write enemy properties to file
-    return 1;                                                                              // success
+    if (!map)                                              // if the file isn't opened properly
+        return 0;                                          // Fail
+    fprintf(map, "%f,%f,%d,%d\n", pos.x, pos.y, id, type); // write enemy properties to file
+    return 1;                                              // success
 }
 
 int saveMap(int numOfWalls, Wall *walls, char *filename) // kindof redundant right now. Don't use
@@ -280,24 +280,54 @@ Map *loadMap(char *filename)
     // Read the remaining lines as enemies. Loads attributes and sets som default attributes and also loads sprite.
     for (int i = 0; i < nenemy && fgets(buffer, sizeof(buffer), mfile) && nenemy; i++)
     {
-        char textbuff[64];
-        sscanf(buffer, "%f,%f,%d,%f,%f,%63s", &result->enemies[i].pos.x, &result->enemies[i].pos.y, &result->enemies[i].id, &result->enemies[i].acceleration, &result->enemies[i].maxSpeed, textbuff);
-        result->enemies[i].sprite = LoadTexture(textbuff);
-        if (result->enemies[i].sprite.id == 0)
+        int type;
+        sscanf(buffer, "%f,%f,%d,%d", &result->enemies[i].pos.x, &result->enemies[i].pos.y, &result->enemies[i].id, &type);
+
+        switch (type)
         {
-            printf("Failed to load texture %s \n", textbuff);
+        case 0:
+            result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
+            result->enemies[i].attackRadius = 40.0;
+            result->enemies[i].dmg = 5;
+            result->enemies[i].hp = 70;
+            result->enemies[i].baseCoolDown = 30;
+            result->enemies[i].acceleration = 300;
+            result->enemies[i].maxSpeed = 1200;
+
+            break;
+        case 1:
+            result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
+            result->enemies[i].attackRadius = 450.0;
+            result->enemies[i].dmg = 10;
+            result->enemies[i].hp = 100;
+            result->enemies[i].baseCoolDown = 35;
+            result->enemies[i].acceleration = 100;
+            result->enemies[i].maxSpeed = 400;
+
+            break;
+        case 2:
+            result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
+            result->enemies[i].attackRadius = 800.0;
+            result->enemies[i].dmg = 20;
+            result->enemies[i].hp = 50;
+            result->enemies[i].baseCoolDown = 65;
+            result->enemies[i].acceleration = 100;
+            result->enemies[i].maxSpeed = 400;
+
+            break;
+        default:
+            printf("Invalid enemy type\n");
+            break;
         }
+
+        result->enemies[i].coolDown = 1;
+        result->enemies[i].status = ALIVE;
+        result->enemies[i].visibility = VISIBLE;
+        result->enemies[i].velocity = VECINIT;
+        result->enemies[i].dir = (Vec2){0.0, -1.0};
+        result->enemies[i].hitRadius = result->enemies[i].sprite.width / 2;
         result->enemies[i].acceleration *= nenemy;
         result->enemies[i].maxSpeed *= nenemy;
-        result->enemies[i].attackRadius = 50.0f;
-        result->enemies[i].dir = (Vec2){1.0, 0.0};
-        result->enemies[i].hitRadius = 100.0f;
-        result->enemies[i].hp = 100;
-        result->enemies[i].status = ALIVE;
-        result->enemies[i].velocity = VECINIT;
-        result->enemies[i].visibility = VISIBLE;
-        result->enemies[i].baseCoolDown = 50;
-        result->enemies[i].coolDown = 0;
     }
 
     fclose(mfile); // close file
