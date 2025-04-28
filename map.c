@@ -38,7 +38,7 @@ CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, in
     for (int i = 0; i < ec; i++)
     {
         result[i] = NULL;
-        if (!inFieldOfView(p1.pos, p1.dir, fov, enemies[i]) || (enemies[i].visibility == INVISIBLE) || (enemies[i].status == DEAD)) // checks if enemy is outside of fov or dead or invisible
+        if (!inFieldOfView(p1.pos, p1.dir, fov, enemies[i]) || (enemies[i].visibility == INVISIBLE)) // checks if enemy is outside of fov or dead or invisible
             continue;
 
         // make a normalized vector pointing towards the enemy from the player
@@ -97,11 +97,14 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
 
 void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy)
 {
-
-    if (foe->hp <= 0) // Check if enemy is or should be dead
-        foe->status = DEAD;
     if (foe->status == DEAD)
         return;
+    if (foe->hp <= 0)
+    { // Check if enemy is or should be dead
+        foe->status = DEAD;
+        foe->sprite = LoadTexture("Sprites/Nollekorttransp.png");
+        return;
+    }
 
     Vec2 dir;
     vectorSub(p1.pos, foe->pos, &dir);
@@ -325,7 +328,7 @@ Map *loadMap(char *filename)
         result->enemies[i].visibility = VISIBLE;
         result->enemies[i].velocity = VECINIT;
         result->enemies[i].dir = (Vec2){0.0, -1.0};
-        result->enemies[i].hitRadius = result->enemies[i].sprite.width * 12; //(sprite scale factor / 2)
+        result->enemies[i].hitRadius = result->enemies[i].sprite.width / 2;
         result->enemies[i].acceleration *= nenemy;
         result->enemies[i].maxSpeed *= nenemy;
     }
