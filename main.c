@@ -221,7 +221,7 @@ int main(void)
         {
             for (int i = 0; i < mp->enemyCount; i++)
             {
-                shootEnemies(&player, mp->enemies, mp->enemyCount, mp->walls, mp->numOfWalls);
+                shootEnemy(&player, mp->enemies + i, mp->walls, mp->numOfWalls);
             }
             player.shoot_cd = SHOOTDELAY;
             player.ammo--;

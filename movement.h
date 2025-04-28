@@ -39,7 +39,7 @@ typedef struct
     int shoot_cd;
 } Player;
 
-#define PLAYERINIT (Player){STARTPOS, (Vec2){1.0, 0.0}, VECINIT, VECINIT, MAXHP, MAXAMMO, 0}
+#define PLAYERINIT (Player){STARTPOS, (Vec2){0.0, 1.0}, VECINIT, VECINIT, MAXHP, MAXAMMO, 0}
 
 
 
@@ -58,7 +58,7 @@ void rotateLeft(Player *player);
 //executes current movement in current wishDir
 void executeMovement(Player *player, Wall *walls, int wallCount);
 //Shoots an enemy if they are within line of sight and close enough to the crosshair
-void shootEnemies(Player *player, Enemy *Queue, int Qsize, Wall *walls, int wallcount);
+void shootEnemy(Player *player, Enemy *Queue, Wall *walls, int wallcount);
 //Makes sure player health doesn't go over max health
 void healPlayer(Player *player, int heal);
 //Makes sure player ammo doesn't go over max ammo
