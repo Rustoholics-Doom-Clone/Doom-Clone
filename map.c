@@ -286,7 +286,7 @@ Map *loadMap(char *filename)
         switch (type)
         {
         case 0:
-            result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
+            result->enemies[i].sprite = LoadTexture("Sprites/MeleeNollantransp.png");
             result->enemies[i].attackRadius = 40.0;
             result->enemies[i].dmg = 5;
             result->enemies[i].hp = 70;
