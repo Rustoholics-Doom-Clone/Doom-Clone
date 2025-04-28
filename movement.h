@@ -54,15 +54,9 @@ void rotateRight(Player *player);
 void rotateLeft(Player *player);
 // executes current movement in current wishDir
 void executeMovement(Player *player, Wall *walls, int wallCount);
-<<<<<<< HEAD
-//Shoots an enemy if they are within line of sight and close enough to the crosshair
-void shootEnemy(Player *player, Enemy *Queue, Wall *walls, int wallcount);
-//Makes sure player health doesn't go over max health
-=======
 // Shoots an enemy if they are within line of sight and close enough to the crosshair
 void shootEnemy(Player *player, Enemy *Queue, Wall *walls, int wallcount);
 // Makes sure player health doesn't go over max health
->>>>>>> origin/main
 void healPlayer(Player *player, int heal);
 // Makes sure player ammo doesn't go over max ammo
 void addAmmo(Player *player, int ammo);
