@@ -70,10 +70,12 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
 
+        float texX = hits[i]->textureOffset * texture.width;
         // Source rectangle: a vertical slice of the wall texture
         Rectangle source = {
-            0,0,
-            (float)texture.width, // how many px wide
+            texX,
+            0,
+            1,
             (float)texture.height
         };
 
