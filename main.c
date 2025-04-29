@@ -180,7 +180,7 @@ void drawWeapon(Weapon *wpns, int wpnid)
 
         Rectangle dest = {
             wpns[wpnid].screenPos.x,
-            wpns[wpnid].screenPos.y,
+            SCREEN_HEIGHT - (wpns[wpnid].normalSprite.height * wpns[wpnid].normalScale.y) + wpns[wpnid].screenPos.y,
             wpns[wpnid].normalSprite.width * wpns[wpnid].normalScale.x,
             wpns[wpnid].normalSprite.height * wpns[wpnid].normalScale.y};
 
@@ -194,12 +194,9 @@ void drawWeapon(Weapon *wpns, int wpnid)
             (float)wpns[wpnid].shootingSprite.width,
             (float)wpns[wpnid].shootingSprite.height};
 
-        float horizontalScale = 1.0f;
-        float verticalScale = 1.0f;
-
         Rectangle dest = {
             wpns[wpnid].screenPos.x,
-            wpns[wpnid].screenPos.y,
+            SCREEN_HEIGHT - (wpns[wpnid].shootingSprite.height * wpns[wpnid].shootingScale.y) + wpns[wpnid].screenPos.y,
             wpns[wpnid].shootingSprite.width * wpns[wpnid].shootingScale.x,
             wpns[wpnid].shootingSprite.height * wpns[wpnid].shootingScale.y};
 
@@ -274,9 +271,21 @@ int main(void)
             player.shoot_cd = SHOOTDELAY;
             player.ammo--;
         }
+        if (IsKeyDown('1'))
+        {
+            currentwpn = 0;
+        }
+        if (IsKeyDown('2'))
+        {
+            currentwpn = 1;
+        }
         if (IsKeyDown('Q'))
         {
-            switchWeapon(&currentwpn, 2);
+            weapons[currentwpn].currentCooldown = 1;
+        }
+        if (IsKeyDown('E'))
+        {
+            weapons[currentwpn].currentCooldown = 0;
         }
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
