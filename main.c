@@ -167,6 +167,51 @@ void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
     }
 }
 
+void drawWeapon(Weapon *wpns, int wpnid)
+{
+    switch (wpns[wpnid].currentCooldown)
+    {
+    case 0:
+    {
+        Rectangle src = {
+            0, 0,
+            (float)wpns[wpnid].normalSprite.width,
+            (float)wpns[wpnid].normalSprite.height};
+
+        Rectangle dest = {
+            wpns[wpnid].screenPos.x,
+            SCREEN_HEIGHT - (wpns[wpnid].normalSprite.height * wpns[wpnid].normalScale.y) + wpns[wpnid].screenPos.y,
+            wpns[wpnid].normalSprite.width * wpns[wpnid].normalScale.x,
+            wpns[wpnid].normalSprite.height * wpns[wpnid].normalScale.y};
+
+        DrawTexturePro(wpns[wpnid].normalSprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
+        break;
+    }
+    default:
+    {
+        Rectangle src = {
+            0, 0,
+            (float)wpns[wpnid].shootingSprite.width,
+            (float)wpns[wpnid].shootingSprite.height};
+
+        Rectangle dest = {
+            wpns[wpnid].screenPos.x,
+            SCREEN_HEIGHT - (wpns[wpnid].shootingSprite.height * wpns[wpnid].shootingScale.y) + wpns[wpnid].screenPos.y,
+            wpns[wpnid].shootingSprite.width * wpns[wpnid].shootingScale.x,
+            wpns[wpnid].shootingSprite.height * wpns[wpnid].shootingScale.y};
+
+        DrawTexturePro(wpns[wpnid].shootingSprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
+        break;
+    }
+    }
+}
+
+void switchWeapon(int *wpnid, int numberOfWeapons)
+{
+    int result = (((*wpnid + 1) % numberOfWeapons) + numberOfWeapons) % numberOfWeapons;
+    *wpnid = result;
+}
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
@@ -176,6 +221,10 @@ int main(void)
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
+
+    Weapon *weapons = getWeapons();
+
+    int currentwpn = 0;
 
     while (!WindowShouldClose())
     {
@@ -222,6 +271,26 @@ int main(void)
             player.shoot_cd = SHOOTDELAY;
             player.ammo--;
         }
+        if (IsKeyDown('1'))
+        {
+            currentwpn = 0;
+        }
+        if (IsKeyDown('2'))
+        {
+            currentwpn = 1;
+        }
+        if (IsKeyDown('3'))
+        {
+            currentwpn = 2;
+        }
+        if (IsKeyDown('Q'))
+        {
+            weapons[currentwpn].currentCooldown = 1;
+        }
+        if (IsKeyDown('E'))
+        {
+            weapons[currentwpn].currentCooldown = 0;
+        }
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
@@ -239,6 +308,8 @@ int main(void)
         drawEnemies(player, enemyData, mp->enemyCount);
 
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
+
+        drawWeapon(weapons, currentwpn);
 
         char buffer[64];
         sprintf(buffer, "HP: %d", player.hp);
