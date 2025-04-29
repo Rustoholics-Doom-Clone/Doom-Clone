@@ -114,11 +114,14 @@ Line vecsToLine(Vec2 v1, Vec2 v2)
 {
     Vec2 n = VECINIT;
     Vec2 a = VECINIT;
-    if (v2.x - v1.x != 0.0) {
+    if (v2.x - v1.x != 0.0)
+    {
         n = (Vec2){1.0, (v2.y - v1.y) / (v2.x - v1.x)};
         a = (Vec2){0, v1.y - n.y * v1.x};
         normalize(&n);
-    } else {
+    }
+    else
+    {
         n = (Vec2){0.0, 1.0};
         a = (Vec2){0.0, 0.0};
     }
@@ -212,4 +215,29 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
             enemy->hp -= 35;
         }
     }
+}
+
+Weapon *getWeapons()
+{
+    Weapon *wps = malloc(sizeof(Weapon) * 2);
+    if (!wps)
+        return NULL;
+
+    wps[0].normalSprite = LoadTexture("Sprites/Weapons/Fist1transp.png");
+    wps[0].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
+    wps[0].baseCooldown = 15;
+    wps[0].currentCooldown = 0;
+    wps[0].screenPos = (Vec2){400, 300};
+    wps[0].normalScale = (Vec2){1.0, 1.0};
+    wps[0].shootingScale = (Vec2){1.0, 1.0};
+
+    wps[1].normalSprite = LoadTexture("Sprites/Weapons/kpisttransp.png");
+    wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
+    wps[1].baseCooldown = 15;
+    wps[1].currentCooldown = 0;
+    wps[1].screenPos = (Vec2){400, 300};
+    wps[1].normalScale = (Vec2){1.0, 1.0};
+    wps[1].shootingScale = (Vec2){1.0, 1.0};
+
+    return wps;
 }
