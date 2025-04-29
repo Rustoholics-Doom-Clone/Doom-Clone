@@ -29,6 +29,17 @@ typedef struct Enemy Enemy;
 
 typedef struct
 {
+    Texture2D normalSprite;
+    Texture2D shootingSprite;
+    int baseCooldown;
+    int currentCooldown;
+    Vec2 screenPos;
+    Vec2 normalScale;
+    Vec2 shootingScale;
+} Weapon;
+
+typedef struct
+{
     Vec2 pos;
     Vec2 dir;
     Vec2 vel;
@@ -60,5 +71,7 @@ void shootEnemy(Player *player, Enemy *Queue, Wall *walls, int wallcount);
 void healPlayer(Player *player, int heal);
 // Makes sure player ammo doesn't go over max ammo
 void addAmmo(Player *player, int ammo);
+
+Weapon *getWeapons();
 
 #endif
