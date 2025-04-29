@@ -279,6 +279,10 @@ int main(void)
         {
             currentwpn = 1;
         }
+        if (IsKeyDown('3'))
+        {
+            currentwpn = 2;
+        }
         if (IsKeyDown('Q'))
         {
             weapons[currentwpn].currentCooldown = 1;

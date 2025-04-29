@@ -219,7 +219,7 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
 
 Weapon *getWeapons()
 {
-    Weapon *wps = malloc(sizeof(Weapon) * 2);
+    Weapon *wps = malloc(sizeof(Weapon) * 3);
     if (!wps)
         return NULL;
 
@@ -238,6 +238,14 @@ Weapon *getWeapons()
     wps[1].screenPos = (Vec2){100, 0};
     wps[1].normalScale = (Vec2){1.0, 1.0};
     wps[1].shootingScale = (Vec2){1.0, 1.0};
+
+    wps[2].normalSprite = LoadTexture("Sprites/Weapons/Projectile1transp.png");
+    wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
+    wps[2].baseCooldown = 15;
+    wps[2].currentCooldown = 0;
+    wps[2].screenPos = (Vec2){400, 0};
+    wps[2].normalScale = (Vec2){1.0, 1.0};
+    wps[2].shootingScale = (Vec2){1.0, 1.0};
 
     return wps;
 }
