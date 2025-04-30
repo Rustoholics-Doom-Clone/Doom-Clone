@@ -277,6 +277,9 @@ void shootProjectile(Weapon *wpn, Player *player)
     proj->id = -1;
     proj->maxSpeed = 4000.0 * MAXPROJECTILES;
     proj->pos = player->pos;
+    Vec2 offset;
+    vectorScale(player->dir, 20.0, &offset);
+    vectorAdd(proj->pos, offset, &proj->pos);
     proj->status = ALIVE;
     proj->velocity = VECINIT;
     proj->visibility = VISIBLE;
