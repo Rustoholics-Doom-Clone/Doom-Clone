@@ -84,17 +84,17 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dm
 void healPlayer(Player *player, int heal);
 // Makes sure player ammo doesn't go over max ammo
 void addAmmo(Player *player, int ammo);
-
+// Works like rayShotEnemy but with extra safeguards since **projectiles might be empty
 CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles);
-
+// Creates a projectile that is facing the same direction as the player
 void shootProjectile(Weapon *wpn, Player *player);
-
+// Moves the projectile and checks if it has hit an enemy
 int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec);
-
+// Goes through all the projectiles and updates them
 void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn);
-
+// Attacks depending on which weapon you're holding
 void attackEnemy(Weapon *wpn, Player *player, Map *mp);
-
+// Initializes all the weapons
 Weapon *getWeapons();
 
 #endif

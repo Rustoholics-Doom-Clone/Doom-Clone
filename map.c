@@ -328,7 +328,7 @@ Map *loadMap(char *filename)
 
         switch (type)
         {
-        case 0:
+        case 0: // Creates a melee enemy
             result->enemies[i].sprite = LoadTexture("Sprites/MeleeNollantransp.png");
             result->enemies[i].attackRadius = 40.0;
             result->enemies[i].dmg = 3;
@@ -338,7 +338,7 @@ Map *loadMap(char *filename)
             result->enemies[i].maxSpeed = 1200;
 
             break;
-        case 1:
+        case 1: // Creates a midrange enemy
             result->enemies[i].sprite = LoadTexture("Sprites/MidrangeNollantransp.png");
             result->enemies[i].attackRadius = 330.0;
             result->enemies[i].dmg = 5;
@@ -348,7 +348,7 @@ Map *loadMap(char *filename)
             result->enemies[i].maxSpeed = 400;
 
             break;
-        case 2:
+        case 2: // Creates a long range enemy
             result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
             result->enemies[i].attackRadius = 500.0;
             result->enemies[i].dmg = 20;
@@ -362,7 +362,7 @@ Map *loadMap(char *filename)
             printf("Invalid enemy type\n");
             break;
         }
-
+        // Common for all enemies
         result->enemies[i].coolDown = result->enemies[i].baseCoolDown;
         result->enemies[i].status = ALIVE;
         result->enemies[i].visibility = VISIBLE;

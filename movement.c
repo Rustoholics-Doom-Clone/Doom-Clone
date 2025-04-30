@@ -264,7 +264,7 @@ void shootProjectile(Weapon *wpn, Player *player)
     Enemy *proj = malloc(sizeof(Enemy));
     if (!proj)
         return;
-
+    // Make an enemy object
     proj->sprite = LoadTexture("Sprites/Projectiles/projectilespritetransp.png");
     proj->acceleration = 2000.0 * MAXPROJECTILES;
     proj->attackRadius = proj->sprite.width / 2;
@@ -281,6 +281,7 @@ void shootProjectile(Weapon *wpn, Player *player)
     proj->velocity = VECINIT;
     proj->visibility = VISIBLE;
 
+    // Try to slot in the object somewhere
     int fl = 1;
     for (int i = 0; i < MAXPROJECTILES; i++)
     {
@@ -303,7 +304,7 @@ void attackEnemy(Weapon *wpn, Player *player, Map *mp)
 {
     switch (wpn->type)
     {
-    case FIST:
+    case FIST: // Basically hitscan but with a range
         for (int i = 0; i < mp->enemyCount; i++)
         {
             Vec2 diffvec;
@@ -314,7 +315,7 @@ void attackEnemy(Weapon *wpn, Player *player, Map *mp)
         }
         break;
 
-    case HITSCAN:
+    case HITSCAN: // Basically a laser beam
         for (int i = 0; i < mp->enemyCount; i++)
         {
             shootEnemy(player, mp->enemies + i, mp->walls, mp->numOfWalls, wpn->dmg);
@@ -322,13 +323,13 @@ void attackEnemy(Weapon *wpn, Player *player, Map *mp)
         break;
 
     case PROJECTILE:
-        shootProjectile(wpn, player);
+        shootProjectile(wpn, player); // Shoot a projectile
         break;
     default:
         break;
     }
-    wpn->currentCooldown = wpn->baseCooldown;
-    wpn->ammo--;
+    wpn->currentCooldown = wpn->baseCooldown; // Reset fire cooldown
+    wpn->ammo--;                              // lower ammo
 }
 
 int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
@@ -344,11 +345,11 @@ int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
         }
     }
 
-    moveEnemy(projectile, projectile->dir, 60);
-    vectorSub(projectile->pos, player.pos, &diffvec);
+    moveEnemy(projectile, projectile->dir, 60);       // Move the projectile
+    vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
     if (vectorLenght(diffvec) >= 2000)
     {
-        return 1;
+        return 1; // Signal to updateProjectiles that it should free and NULL it
     }
 
     return 0;
@@ -357,16 +358,16 @@ int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
 void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn)
 {
 
-    if (projectiles[wpn->ppointer])
+    if (projectiles[wpn->ppointer]) // if the current queue slot contains anything
     {
-        if (updateProjectile(projectiles[wpn->ppointer], player, enemies, ec))
+        if (updateProjectile(projectiles[wpn->ppointer], player, enemies, ec)) // update the projectile and check if it should be removed
         {
-            free(projectiles[wpn->ppointer]);
-            projectiles[wpn->ppointer] = NULL;
+            free(projectiles[wpn->ppointer]);  // deallocate projectile
+            projectiles[wpn->ppointer] = NULL; // set spot to null
         }
     }
 
-    wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES;
+    wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES; // move over one spot in the queue
     return;
 }
 
@@ -376,6 +377,7 @@ Weapon *getWeapons()
     if (!wps)
         return NULL;
 
+    // Make the fist weapon
     wps[0].normalSprite = LoadTexture("Sprites/Weapons/Fist1transp.png");
     wps[0].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
     wps[0].baseCooldown = 15;
@@ -389,6 +391,7 @@ Weapon *getWeapons()
     wps[0].ammo = INT_MAX;
     wps[0].dmg = 30;
 
+    // Make the smg
     wps[1].normalSprite = LoadTexture("Sprites/Weapons/kpisttransp.png");
     wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
     wps[1].baseCooldown = 15;
@@ -402,6 +405,7 @@ Weapon *getWeapons()
     wps[1].ammo = 120;
     wps[1].dmg = 20;
 
+    // Make the pie
     wps[2].normalSprite = LoadTexture("Sprites/Weapons/Projectile1transp.png");
     wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
     wps[2].baseCooldown = 15;
@@ -412,7 +416,7 @@ Weapon *getWeapons()
     wps[2].ppointer = 0;
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
     for (int i = 0; i < MAXPROJECTILES; i++)
-        wps[2].projectiles[i] = NULL;
+        wps[2].projectiles[i] = NULL; // initialize to NULL
 
     wps[2].type = PROJECTILE;
     wps[2].ammo = 10;

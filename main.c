@@ -169,7 +169,7 @@ void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
 
 void drawWeapon(Weapon *wpns, int wpnid)
 {
-    switch (wpns[wpnid].currentCooldown)
+    switch (wpns[wpnid].currentCooldown) // draws Different sprite depending on cooldown
     {
     case 0:
     {
@@ -224,7 +224,7 @@ int main(void)
 
     Weapon *weapons = getWeapons();
 
-    Enemy **projectiles = weapons[2].projectiles;
+    Enemy **projectiles = weapons[2].projectiles; // Contains all the projectiles from the projectile weapon.
 
     int currentwpn = 0;
 
@@ -283,22 +283,22 @@ int main(void)
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
-        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
+        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS); // Gets wall CollisionData
 
-        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
+        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
 
-        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles);
+        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
         draw3DView(hits, NUM_RAYS);
-        drawEnemies(player, enemyData, mp->enemyCount);
 
-        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
         drawEnemies(player, enemyData, mp->enemyCount);
-
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
+
+        drawEnemies(player, enemyData, mp->enemyCount);
+        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
         updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
