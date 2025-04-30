@@ -296,16 +296,16 @@ int main(void)
 
         CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
 
-        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
+        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount + 1);
 
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
         draw3DView(hits, NUM_RAYS);
-        drawEnemies(player, enemyData, mp->enemyCount);
+        drawEnemies(player, enemyData, mp->enemyCount + 1);
 
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
-        drawEnemies(player, enemyData, mp->enemyCount);
+        drawEnemies(player, enemyData, mp->enemyCount + 1);
 
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
 
