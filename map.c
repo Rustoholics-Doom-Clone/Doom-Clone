@@ -254,7 +254,7 @@ Map *loadMap(char *filename)
     }
     if (nenemy)
     {
-        result->enemies = malloc(sizeof(Enemy) * nenemy + 1); // Allocate memory for enemies according to format
+        result->enemies = malloc(sizeof(Enemy) * nenemy); // Allocate memory for enemies according to format
         if (!result->enemies)
         {
             printf("Malloc error");
@@ -332,20 +332,6 @@ Map *loadMap(char *filename)
         result->enemies[i].acceleration *= nenemy;
         result->enemies[i].maxSpeed *= nenemy;
     }
-
-    // projectile is a secret enemy
-    result->enemies[nenemy].sprite = LoadTexture("Sprites/Projectiles/projectilespritetransp.png");
-    result->enemies[nenemy].attackRadius = result->enemies[nenemy].sprite.width / 2;
-    result->enemies[nenemy].acceleration = 500.0;
-    result->enemies[nenemy].maxSpeed = 1400.0;
-    result->enemies[nenemy].coolDown = 0;
-    result->enemies[nenemy].baseCoolDown = 0;
-    result->enemies[nenemy].dir = (Vec2){0.0, 1.0};
-    result->enemies[nenemy].pos = (Vec2){0.0, 0.0};
-    result->enemies[nenemy].dmg = 60;
-    result->enemies[nenemy].hitRadius = 0.0;
-    result->enemies[nenemy].hp = 1;
-    result->enemies[nenemy].id = -1;
 
     fclose(mfile); // close file
     return result; // return map
