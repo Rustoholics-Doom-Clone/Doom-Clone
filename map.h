@@ -60,6 +60,8 @@ typedef struct Enemy
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float FOV, Enemy foe1);
 // Checks if there is a clear line of sight between a player and enemy. If not then Collisiondata* == NULL
 CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, int ec);
+
+CollisionData **rayShotPlayer(Enemy foe, Player p1, Map *mp);
 // Applies a force to an enemy in the dir direction.
 void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS);
 // Updates an enemy
