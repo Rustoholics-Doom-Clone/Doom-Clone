@@ -206,12 +206,6 @@ void drawWeapon(Weapon *wpns, int wpnid)
     }
 }
 
-void switchWeapon(int *wpnid, int numberOfWeapons)
-{
-    int result = (((*wpnid + 1) % numberOfWeapons) + numberOfWeapons) % numberOfWeapons;
-    *wpnid = result;
-}
-
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
@@ -280,6 +274,26 @@ int main(void)
         {
             currentwpn = 2;
         }
+        if (IsKeyDown('1'))
+        {
+            currentwpn = 0;
+        }
+        if (IsKeyDown('2'))
+        {
+            currentwpn = 1;
+        }
+        if (IsKeyDown('3'))
+        {
+            currentwpn = 2;
+        }
+        if (IsKeyDown('Q'))
+        {
+            weapons[currentwpn].currentCooldown = 1;
+        }
+        if (IsKeyDown('E'))
+        {
+            weapons[currentwpn].currentCooldown = 0;
+        }
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
@@ -303,6 +317,8 @@ int main(void)
         drawWeapon(weapons, currentwpn);
         updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
         drawEnemies(player, projectileData, MAXPROJECTILES);
+
+        drawWeapon(weapons, currentwpn);
 
         char buffer[64];
         sprintf(buffer, "HP: %d", player.hp);
