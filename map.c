@@ -154,7 +154,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         Vec2 dir;
         vectorSub(p1.pos, foe->pos, &dir);
 
-        if (vectorLenght(dir) <= foe->attackRadius) // If player is withing attackRadius
+        if (vectorLenght(dir) <= foe->attackRadius) // If player is within attackRadius
         {
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
