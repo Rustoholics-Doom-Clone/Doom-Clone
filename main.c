@@ -283,14 +283,6 @@ int main(void)
         {
             currentwpn = 2;
         }
-        if (IsKeyDown('Q'))
-        {
-            weapons[currentwpn].currentCooldown = 1;
-        }
-        if (IsKeyDown('E'))
-        {
-            weapons[currentwpn].currentCooldown = 0;
-        }
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
