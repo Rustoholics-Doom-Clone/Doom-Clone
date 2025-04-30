@@ -264,12 +264,7 @@ int main(void)
 
         if (IsKeyDown(KEY_SPACE) && weapons[currentwpn].currentCooldown == 0 && weapons[currentwpn].ammo > 0)
         {
-            for (int i = 0; i < mp->enemyCount; i++)
-            {
-                shootEnemy(&player, mp->enemies + i, mp->walls, mp->numOfWalls);
-            }
-            weapons[currentwpn].currentCooldown = weapons[currentwpn].baseCooldown;
-            weapons[currentwpn].ammo--;
+            attackEnemy(&weapons[currentwpn], &player, mp);
         }
         if (IsKeyDown('1'))
         {

@@ -194,7 +194,7 @@ void addAmmo(Player *player, int ammo)
     player->ammo = MIN(MAXAMMO, old_ammo + ammo);
 }
 
-void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
+void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dmg)
 {
 
     Vec2 player_look = VECINIT;
@@ -212,7 +212,7 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
     {
         if (lenFromPointToLine(enemy->pos, vecsToLine(player->pos, player_look)) < enemy->hitRadius)
         {
-            enemy->hp -= 35;
+            enemy->hp -= dmg;
         }
     }
 }
@@ -255,7 +255,37 @@ void shootProjectile(Weapon *wpn, Player *player)
         wpn->projectiles[wpn->ppointer] = proj;
         wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES;
     }
+}
+
+void attackEnemy(Weapon *wpn, Player *player, Map *mp)
+{
+    switch (wpn->type)
+    {
+    case FIST:
+        for (int i = 0; i < mp->enemyCount; i++)
+        {
+            Vec2 diffvec;
+            vectorSub(mp->enemies[i].pos, player->pos, &diffvec);
+            float ds = vectorLenght(diffvec);
+            if ((ds - 30.0) < mp->enemies[i].hitRadius)
+                shootEnemy(player, mp->enemies + i, mp->walls, mp->numOfWalls, wpn->dmg);
+        }
+        break;
+
+    case HITSCAN:
+        for (int i = 0; i < mp->enemyCount; i++)
+        {
+            shootEnemy(player, mp->enemies + i, mp->walls, mp->numOfWalls, wpn->dmg);
+        }
+        break;
+
+    case PROJECTILE:
+        break;
+    default:
+        break;
+    }
     wpn->currentCooldown = wpn->baseCooldown;
+    wpn->ammo--;
 }
 
 Weapon *getWeapons()
@@ -275,6 +305,7 @@ Weapon *getWeapons()
     wps[0].projectiles = NULL;
     wps[0].type = FIST;
     wps[0].ammo = INT_MAX;
+    wps[0].dmg = 30;
 
     wps[1].normalSprite = LoadTexture("Sprites/Weapons/kpisttransp.png");
     wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
@@ -287,6 +318,7 @@ Weapon *getWeapons()
     wps[1].projectiles = NULL;
     wps[1].type = HITSCAN;
     wps[1].ammo = 120;
+    wps[1].dmg = 20;
 
     wps[2].normalSprite = LoadTexture("Sprites/Weapons/Projectile1transp.png");
     wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
@@ -299,6 +331,7 @@ Weapon *getWeapons()
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
     wps[2].type = PROJECTILE;
     wps[2].ammo = 10;
+    wps[2].dmg = 60;
 
     return wps;
 }
