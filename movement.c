@@ -266,7 +266,7 @@ void shootProjectile(Weapon *wpn, Player *player)
         return;
 
     proj->sprite = LoadTexture("Sprites/Projectiles/projectilespritetransp.png");
-    proj->acceleration = 500.0 * MAXPROJECTILES;
+    proj->acceleration = 2000.0 * MAXPROJECTILES;
     proj->attackRadius = proj->sprite.width / 2;
     proj->baseCoolDown = 0;
     proj->coolDown = 0;
@@ -275,7 +275,7 @@ void shootProjectile(Weapon *wpn, Player *player)
     proj->hitRadius = 0;
     proj->hp = 1;
     proj->id = -1;
-    proj->maxSpeed = 1400.0 * MAXPROJECTILES;
+    proj->maxSpeed = 4000.0 * MAXPROJECTILES;
     proj->pos = player->pos;
     proj->status = ALIVE;
     proj->velocity = VECINIT;
