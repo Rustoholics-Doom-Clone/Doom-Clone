@@ -48,6 +48,7 @@ typedef struct
     Enemy **projectiles;
     int ppointer;
     int dmg;
+    int ammo;
 } Weapon;
 
 typedef struct

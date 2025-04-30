@@ -274,6 +274,7 @@ Weapon *getWeapons()
     wps[0].ppointer = 0;
     wps[0].projectiles = NULL;
     wps[0].type = FIST;
+    wps[0].ammo = INT_MAX;
 
     wps[1].normalSprite = LoadTexture("Sprites/Weapons/kpisttransp.png");
     wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
@@ -285,6 +286,7 @@ Weapon *getWeapons()
     wps[1].ppointer = 0;
     wps[1].projectiles = NULL;
     wps[1].type = HITSCAN;
+    wps[1].ammo = 120;
 
     wps[2].normalSprite = LoadTexture("Sprites/Weapons/Projectile1transp.png");
     wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
@@ -296,6 +298,7 @@ Weapon *getWeapons()
     wps[2].ppointer = 0;
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
     wps[2].type = PROJECTILE;
+    wps[2].ammo = 10;
 
     return wps;
 }

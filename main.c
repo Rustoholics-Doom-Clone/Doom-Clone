@@ -228,9 +228,9 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        if (player.shoot_cd > 0)
+        if (weapons[currentwpn].currentCooldown > 0)
         {
-            player.shoot_cd--;
+            weapons[currentwpn].currentCooldown--;
         }
 
         if (IsKeyDown(KEY_RIGHT))
@@ -262,14 +262,14 @@ int main(void)
             wishMoveRight(&player);
         }
 
-        if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0 && player.ammo > 0)
+        if (IsKeyDown(KEY_SPACE) && weapons[currentwpn].currentCooldown == 0 && weapons[currentwpn].ammo > 0)
         {
             for (int i = 0; i < mp->enemyCount; i++)
             {
                 shootEnemy(&player, mp->enemies + i, mp->walls, mp->numOfWalls);
             }
-            player.shoot_cd = SHOOTDELAY;
-            player.ammo--;
+            weapons[currentwpn].currentCooldown = weapons[currentwpn].baseCooldown;
+            weapons[currentwpn].ammo--;
         }
         if (IsKeyDown('1'))
         {
@@ -318,7 +318,7 @@ int main(void)
         sprintf(buffer, "+");
         DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
 
-        sprintf(buffer, "AMMO: %d", player.ammo);
+        sprintf(buffer, "AMMO: %d", weapons[currentwpn].ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
 
         EndDrawing();
