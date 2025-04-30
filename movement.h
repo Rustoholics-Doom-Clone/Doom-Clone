@@ -8,6 +8,7 @@
 #define STARTPOS (Vec2){0.0, 0.0}
 #define MAXSPEED 320
 #define SHOOTDELAY 30
+#define MAXPROJECTILES 10
 
 // How fast character rotates
 #define ROTSPEED PI / 120
@@ -36,6 +37,7 @@ typedef enum WeaponType
 
 typedef struct
 {
+    WeaponType type;
     Texture2D normalSprite;
     Texture2D shootingSprite;
     int baseCooldown;
@@ -43,6 +45,9 @@ typedef struct
     Vec2 screenPos;
     Vec2 normalScale;
     Vec2 shootingScale;
+    Enemy **projectiles;
+    int ppointer;
+    int dmg;
 } Weapon;
 
 typedef struct
@@ -78,6 +83,8 @@ void shootEnemy(Player *player, Enemy *Queue, Wall *walls, int wallcount);
 void healPlayer(Player *player, int heal);
 // Makes sure player ammo doesn't go over max ammo
 void addAmmo(Player *player, int ammo);
+
+void shootProjectile(Weapon *wpn, Player *player);
 
 Weapon *getWeapons();
 

@@ -217,6 +217,47 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
     }
 }
 
+void shootProjectile(Weapon *wpn, Player *player)
+{
+    Enemy *proj = malloc(sizeof(Enemy));
+    if (!proj)
+        return;
+
+    proj->sprite = LoadTexture("Sprites/Projectiles/projectilespritetransp.png");
+    proj->acceleration = 500.0;
+    proj->attackRadius = proj->sprite.width / 2;
+    proj->baseCoolDown = 0;
+    proj->coolDown = 0;
+    proj->dir = player->dir;
+    proj->dmg = wpn->dmg;
+    proj->hitRadius = 0;
+    proj->hp = 1;
+    proj->id = -1;
+    proj->maxSpeed = 1400.0;
+    proj->pos = player->pos;
+    proj->status = ALIVE;
+    proj->velocity = VECINIT;
+    proj->visibility = VISIBLE;
+
+    int fl = 1;
+    for (int i = 0; i < MAXPROJECTILES; i++)
+    {
+        if (!wpn->projectiles[i])
+        {
+            wpn->projectiles[i] = proj;
+            fl = 0;
+            break;
+        }
+    }
+    if (fl)
+    {
+        free(wpn->projectiles[wpn->ppointer]);
+        wpn->projectiles[wpn->ppointer] = proj;
+        wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES;
+    }
+    wpn->currentCooldown = wpn->baseCooldown;
+}
+
 Weapon *getWeapons()
 {
     Weapon *wps = malloc(sizeof(Weapon) * 3);
@@ -230,6 +271,9 @@ Weapon *getWeapons()
     wps[0].screenPos = (Vec2){400, 0};
     wps[0].normalScale = (Vec2){0.8, 0.8};
     wps[0].shootingScale = (Vec2){1.0, 1.0};
+    wps[0].ppointer = 0;
+    wps[0].projectiles = NULL;
+    wps[0].type = FIST;
 
     wps[1].normalSprite = LoadTexture("Sprites/Weapons/kpisttransp.png");
     wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
@@ -238,6 +282,9 @@ Weapon *getWeapons()
     wps[1].screenPos = (Vec2){100, 0};
     wps[1].normalScale = (Vec2){1.0, 1.0};
     wps[1].shootingScale = (Vec2){1.0, 1.0};
+    wps[1].ppointer = 0;
+    wps[1].projectiles = NULL;
+    wps[1].type = HITSCAN;
 
     wps[2].normalSprite = LoadTexture("Sprites/Weapons/Projectile1transp.png");
     wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
@@ -246,6 +293,9 @@ Weapon *getWeapons()
     wps[2].screenPos = (Vec2){400, 0};
     wps[2].normalScale = (Vec2){1.0, 1.0};
     wps[2].shootingScale = (Vec2){1.0, 1.0};
+    wps[2].ppointer = 0;
+    wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
+    wps[2].type = PROJECTILE;
 
     return wps;
 }
