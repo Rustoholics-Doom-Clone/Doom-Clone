@@ -224,6 +224,8 @@ int main(void)
 
     Weapon *weapons = getWeapons();
 
+    Enemy **projectiles = weapons[2].projectiles;
+
     int currentwpn = 0;
 
     while (!WindowShouldClose())
@@ -285,6 +287,8 @@ int main(void)
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
 
+        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles);
+
         BeginDrawing();
         ClearBackground(DARKBLUE);
 
@@ -297,6 +301,8 @@ int main(void)
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
 
         drawWeapon(weapons, currentwpn);
+        updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
+        drawEnemies(player, projectileData, MAXPROJECTILES);
 
         char buffer[64];
         sprintf(buffer, "HP: %d", player.hp);

@@ -85,7 +85,13 @@ void healPlayer(Player *player, int heal);
 // Makes sure player ammo doesn't go over max ammo
 void addAmmo(Player *player, int ammo);
 
+CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles);
+
 void shootProjectile(Weapon *wpn, Player *player);
+
+int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec);
+
+void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn);
 
 void attackEnemy(Weapon *wpn, Player *player, Map *mp);
 

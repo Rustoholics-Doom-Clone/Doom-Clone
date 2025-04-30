@@ -194,6 +194,48 @@ void addAmmo(Player *player, int ammo)
     player->ammo = MIN(MAXAMMO, old_ammo + ammo);
 }
 
+CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles)
+{
+    CollisionData **result = malloc(sizeof(CollisionData *) * MAXPROJECTILES); // allocate memory for the data
+
+    for (int i = 0; i < MAXPROJECTILES; i++)
+    {
+        result[i] = NULL;
+
+        if (!projectiles[i] || !inFieldOfView(p1.pos, p1.dir, fov, *projectiles[i]) || (projectiles[i]->visibility == INVISIBLE)) // checks if enemy is outside of fov or dead or invisible
+            continue;
+
+        // make a normalized vector pointing towards the enemy from the player
+        Vec2 diffvec;
+        vectorSub(projectiles[i]->pos, p1.pos, &diffvec);
+        float diff = vectorLenght(diffvec);
+        normalize(&diffvec);
+
+        int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
+        for (int j = 0; j < mp->numOfWalls; j++)
+        {
+            CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
+            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+            if (temp && temp->d < diff) // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
+            {
+                fl = 0; // flag is false
+                break;  // break loop early
+            }
+        }
+        if (!fl)      // if flag is false
+            continue; // check next enemy
+
+        result[i] = malloc(sizeof(CollisionData)); // allocate memory for this collision
+
+        result[i]->d = diff;
+        result[i]->position = projectiles[i]->pos;
+        // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
+        result[i]->angle = vectorDot(p1.dir, diffvec); // well be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
+        result[i]->texture = projectiles[i]->sprite;
+    }
+    return result;
+}
+
 void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dmg)
 {
 
@@ -280,12 +322,52 @@ void attackEnemy(Weapon *wpn, Player *player, Map *mp)
         break;
 
     case PROJECTILE:
+        shootProjectile(wpn, player);
         break;
     default:
         break;
     }
     wpn->currentCooldown = wpn->baseCooldown;
     wpn->ammo--;
+}
+
+int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
+{
+    Vec2 diffvec;
+    for (int i = 0; i < ec; i++)
+    {
+        vectorSub(projectile->pos, enemies[i].pos, &diffvec);
+        if (vectorLenght(diffvec) <= (projectile->attackRadius + enemies[i].hitRadius))
+        {
+            enemies[i].hp -= projectile->dmg;
+            return 1; // Signal to updateProjectiles that it should free and NULL it
+        }
+    }
+
+    moveEnemy(projectile, projectile->dir, 60);
+    vectorSub(projectile->pos, player.pos, &diffvec);
+    if (vectorLenght(diffvec) >= 2000)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn)
+{
+
+    if (projectiles[wpn->ppointer])
+    {
+        if (updateProjectile(projectiles[wpn->ppointer], player, enemies, ec))
+        {
+            free(projectiles[wpn->ppointer]);
+            projectiles[wpn->ppointer] = NULL;
+        }
+    }
+
+    wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES;
+    return;
 }
 
 Weapon *getWeapons()
@@ -329,9 +411,12 @@ Weapon *getWeapons()
     wps[2].shootingScale = (Vec2){1.0, 1.0};
     wps[2].ppointer = 0;
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
+    for (int i = 0; i < MAXPROJECTILES; i++)
+        wps[2].projectiles[i] = NULL;
+
     wps[2].type = PROJECTILE;
     wps[2].ammo = 10;
-    wps[2].dmg = 60;
+    wps[2].dmg = 100;
 
     return wps;
 }
