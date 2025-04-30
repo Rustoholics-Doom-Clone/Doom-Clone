@@ -27,6 +27,13 @@ typedef struct
 
 typedef struct Enemy Enemy;
 
+typedef enum WeaponType
+{
+    FIST,
+    HITSCAN,
+    PROJECTILE
+} WeaponType;
+
 typedef struct
 {
     Texture2D normalSprite;
