@@ -54,7 +54,7 @@ void draw3DView(CollisionData **hits, int rayCount)
     
 }
 
-void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels)
+void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels, Image floorImage, Image roofImage)
 {
     float fovRad = DEG_TO_RAD(FOV);
     float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
@@ -234,6 +234,8 @@ int main(void)
     Color *roofPixels = LoadImageColors(roofImage);
 
     Image floorRender = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
+    Color *renderPixels = LoadImageColors(floorRender);  // ← allocates memory once
+    Texture2D floorTexture = LoadTextureFromImage(floorRender);  // send to GPU once
 
     
 
@@ -323,13 +325,13 @@ int main(void)
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
 
         CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
-        
-        Color *renderPixels = GetImageData(floorRender); // Pixel buffer to write into
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels);
+        drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels, floorImage, roofImage);
+        UpdateTexture(floorTexture, renderPixels);  // ← re-upload to GPU
+        DrawTexture(floorTexture, 0, 0, WHITE);     // ← draw one quad
 
         draw3DView(hits, NUM_RAYS);
 
