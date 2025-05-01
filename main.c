@@ -52,7 +52,7 @@ void draw3DView(CollisionData **hits, int rayCount)
     
 }
 
-void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels, Image floorImage, Image roofImage)
+void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderBuffer, Image floorImage, Image roofImage)
 {
     float fovRad = DEG_TO_RAD(FOV);
     float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
@@ -79,29 +79,30 @@ void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Colo
                 player.pos.x + rowDistance * rayDir.x,
                 player.pos.y + rowDistance * rayDir.y};
 
-            int texX = ((int)(floorPos.x * TILE_SIZE)) % TILE_SIZE;
-            int texY = ((int)(floorPos.y * TILE_SIZE)) % TILE_SIZE;
+            float tileX = floorPos.x - floorf(floorPos.x);
+            float tileY = floorPos.y - floorf(floorPos.y);
+            if (tileX < 0) tileX += 1.0f;
+            if (tileY < 0) tileY += 1.0f;
 
-            if (texX < 0) texX += TILE_SIZE;
-            if (texY < 0) texY += TILE_SIZE;
+            int texX = (int)(tileX * floorImage.width);
+            int texY = (int)(tileY * floorImage.height);
 
-            Color floorColor = floorPixels[texY * TILE_SIZE + texX];
-            renderPixels[y * SCREEN_WIDTH + x] = floorColor;
+            // Clamp to safe bounds
+            texX = CLAMP(texX, 0, floorImage.width - 1);
+            texY = CLAMP(texY, 0, floorImage.height - 1);
+
+            Color floorColor = floorPixels[texY * floorImage.width + texX];
+            renderBuffer[y * SCREEN_WIDTH + x] = floorColor;
 
             // Ceiling (mirror)
             if (roofPixels)
             {
-                Color ceilColor = roofPixels[texY * TILE_SIZE + texX];
-                renderPixels[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = ceilColor;
+                Color roofColor = roofPixels[texY * roofImage.width + texX];
+                renderBuffer[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = roofColor;
             }
         }
     }
 }
-
-
-
-
-
 
 int compareEnemyDistance(const void *a, const void *b)
 {
@@ -224,18 +225,22 @@ int main(void)
     SetTargetFPS(60);
     srand(time(NULL));
 
+    Color *renderBuffer = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Color));
+    Image screenImage = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK); // dummy image
+    Texture2D screenTexture = LoadTextureFromImage(screenImage);
+    UnloadImage(screenImage); // Texture now owns the pixel memory
+
+
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
-    Image floorImage = LoadImage("Sprites/Ground.png");
-    Color *floorPixels = LoadImageColors(floorImage);
     
-    Image roofImage = LoadImage("Sprites/Sky.png");
-    Color *roofPixels = LoadImageColors(roofImage);
+    Texture2D floorTexture = LoadTexture("sprites/Ground.png");
+    Texture2D roofTexture = LoadTexture("sprites/Sky.png");
+    
 
     Image floorRender = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
     Color *renderPixels = LoadImageColors(floorRender);  // ← allocates memory once
-    Texture2D floorTexture = LoadTextureFromImage(floorRender);  // send to GPU once
 
 
     Weapon *weapons = getWeapons();
@@ -328,9 +333,10 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels, floorImage, roofImage);
-        UpdateTexture(floorTexture, renderPixels);  // ← re-upload to GPU
-        DrawTexture(floorTexture, 0, 0, WHITE);     // ← draw one quad
+        drawFloorAndRoof(floorPixels, roofPixels, player, renderBuffer, floorImage, roofImage);
+        UpdateTexture(screenTexture, renderBuffer);
+        DrawTexture(screenTexture, 0, 0, WHITE);
+
 
         draw3DView(hits, NUM_RAYS);
 
@@ -365,13 +371,13 @@ int main(void)
     }
 
     // --- Shutdown / Cleanup ---
-    UnloadImageColors(floorPixels);
-    UnloadImageColors(roofPixels);
     UnloadImageColors(renderPixels);
-    UnloadImage(floorImage);
-    UnloadImage(roofImage);
     UnloadImage(floorRender);
     UnloadTexture(floorTexture);
+    UnloadTexture(roofTexture);
+    free(renderBuffer);
+    UnloadTexture(screenTexture);
+
 
     CloseWindow();
 
