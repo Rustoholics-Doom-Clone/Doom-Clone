@@ -53,17 +53,6 @@ typedef struct
 
 typedef struct
 {
-    Texture2D normalSprite;
-    Texture2D shootingSprite;
-    int baseCooldown;
-    int currentCooldown;
-    Vec2 screenPos;
-    Vec2 normalScale;
-    Vec2 shootingScale;
-} Weapon;
-
-typedef struct
-{
     Vec2 pos;
     Vec2 dir;
     Vec2 vel;
@@ -106,8 +95,6 @@ void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int e
 // Attacks depending on which weapon you're holding
 void attackEnemy(Weapon *wpn, Player *player, Map *mp);
 // Initializes all the weapons
-Weapon *getWeapons();
-
 Weapon *getWeapons();
 
 #endif
