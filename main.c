@@ -336,6 +336,7 @@ int main(void)
 
         freeCollisionData(hits, NUM_RAYS);
         freeCollisionData(enemyData, mp->enemyCount);
+        freeCollisionData(projectileData, MAXPROJECTILES);
     }
 
     CloseWindow();
