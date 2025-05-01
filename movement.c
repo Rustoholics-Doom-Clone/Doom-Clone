@@ -211,6 +211,8 @@ CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **project
         float diff = vectorLenght(diffvec);
         normalize(&diffvec);
 
+        // This is commented out since there is now z-sorting on enemies and projectiles and thus no need to raycast.
+        /*
         int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
         for (int j = 0; j < mp->numOfWalls; j++)
         {
@@ -224,7 +226,7 @@ CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **project
         }
         if (!fl)      // if flag is false
             continue; // check next enemy
-
+        */
         result[i] = malloc(sizeof(CollisionData)); // allocate memory for this collision
 
         result[i]->d = diff;
@@ -232,6 +234,7 @@ CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **project
         // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
         result[i]->angle = vectorDot(p1.dir, diffvec); // well be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
         result[i]->texture = projectiles[i]->sprite;
+        result[i]->textureOffset = NAN;
     }
     return result;
 }
