@@ -88,9 +88,7 @@ CollisionData *checkCollision(Wall w1, Ray3D r1)
 
     float textureOffset = hitDist / wallLength;
 
-
     data->textureOffset = textureOffset;
-
 
     return data;
 }
@@ -183,12 +181,15 @@ float *wallHeightArray(CollisionData **a, int n, float fov, int width)
 
 void freeCollisionData(CollisionData **a, int n)
 {
-    for (int i = 0; i < n; i++)
+    if (a)
     {
-        if (a[i])
-            free(a[i]);
+        for (int i = 0; i < n; i++)
+        {
+            if (a[i])
+                free(a[i]);
+        }
+        free(a);
     }
-    free(a);
 }
 CollisionData *mapCollision(Map *m, Ray3D r1)
 {
