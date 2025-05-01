@@ -52,62 +52,37 @@ void draw3DView(CollisionData **hits, int rayCount)
     
 }
 
-void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels, Image floorImage, Image roofImage)
-{
-    float fovRad = DEG_TO_RAD(FOV);
-    float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
+void drawFloorAndRoof(Player player, Color *renderPixels, Image floorImage, Image roofImage, Color *floorPixels, Color *roofPixels) {
+    float posZ = 0.5f * SCREEN_HEIGHT; // Camera height (middle of screen)
+    int width = SCREEN_WIDTH;
+    int height = SCREEN_HEIGHT;
 
-    // Texture scale factor (adjust as needed)
-    float textureScale = 8.0f;
+    for (int y = height / 2 + 1; y < height; y++) {
+        float rowDistance = posZ / (y - height / 2);
 
-    // Loop over each row of the screen (lower half for floor, upper half for ceiling)
-    for (int y = halfScreenHeight; y < SCREEN_HEIGHT; y++)
-    {
-        float rowDistance = (TILE_SIZE * halfScreenHeight) / (y - halfScreenHeight);
+        for (int x = 0; x < width; x++) {
+            float camX = 2.0f * x / width - 1.0f;
 
-        // Calculate the direction of the ray at the left and right edges of the FOV
-        Vec2 rayDirLeft = {
-            player.dir.x - player.dir.y * tanf(fovRad / 2),
-            player.dir.y + player.dir.x * tanf(fovRad / 2)};
-        Vec2 rayDirRight = {
-            player.dir.x + player.dir.y * tanf(fovRad / 2),
-            player.dir.y - player.dir.x * tanf(fovRad / 2)};
+            float rayDirX = player.dir.x + player.plane.x * camX;
+            float rayDirY = player.dir.y + player.plane.y * camX;
 
-        for (int x = 0; x < SCREEN_WIDTH; x++)
-        {
-            // Calculate the direction of the ray for this column
-            float cameraX = (float)x / SCREEN_WIDTH;
-            Vec2 rayDir = {
-                rayDirLeft.x + cameraX * (rayDirRight.x - rayDirLeft.x),
-                rayDirLeft.y + cameraX * (rayDirRight.y - rayDirLeft.y)};
+            float worldX = player.pos.x + rowDistance * rayDirX;
+            float worldY = player.pos.y + rowDistance * rayDirY;
 
-            // Calculate the floor and ceiling texture coordinates based on the ray direction
-            // Normalize the ray direction to get texture coordinates
-            float tileX = rayDir.x * rowDistance;
-            float tileY = rayDir.y * rowDistance;
+            int texX = ((int)(worldX * floorImage.width)) % floorImage.width;
+            int texY = ((int)(worldY * floorImage.height)) % floorImage.height;
 
-            // Use modulo for texture wrapping and scaling
-            int texX = (int)(tileX * textureScale) % floorImage.width;
-            int texY = (int)(tileY * textureScale) % floorImage.height;
-
-            // Ensure texX and texY are within bounds
             if (texX < 0) texX += floorImage.width;
             if (texY < 0) texY += floorImage.height;
 
-            // Sample the floor texture
-            Color floorColor = GetImageColor(floorImage, texX, texY);
-            renderPixels[y * SCREEN_WIDTH + x] = floorColor;
+            Color floorColor = floorPixels[texY * floorImage.width + texX];
+            renderPixels[y * width + x] = floorColor;
 
-            // Sample the ceiling texture (same as floor but mirrored)
-            if (roofPixels)
-            {
-                Color ceilColor = GetImageColor(roofImage, texX, texY);
-                renderPixels[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = ceilColor;
-            }
+            Color roofColor = roofPixels[texY * roofImage.width + texX];
+            renderPixels[(height - y) * width + x] = roofColor;
         }
     }
 }
-
 
 
 
@@ -340,10 +315,19 @@ int main(void)
 
         CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
 
+        float fovRad = DEG_TO_RAD(FOV); // Convert your FOV to radians
+        float planeScale = tanf(fovRad / 2.0f); // Scale factor for the projection plane
+        
+        // Update the player's camera plane based on direction and FOV
+        player.plane.x = -player.dir.y * planeScale;
+        player.plane.y =  player.dir.x * planeScale;
+        
+
+
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawFloorAndRoof(floorPixels, roofPixels, player, renderBuffer, floorImage, roofImage);
+        drawFloorAndRoof(player, renderBuffer, floorImage, roofImage, floorPixels, roofPixels);
         UpdateTexture(screenTexture, renderBuffer);
         DrawTexture(screenTexture, 0, 0, WHITE);
 

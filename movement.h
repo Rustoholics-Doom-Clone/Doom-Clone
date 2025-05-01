@@ -57,6 +57,7 @@ typedef struct
     Vec2 dir;
     Vec2 vel;
     Vec2 wishDir;
+    Vec2 plane;  // Used for camera projection
     int hp;
     int ammo;
     int shoot_cd;
