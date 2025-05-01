@@ -95,6 +95,6 @@ void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int e
 // Attacks depending on which weapon you're holding
 void attackEnemy(Weapon *wpn, Player *player, Map *mp);
 // Initializes all the weapons
-Weapon *getWeapons();
+Weapon *getWeapons(int width, int height);
 
 #endif

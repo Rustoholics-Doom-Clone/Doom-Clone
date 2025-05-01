@@ -374,7 +374,7 @@ void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int e
     return;
 }
 
-Weapon *getWeapons()
+Weapon *getWeapons(int width, int height)
 {
     Weapon *wps = malloc(sizeof(Weapon) * 3);
     if (!wps)
@@ -385,9 +385,9 @@ Weapon *getWeapons()
     wps[0].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
     wps[0].baseCooldown = 15;
     wps[0].currentCooldown = 0;
-    wps[0].screenPos = (Vec2){400, 0};
-    wps[0].normalScale = (Vec2){0.8, 0.8};
-    wps[0].shootingScale = (Vec2){1.0, 1.0};
+    wps[0].screenPos = (Vec2){width * 0.5, 0};
+    wps[0].normalScale = (Vec2){0.6 * width / 800.0, 0.6 * width / 800.0};
+    wps[0].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[0].ppointer = 0;
     wps[0].projectiles = NULL;
     wps[0].type = FIST;
@@ -399,9 +399,9 @@ Weapon *getWeapons()
     wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
     wps[1].baseCooldown = 15;
     wps[1].currentCooldown = 0;
-    wps[1].screenPos = (Vec2){100, 0};
-    wps[1].normalScale = (Vec2){1.0, 1.0};
-    wps[1].shootingScale = (Vec2){1.0, 1.0};
+    wps[1].screenPos = (Vec2){width / 5.0, 0};
+    wps[1].normalScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
+    wps[1].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[1].ppointer = 0;
     wps[1].projectiles = NULL;
     wps[1].type = HITSCAN;
@@ -413,9 +413,9 @@ Weapon *getWeapons()
     wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
     wps[2].baseCooldown = 15;
     wps[2].currentCooldown = 0;
-    wps[2].screenPos = (Vec2){400, 0};
-    wps[2].normalScale = (Vec2){1.0, 1.0};
-    wps[2].shootingScale = (Vec2){1.0, 1.0};
+    wps[2].screenPos = (Vec2){width * 0.5, 0};
+    wps[2].normalScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
+    wps[2].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].ppointer = 0;
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
     for (int i = 0; i < MAXPROJECTILES; i++)
