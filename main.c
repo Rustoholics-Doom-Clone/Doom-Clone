@@ -32,15 +32,25 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture)
         Texture2D texture = hits[i]->texture;
 
         float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
+        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
+        float wallBottom = wallTop + wallHeight;
 
-        // --- Draw ceiling ---
-        DrawRectangle(
-            i * sliceWidth,                               // X
-            0,                                            // Y (top)
-            sliceWidth,                                   // Width
-            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f), // Height up to start of wall
-            DARKGRAY                                      // Color of ceiling
-        );
+       // Compute roof rect
+       Rectangle srcRoof = {
+        0, 0,
+        floorTexture.width, floorTexture.height
+        };
+
+        Rectangle destRoof = {
+            i * sliceWidth,     // X
+            0,                  // Y (top of screen)
+            sliceWidth,         // Width
+            wallTop             // Height (from top to start of wall)
+        };
+        
+
+        // Draw a piece of roof texture stretched to fit
+    DrawTexturePro(floorTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
@@ -59,9 +69,6 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture)
             wallHeight};
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-
-        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
-        float wallBottom = wallTop + wallHeight;
 
        // Compute floor rect
         Rectangle srcFloor = {
