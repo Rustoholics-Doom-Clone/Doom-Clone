@@ -16,8 +16,6 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-
-
 void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Texture2D roofTexture)
 {
     for (int i = 0; i < rayCount; i++)
@@ -35,22 +33,20 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
         float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
         float wallBottom = wallTop + wallHeight;
 
-       // Compute roof rect
-       Rectangle srcRoof = {
-        0, 0,
-        roofTexture.width, roofTexture.height
-        };
+        // Compute roof rect
+        Rectangle srcRoof = {
+            0, 0,
+            roofTexture.width, roofTexture.height};
 
         Rectangle destRoof = {
-            i * sliceWidth,     // X
-            0,                  // Y (top of screen)
-            sliceWidth,         // Width
-            wallTop             // Height (from top to start of wall)
+            i * sliceWidth, // X
+            0,              // Y (top of screen)
+            sliceWidth,     // Width
+            wallTop         // Height (from top to start of wall)
         };
-        
 
         // Draw a piece of roof texture stretched to fit
-    DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
+        DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
@@ -70,23 +66,21 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
 
-       // Compute floor rect
+        // Compute floor rect
         Rectangle srcFloor = {
             0, 0,
-            floorTexture.width, floorTexture.height
-        };
+            floorTexture.width, floorTexture.height};
 
         Rectangle destFloor = {
-            i * sliceWidth,          // X position on screen
-            wallBottom,              // Y position (below wall)
-            sliceWidth,              // Width on screen (same as wall slice width)
+            i * sliceWidth,            // X position on screen
+            wallBottom,                // Y position (below wall)
+            sliceWidth,                // Width on screen (same as wall slice width)
             SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
         };
 
         // Draw a piece of floor texture stretched to fit
         DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
     }
-    
 }
 
 int compareEnemyDistance(const void *a, const void *b)
@@ -216,7 +210,7 @@ int main(void)
     Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
     Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
 
-    Weapon *weapons = getWeapons();
+    Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     Enemy **projectiles = weapons[2].projectiles; // Contains all the projectiles from the projectile weapon.
 
