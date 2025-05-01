@@ -54,20 +54,15 @@ void draw3DView(CollisionData **hits, int rayCount)
     
 }
 
-void drawFloorAndRoof(Image floorImage, Image roofImage, Player player)
+void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels)
 {
     float fovRad = DEG_TO_RAD(FOV);
     float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
 
-    // Load pixel data from images
-    Color *floorPixels = LoadImageColors(floorImage);
-    Color *roofPixels = (roofImage.data != NULL) ? LoadImageColors(roofImage) : NULL;
-
-    for (int y = halfScreenHeight; y < SCREEN_HEIGHT; y++) // Only lower half for floor
+    for (int y = halfScreenHeight; y < SCREEN_HEIGHT; y++)
     {
         float rowDistance = (TILE_SIZE * halfScreenHeight) / (y - halfScreenHeight);
 
-        // Compute direction vectors for left and right edge of FOV
         Vec2 rayDirLeft = {
             player.dir.x - player.dir.y * tanf(fovRad / 2),
             player.dir.y + player.dir.x * tanf(fovRad / 2)};
@@ -78,34 +73,31 @@ void drawFloorAndRoof(Image floorImage, Image roofImage, Player player)
         for (int x = 0; x < SCREEN_WIDTH; x++)
         {
             float cameraX = (float)x / SCREEN_WIDTH;
-            Vec2 rayDir;
-            rayDir.x = rayDirLeft.x + cameraX * (rayDirRight.x - rayDirLeft.x);
-            rayDir.y = rayDirLeft.y + cameraX * (rayDirRight.y - rayDirLeft.y);
+            Vec2 rayDir = {
+                rayDirLeft.x + cameraX * (rayDirRight.x - rayDirLeft.x),
+                rayDirLeft.y + cameraX * (rayDirRight.y - rayDirLeft.y)};
 
             Vec2 floorPos = {
                 player.pos.x + rowDistance * rayDir.x,
                 player.pos.y + rowDistance * rayDir.y};
 
-            int texX = ((int)(floorPos.x * floorImage.width)) % floorImage.width;
-            int texY = ((int)(floorPos.y * floorImage.height)) % floorImage.height;
+            int texX = ((int)(floorPos.x * TILE_SIZE)) % TILE_SIZE;
+            int texY = ((int)(floorPos.y * TILE_SIZE)) % TILE_SIZE;
 
-            if (texX < 0) texX += floorImage.width;
-            if (texY < 0) texY += floorImage.height;
+            if (texX < 0) texX += TILE_SIZE;
+            if (texY < 0) texY += TILE_SIZE;
 
-            Color floorColor = floorPixels[texY * floorImage.width + texX];
-            DrawPixel(x, y, floorColor); // Draw floor pixel
+            Color floorColor = floorPixels[texY * TILE_SIZE + texX];
+            renderPixels[y * SCREEN_WIDTH + x] = floorColor;
 
+            // Ceiling (mirror)
             if (roofPixels)
             {
-                Color ceilColor = roofPixels[texY * roofImage.width + texX];
-                DrawPixel(x, SCREEN_HEIGHT - y, ceilColor); // Mirror for ceiling
+                Color ceilColor = roofPixels[texY * TILE_SIZE + texX];
+                renderPixels[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = ceilColor;
             }
         }
     }
-
-    // Free pixel arrays
-    UnloadImageColors(floorPixels);
-    if (roofPixels) UnloadImageColors(roofPixels);
 }
 
 
@@ -236,7 +228,14 @@ int main(void)
 
     Map *mp = loadMap("testmap1.csv");
     Image floorImage = LoadImage("Sprites/Ground.png");
+    Color *floorPixels = LoadImageColors(floorImage);
+    
     Image roofImage = LoadImage("Sprites/Sky.png");
+    Color *roofPixels = LoadImageColors(roofImage);
+
+    Image floorRender = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
+
+    
 
     Weapon *weapons = getWeapons();
 
@@ -324,12 +323,16 @@ int main(void)
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
 
         CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
+        
+        Color *renderPixels = GetImageData(floorRender); // Pixel buffer to write into
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawFloorAndRoof(floorImage, roofImage, player);
+        drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels);
+
         draw3DView(hits, NUM_RAYS);
+
         drawEnemies(player, enemyData, mp->enemyCount);
 
         drawEnemies(player, enemyData, mp->enemyCount);
