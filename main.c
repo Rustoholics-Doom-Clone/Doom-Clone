@@ -79,17 +79,14 @@ void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Colo
                 player.pos.x + rowDistance * rayDir.x,
                 player.pos.y + rowDistance * rayDir.y};
 
-            float tileX = floorPos.x - floorf(floorPos.x);
-            float tileY = floorPos.y - floorf(floorPos.y);
-            if (tileX < 0) tileX += 1.0f;
-            if (tileY < 0) tileY += 1.0f;
+            float textureScale = 8.0f; // Adjust as needed
 
-            int texX = (int)(tileX * floorImage.width);
-            int texY = (int)(tileY * floorImage.height);
-
-            // Clamp to safe bounds
-            texX = CLAMP(texX, 0, floorImage.width - 1);
-            texY = CLAMP(texY, 0, floorImage.height - 1);
+            int texX = ((int)(floorPos.x * textureScale)) % floorImage.width;
+            int texY = ((int)(floorPos.y * textureScale)) % floorImage.height;
+                
+            if (texX < 0) texX += floorImage.width;
+            if (texY < 0) texY += floorImage.height;
+                
 
             Color floorColor = floorPixels[texY * floorImage.width + texX];
             renderBuffer[y * SCREEN_WIDTH + x] = floorColor;
@@ -235,13 +232,16 @@ int main(void)
 
     Map *mp = loadMap("testmap1.csv");
     
-    Texture2D floorTexture = LoadTexture("sprites/Ground.png");
-    Texture2D roofTexture = LoadTexture("sprites/Sky.png");
+    Image floorImage = LoadImage("Sprites/Ground.png");
+    Color *floorPixels = LoadImageColors(floorImage);
     
+    Image roofImage = LoadImage("Sprites/Sky.png");
+    Color *roofPixels = LoadImageColors(roofImage);
 
     Image floorRender = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
     Color *renderPixels = LoadImageColors(floorRender);  // ← allocates memory once
-
+    Texture2D floorTexture = LoadTextureFromImage(floorRender);  // send to GPU once
+    
 
     Weapon *weapons = getWeapons();
 
@@ -372,9 +372,12 @@ int main(void)
 
     // --- Shutdown / Cleanup ---
     UnloadImageColors(renderPixels);
+    UnloadImageColors(floorPixels);
+    UnloadImageColors(roofPixels);
     UnloadImage(floorRender);
+    UnloadImage(floorImage);
+    UnloadImage(roofImage);
     UnloadTexture(floorTexture);
-    UnloadTexture(roofTexture);
     free(renderBuffer);
     UnloadTexture(screenTexture);
 
