@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
 #define TILE_SIZE 64
 #define MAP_WIDTH 10
 #define MAP_HEIGHT 10
@@ -16,7 +16,9 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-void draw3DView(CollisionData **hits, int rayCount)
+
+
+void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Texture2D roofTexture)
 {
     for (int i = 0; i < rayCount; i++)
     {
@@ -30,15 +32,25 @@ void draw3DView(CollisionData **hits, int rayCount)
         Texture2D texture = hits[i]->texture;
 
         float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
+        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
+        float wallBottom = wallTop + wallHeight;
 
-        // --- Draw ceiling ---
-        DrawRectangle(
-            i * sliceWidth,                               // X
-            0,                                            // Y (top)
-            sliceWidth,                                   // Width
-            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f), // Height up to start of wall
-            DARKGRAY                                      // Color of ceiling
-        );
+       // Compute roof rect
+       Rectangle srcRoof = {
+        0, 0,
+        roofTexture.width, roofTexture.height
+        };
+
+        Rectangle destRoof = {
+            i * sliceWidth,     // X
+            0,                  // Y (top of screen)
+            sliceWidth,         // Width
+            wallTop             // Height (from top to start of wall)
+        };
+        
+
+        // Draw a piece of roof texture stretched to fit
+    DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
@@ -58,21 +70,6 @@ void draw3DView(CollisionData **hits, int rayCount)
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
 
-        // --- Draw floor ---
-        DrawRectangle(
-            i * sliceWidth,                                                 // X
-            (SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f),                   // Y (bottom of wall)
-            sliceWidth,                                                     // Width
-            SCREEN_HEIGHT - ((SCREEN_HEIGHT / 2.0f) + (wallHeight / 2.0f)), // Height from wall bottom to screen bottom
-            DARKBROWN                                                       // Color of floor
-        );
-
-        // Failed atempt at texturing floor. Leaving for now to return to later. Currently butcher framerate
-        /*Texture2D floorTexture = LoadTexture("Sprites/Tiles.png");
-
-        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
-        float wallBottom = wallTop + wallHeight;
-
        // Compute floor rect
         Rectangle srcFloor = {
             0, 0,
@@ -87,8 +84,9 @@ void draw3DView(CollisionData **hits, int rayCount)
         };
 
         // Draw a piece of floor texture stretched to fit
-        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);*/
+        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
     }
+    
 }
 
 int compareEnemyDistance(const void *a, const void *b)
@@ -215,6 +213,8 @@ int main(void)
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
+    Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
+    Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
 
     Weapon *weapons = getWeapons();
 
@@ -304,9 +304,10 @@ int main(void)
         CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
 
         BeginDrawing();
-        ClearBackground(DARKBLUE);
+        ClearBackground(BLACK);
 
-        draw3DView(hits, NUM_RAYS);
+        draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
+        drawEnemies(player, enemyData, mp->enemyCount);
 
         drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
