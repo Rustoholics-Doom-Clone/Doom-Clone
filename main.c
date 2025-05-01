@@ -18,7 +18,7 @@
 
 
 
-void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Texture2D roofTexture)
+void draw3DView(CollisionData **hits, int rayCount)
 {
     for (int i = 0; i < rayCount; i++)
     {
@@ -32,25 +32,6 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
         Texture2D texture = hits[i]->texture;
 
         float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
-        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
-        float wallBottom = wallTop + wallHeight;
-
-       // Compute roof rect
-       Rectangle srcRoof = {
-        0, 0,
-        roofTexture.width, roofTexture.height
-        };
-
-        Rectangle destRoof = {
-            i * sliceWidth,     // X
-            0,                  // Y (top of screen)
-            sliceWidth,         // Width
-            wallTop             // Height (from top to start of wall)
-        };
-        
-
-        // Draw a piece of roof texture stretched to fit
-    DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
@@ -69,25 +50,66 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
             wallHeight};
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-
-       // Compute floor rect
-        Rectangle srcFloor = {
-            0, 0,
-            floorTexture.width, floorTexture.height
-        };
-
-        Rectangle destFloor = {
-            i * sliceWidth,          // X position on screen
-            wallBottom,              // Y position (below wall)
-            sliceWidth,              // Width on screen (same as wall slice width)
-            SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
-        };
-
-        // Draw a piece of floor texture stretched to fit
-        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
     }
     
 }
+
+void drawFloorAndRoof(Image floorImage, Image roofImage, Player player)
+{
+    float fovRad = DEG_TO_RAD(FOV);
+    float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
+
+    // Load pixel data from images
+    Color *floorPixels = LoadImageColors(floorImage);
+    Color *roofPixels = (roofImage.data != NULL) ? LoadImageColors(roofImage) : NULL;
+
+    for (int y = halfScreenHeight; y < SCREEN_HEIGHT; y++) // Only lower half for floor
+    {
+        float rowDistance = (TILE_SIZE * halfScreenHeight) / (y - halfScreenHeight);
+
+        // Compute direction vectors for left and right edge of FOV
+        Vec2 rayDirLeft = {
+            player.dir.x - player.dir.y * tanf(fovRad / 2),
+            player.dir.y + player.dir.x * tanf(fovRad / 2)};
+        Vec2 rayDirRight = {
+            player.dir.x + player.dir.y * tanf(fovRad / 2),
+            player.dir.y - player.dir.x * tanf(fovRad / 2)};
+
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+        {
+            float cameraX = (float)x / SCREEN_WIDTH;
+            Vec2 rayDir;
+            rayDir.x = rayDirLeft.x + cameraX * (rayDirRight.x - rayDirLeft.x);
+            rayDir.y = rayDirLeft.y + cameraX * (rayDirRight.y - rayDirLeft.y);
+
+            Vec2 floorPos = {
+                player.pos.x + rowDistance * rayDir.x,
+                player.pos.y + rowDistance * rayDir.y};
+
+            int texX = ((int)(floorPos.x * floorImage.width)) % floorImage.width;
+            int texY = ((int)(floorPos.y * floorImage.height)) % floorImage.height;
+
+            if (texX < 0) texX += floorImage.width;
+            if (texY < 0) texY += floorImage.height;
+
+            Color floorColor = floorPixels[texY * floorImage.width + texX];
+            DrawPixel(x, y, floorColor); // Draw floor pixel
+
+            if (roofPixels)
+            {
+                Color ceilColor = roofPixels[texY * roofImage.width + texX];
+                DrawPixel(x, SCREEN_HEIGHT - y, ceilColor); // Mirror for ceiling
+            }
+        }
+    }
+
+    // Free pixel arrays
+    UnloadImageColors(floorPixels);
+    if (roofPixels) UnloadImageColors(roofPixels);
+}
+
+
+
 
 int compareEnemyDistance(const void *a, const void *b)
 {
@@ -213,8 +235,8 @@ int main(void)
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
-    Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
-    Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
+    Image floorImage = LoadImage("Sprites/Ground.png");
+    Image roofImage = LoadImage("Sprites/Sky.png");
 
     Weapon *weapons = getWeapons();
 
@@ -306,7 +328,8 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
+        drawFloorAndRoof(floorImage, roofImage, player);
+        draw3DView(hits, NUM_RAYS);
         drawEnemies(player, enemyData, mp->enemyCount);
 
         drawEnemies(player, enemyData, mp->enemyCount);
