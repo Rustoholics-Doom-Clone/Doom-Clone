@@ -18,7 +18,7 @@
 
 
 
-void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture)
+void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Texture2D roofTexture)
 {
     for (int i = 0; i < rayCount; i++)
     {
@@ -38,7 +38,7 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture)
        // Compute roof rect
        Rectangle srcRoof = {
         0, 0,
-        floorTexture.width, floorTexture.height
+        roofTexture.width, roofTexture.height
         };
 
         Rectangle destRoof = {
@@ -50,7 +50,7 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture)
         
 
         // Draw a piece of roof texture stretched to fit
-    DrawTexturePro(floorTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
@@ -174,7 +174,8 @@ int main(void)
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
-    Texture2D floorTexture = LoadTexture("Sprites/Tiles.png");
+    Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
+    Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
 
     while (!WindowShouldClose())
     {
@@ -229,9 +230,9 @@ int main(void)
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
 
         BeginDrawing();
-        ClearBackground(DARKBLUE);
+        ClearBackground(BLACK);
 
-        draw3DView(hits, NUM_RAYS, floorTexture);
+        draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
         drawEnemies(player, enemyData, mp->enemyCount);
 
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
