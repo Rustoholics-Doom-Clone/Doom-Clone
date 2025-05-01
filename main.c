@@ -16,8 +16,6 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-
-
 void draw3DView(CollisionData **hits, int rayCount)
 {
     for (int i = 0; i < rayCount; i++)
@@ -99,6 +97,8 @@ void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Colo
         }
     }
 }
+
+
 
 
 
@@ -237,7 +237,6 @@ int main(void)
     Color *renderPixels = LoadImageColors(floorRender);  // ← allocates memory once
     Texture2D floorTexture = LoadTextureFromImage(floorRender);  // send to GPU once
 
-    
 
     Weapon *weapons = getWeapons();
 
