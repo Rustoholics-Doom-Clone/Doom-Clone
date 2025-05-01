@@ -365,6 +365,16 @@ int main(void)
         freeCollisionData(enemyData, mp->enemyCount);
     }
 
+    // --- Shutdown / Cleanup ---
+    UnloadImageColors(floorPixels);
+    UnloadImageColors(roofPixels);
+    UnloadImageColors(renderPixels);
+    UnloadImage(floorImage);
+    UnloadImage(roofImage);
+    UnloadImage(floorRender);
+    UnloadTexture(floorTexture);
+
     CloseWindow();
+
     return 0;
 }
