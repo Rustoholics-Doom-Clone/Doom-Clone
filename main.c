@@ -17,8 +17,6 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-
-
 void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Texture2D roofTexture)
 {
     for (int i = 0; i < rayCount; i++)
@@ -36,22 +34,20 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
         float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
         float wallBottom = wallTop + wallHeight;
 
-       // Compute roof rect
-       Rectangle srcRoof = {
-        0, 0,
-        roofTexture.width, roofTexture.height
-        };
+        // Compute roof rect
+        Rectangle srcRoof = {
+            0, 0,
+            roofTexture.width, roofTexture.height};
 
         Rectangle destRoof = {
-            i * sliceWidth,     // X
-            0,                  // Y (top of screen)
-            sliceWidth,         // Width
-            wallTop             // Height (from top to start of wall)
+            i * sliceWidth, // X
+            0,              // Y (top of screen)
+            sliceWidth,     // Width
+            wallTop         // Height (from top to start of wall)
         };
-        
 
         // Draw a piece of roof texture stretched to fit
-    DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
+        DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
@@ -71,23 +67,21 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
 
-       // Compute floor rect
+        // Compute floor rect
         Rectangle srcFloor = {
             0, 0,
-            floorTexture.width, floorTexture.height
-        };
+            floorTexture.width, floorTexture.height};
 
         Rectangle destFloor = {
-            i * sliceWidth,          // X position on screen
-            wallBottom,              // Y position (below wall)
-            sliceWidth,              // Width on screen (same as wall slice width)
+            i * sliceWidth,            // X position on screen
+            wallBottom,                // Y position (below wall)
+            sliceWidth,                // Width on screen (same as wall slice width)
             SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
         };
 
         // Draw a piece of floor texture stretched to fit
         DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
     }
-    
 }
 
 int compareEnemyDistance(const void *a, const void *b)
@@ -307,6 +301,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
     }
     free(allData);
 }
+
 void drawWeapon(Weapon *wpns, int wpnid)
 {
     switch (wpns[wpnid].currentCooldown) // draws Different sprite depending on cooldown
@@ -448,18 +443,20 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
-        drawEnemies(player, enemyData, mp->enemyCount);
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, floorTexture, roofTexture);
 
-        drawEnemies(player, enemyData, mp->enemyCount);
+        // draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
+        // drawEnemies(player, enemyData, mp->enemyCount);
+
+        // drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
 
-        drawEnemies(player, enemyData, mp->enemyCount);
+        // drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
         updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
-        drawEnemies(player, projectileData, MAXPROJECTILES);
+        // drawEnemies(player, projectileData, MAXPROJECTILES);
 
         drawWeapon(weapons, currentwpn);
 
