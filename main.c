@@ -165,6 +165,45 @@ void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
     }
 }
 
+void drawWeapon(Weapon *wpns, int wpnid)
+{
+    switch (wpns[wpnid].currentCooldown) // draws Different sprite depending on cooldown
+    {
+    case 0:
+    {
+        Rectangle src = {
+            0, 0,
+            (float)wpns[wpnid].normalSprite.width,
+            (float)wpns[wpnid].normalSprite.height};
+
+        Rectangle dest = {
+            wpns[wpnid].screenPos.x,
+            SCREEN_HEIGHT - (wpns[wpnid].normalSprite.height * wpns[wpnid].normalScale.y) + wpns[wpnid].screenPos.y,
+            wpns[wpnid].normalSprite.width * wpns[wpnid].normalScale.x,
+            wpns[wpnid].normalSprite.height * wpns[wpnid].normalScale.y};
+
+        DrawTexturePro(wpns[wpnid].normalSprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
+        break;
+    }
+    default:
+    {
+        Rectangle src = {
+            0, 0,
+            (float)wpns[wpnid].shootingSprite.width,
+            (float)wpns[wpnid].shootingSprite.height};
+
+        Rectangle dest = {
+            wpns[wpnid].screenPos.x,
+            SCREEN_HEIGHT - (wpns[wpnid].shootingSprite.height * wpns[wpnid].shootingScale.y) + wpns[wpnid].screenPos.y,
+            wpns[wpnid].shootingSprite.width * wpns[wpnid].shootingScale.x,
+            wpns[wpnid].shootingSprite.height * wpns[wpnid].shootingScale.y};
+
+        DrawTexturePro(wpns[wpnid].shootingSprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
+        break;
+    }
+    }
+}
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
@@ -177,11 +216,17 @@ int main(void)
     Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
     Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
 
+    Weapon *weapons = getWeapons();
+
+    Enemy **projectiles = weapons[2].projectiles; // Contains all the projectiles from the projectile weapon.
+
+    int currentwpn = 0;
+
     while (!WindowShouldClose())
     {
-        if (player.shoot_cd > 0)
+        if (weapons[currentwpn].currentCooldown > 0)
         {
-            player.shoot_cd--;
+            weapons[currentwpn].currentCooldown--;
         }
 
         if (IsKeyDown(KEY_RIGHT))
@@ -213,21 +258,50 @@ int main(void)
             wishMoveRight(&player);
         }
 
-        if (IsKeyDown(KEY_SPACE) && player.shoot_cd == 0 && player.ammo > 0)
+        if (IsKeyDown(KEY_SPACE) && weapons[currentwpn].currentCooldown == 0 && weapons[currentwpn].ammo > 0)
         {
-            for (int i = 0; i < mp->enemyCount; i++)
-            {
-                shootEnemy(&player, mp->enemies + i, mp->walls, mp->numOfWalls);
-            }
-            player.shoot_cd = SHOOTDELAY;
-            player.ammo--;
+            attackEnemy(&weapons[currentwpn], &player, mp);
+        }
+        if (IsKeyDown('1'))
+        {
+            currentwpn = 0;
+        }
+        if (IsKeyDown('2'))
+        {
+            currentwpn = 1;
+        }
+        if (IsKeyDown('3'))
+        {
+            currentwpn = 2;
+        }
+        if (IsKeyDown('1'))
+        {
+            currentwpn = 0;
+        }
+        if (IsKeyDown('2'))
+        {
+            currentwpn = 1;
+        }
+        if (IsKeyDown('3'))
+        {
+            currentwpn = 2;
+        }
+        if (IsKeyDown('Q'))
+        {
+            weapons[currentwpn].currentCooldown = 1;
+        }
+        if (IsKeyDown('E'))
+        {
+            weapons[currentwpn].currentCooldown = 0;
         }
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
-        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS);
+        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS); // Gets wall CollisionData
 
-        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount);
+        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
+
+        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
 
         BeginDrawing();
         ClearBackground(BLACK);
@@ -235,10 +309,17 @@ int main(void)
         draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
         drawEnemies(player, enemyData, mp->enemyCount);
 
-        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
         drawEnemies(player, enemyData, mp->enemyCount);
-
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
+
+        drawEnemies(player, enemyData, mp->enemyCount);
+        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp); // Yes we know it's a repeat. It looks better like this for now
+
+        drawWeapon(weapons, currentwpn);
+        updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
+        drawEnemies(player, projectileData, MAXPROJECTILES);
+
+        drawWeapon(weapons, currentwpn);
 
         char buffer[64];
         sprintf(buffer, "HP: %d", player.hp);
@@ -247,7 +328,7 @@ int main(void)
         sprintf(buffer, "+");
         DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
 
-        sprintf(buffer, "AMMO: %d", player.ammo);
+        sprintf(buffer, "AMMO: %d", weapons[currentwpn].ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
 
         EndDrawing();
