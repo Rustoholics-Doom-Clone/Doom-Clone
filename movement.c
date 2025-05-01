@@ -112,9 +112,19 @@ float lenFromPointToLine(Vec2 vec, Line line)
 
 Line vecsToLine(Vec2 v1, Vec2 v2)
 {
-    Vec2 n = (Vec2){1.0, (v2.y - v1.y) / (v2.x - v1.x)};
-    Vec2 a = (Vec2){0, v1.y - n.y * v1.x};
-    normalize(&n);
+    Vec2 n = VECINIT;
+    Vec2 a = VECINIT;
+    if (v2.x - v1.x != 0.0)
+    {
+        n = (Vec2){1.0, (v2.y - v1.y) / (v2.x - v1.x)};
+        a = (Vec2){0, v1.y - n.y * v1.x};
+        normalize(&n);
+    }
+    else
+    {
+        n = (Vec2){0.0, 1.0};
+        a = (Vec2){0.0, 0.0};
+    }
 
     return (Line){n, a};
 };
@@ -184,7 +194,49 @@ void addAmmo(Player *player, int ammo)
     player->ammo = MIN(MAXAMMO, old_ammo + ammo);
 }
 
-void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
+CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles)
+{
+    CollisionData **result = malloc(sizeof(CollisionData *) * MAXPROJECTILES); // allocate memory for the data
+
+    for (int i = 0; i < MAXPROJECTILES; i++)
+    {
+        result[i] = NULL;
+
+        if (!projectiles[i] || !inFieldOfView(p1.pos, p1.dir, fov, *projectiles[i]) || (projectiles[i]->visibility == INVISIBLE)) // checks if enemy is outside of fov or dead or invisible
+            continue;
+
+        // make a normalized vector pointing towards the enemy from the player
+        Vec2 diffvec;
+        vectorSub(projectiles[i]->pos, p1.pos, &diffvec);
+        float diff = vectorLenght(diffvec);
+        normalize(&diffvec);
+
+        int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
+        for (int j = 0; j < mp->numOfWalls; j++)
+        {
+            CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
+            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+            if (temp && temp->d < diff) // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
+            {
+                fl = 0; // flag is false
+                break;  // break loop early
+            }
+        }
+        if (!fl)      // if flag is false
+            continue; // check next enemy
+
+        result[i] = malloc(sizeof(CollisionData)); // allocate memory for this collision
+
+        result[i]->d = diff;
+        result[i]->position = projectiles[i]->pos;
+        // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
+        result[i]->angle = vectorDot(p1.dir, diffvec); // well be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
+        result[i]->texture = projectiles[i]->sprite;
+    }
+    return result;
+}
+
+void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dmg)
 {
 
     Vec2 player_look = VECINIT;
@@ -202,7 +254,176 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount)
     {
         if (lenFromPointToLine(enemy->pos, vecsToLine(player->pos, player_look)) < enemy->hitRadius)
         {
-            enemy->hp -= 35;
+            enemy->hp -= dmg;
         }
     }
+}
+
+void shootProjectile(Weapon *wpn, Player *player)
+{
+    Enemy *proj = malloc(sizeof(Enemy));
+    if (!proj)
+        return;
+    // Make an enemy object
+    proj->sprite = LoadTexture("Sprites/Projectiles/projectilespritetransp.png");
+    proj->acceleration = 2000.0 * MAXPROJECTILES;
+    proj->attackRadius = proj->sprite.width / 2;
+    proj->baseCoolDown = 0;
+    proj->coolDown = 0;
+    proj->dir = player->dir;
+    proj->dmg = wpn->dmg;
+    proj->hitRadius = 0;
+    proj->hp = 1;
+    proj->id = -1;
+    proj->maxSpeed = 4000.0 * MAXPROJECTILES;
+    proj->pos = player->pos;
+    Vec2 offset;
+    vectorScale(player->dir, 20.0, &offset);
+    vectorAdd(proj->pos, offset, &proj->pos);
+    proj->status = ALIVE;
+    proj->velocity = VECINIT;
+    proj->visibility = VISIBLE;
+
+    // Try to slot in the object somewhere
+    int fl = 1;
+    for (int i = 0; i < MAXPROJECTILES; i++)
+    {
+        if (!wpn->projectiles[i])
+        {
+            wpn->projectiles[i] = proj;
+            fl = 0;
+            break;
+        }
+    }
+    if (fl)
+    {
+        free(wpn->projectiles[wpn->ppointer]);
+        wpn->projectiles[wpn->ppointer] = proj;
+        wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES;
+    }
+}
+
+void attackEnemy(Weapon *wpn, Player *player, Map *mp)
+{
+    switch (wpn->type)
+    {
+    case FIST: // Basically hitscan but with a range
+        for (int i = 0; i < mp->enemyCount; i++)
+        {
+            Vec2 diffvec;
+            vectorSub(mp->enemies[i].pos, player->pos, &diffvec);
+            float ds = vectorLenght(diffvec);
+            if ((ds - 30.0) < mp->enemies[i].hitRadius)
+                shootEnemy(player, mp->enemies + i, mp->walls, mp->numOfWalls, wpn->dmg);
+        }
+        break;
+
+    case HITSCAN: // Basically a laser beam
+        for (int i = 0; i < mp->enemyCount; i++)
+        {
+            shootEnemy(player, mp->enemies + i, mp->walls, mp->numOfWalls, wpn->dmg);
+        }
+        break;
+
+    case PROJECTILE:
+        shootProjectile(wpn, player); // Shoot a projectile
+        break;
+    default:
+        break;
+    }
+    wpn->currentCooldown = wpn->baseCooldown; // Reset fire cooldown
+    wpn->ammo--;                              // lower ammo
+}
+
+int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
+{
+    Vec2 diffvec;
+    for (int i = 0; i < ec; i++)
+    {
+        vectorSub(projectile->pos, enemies[i].pos, &diffvec);
+        if (vectorLenght(diffvec) <= (projectile->attackRadius + enemies[i].hitRadius))
+        {
+            enemies[i].hp -= projectile->dmg;
+            return 1; // Signal to updateProjectiles that it should free and NULL it
+        }
+    }
+
+    moveEnemy(projectile, projectile->dir, 60);       // Move the projectile
+    vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
+    if (vectorLenght(diffvec) >= 2000)
+    {
+        return 1; // Signal to updateProjectiles that it should free and NULL it
+    }
+
+    return 0;
+}
+
+void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn)
+{
+
+    if (projectiles[wpn->ppointer]) // if the current queue slot contains anything
+    {
+        if (updateProjectile(projectiles[wpn->ppointer], player, enemies, ec)) // update the projectile and check if it should be removed
+        {
+            free(projectiles[wpn->ppointer]);  // deallocate projectile
+            projectiles[wpn->ppointer] = NULL; // set spot to null
+        }
+    }
+
+    wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES; // move over one spot in the queue
+    return;
+}
+
+Weapon *getWeapons()
+{
+    Weapon *wps = malloc(sizeof(Weapon) * 3);
+    if (!wps)
+        return NULL;
+
+    // Make the fist weapon
+    wps[0].normalSprite = LoadTexture("Sprites/Weapons/Fist1transp.png");
+    wps[0].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
+    wps[0].baseCooldown = 15;
+    wps[0].currentCooldown = 0;
+    wps[0].screenPos = (Vec2){400, 0};
+    wps[0].normalScale = (Vec2){0.8, 0.8};
+    wps[0].shootingScale = (Vec2){1.0, 1.0};
+    wps[0].ppointer = 0;
+    wps[0].projectiles = NULL;
+    wps[0].type = FIST;
+    wps[0].ammo = INT_MAX;
+    wps[0].dmg = 30;
+
+    // Make the smg
+    wps[1].normalSprite = LoadTexture("Sprites/Weapons/kpisttransp.png");
+    wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
+    wps[1].baseCooldown = 15;
+    wps[1].currentCooldown = 0;
+    wps[1].screenPos = (Vec2){100, 0};
+    wps[1].normalScale = (Vec2){1.0, 1.0};
+    wps[1].shootingScale = (Vec2){1.0, 1.0};
+    wps[1].ppointer = 0;
+    wps[1].projectiles = NULL;
+    wps[1].type = HITSCAN;
+    wps[1].ammo = 120;
+    wps[1].dmg = 20;
+
+    // Make the pie
+    wps[2].normalSprite = LoadTexture("Sprites/Weapons/Projectile1transp.png");
+    wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
+    wps[2].baseCooldown = 15;
+    wps[2].currentCooldown = 0;
+    wps[2].screenPos = (Vec2){400, 0};
+    wps[2].normalScale = (Vec2){1.0, 1.0};
+    wps[2].shootingScale = (Vec2){1.0, 1.0};
+    wps[2].ppointer = 0;
+    wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
+    for (int i = 0; i < MAXPROJECTILES; i++)
+        wps[2].projectiles[i] = NULL; // initialize to NULL
+
+    wps[2].type = PROJECTILE;
+    wps[2].ammo = 10;
+    wps[2].dmg = 100;
+
+    return wps;
 }

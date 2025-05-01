@@ -72,6 +72,45 @@ CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, in
     return result;
 }
 
+CollisionData **rayShotPlayer(Enemy foe, Player p1, Map *mp)
+{
+    CollisionData **result = malloc(sizeof(CollisionData *)); // allocate memory for the data
+
+    result[0] = NULL;
+
+    // make a normalized vector pointing towards the enemy from the player
+    Vec2 diffvec;
+    vectorSub(foe.pos, p1.pos, &diffvec);
+    float diff = vectorLenght(diffvec);
+    normalize(&diffvec);
+
+    int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
+    for (int j = 0; j < mp->numOfWalls; j++)
+    {
+        CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
+        // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
+        if (temp && temp->d < diff) // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
+        {
+            fl = 0; // flag is false
+            break;  // break loop early
+        }
+    }
+    if (!fl)
+    {
+        free(result);
+        return NULL;
+    }
+
+    result[0] = malloc(sizeof(CollisionData)); // allocate memory for this collision
+
+    result[0]->d = diff;
+    result[0]->position = foe.pos;
+    result[0]->angle = RAD_TO_DEG(acosf(vectorDot(p1.dir, diffvec)));
+    result[0]->texture = foe.sprite;
+
+    return result;
+}
+
 void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
 {
     // Apply acceleration
@@ -106,30 +145,31 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         return;
     }
 
-    Vec2 dir;
-    vectorSub(p1.pos, foe->pos, &dir);
+    CollisionData **seePLayer = rayShotPlayer(*foe, p1, mp); // shoots a ray at the player to see if there is line of sight.
 
-    if (vectorLenght(dir) <= foe->attackRadius) // If player is withing attackRadius
-    {
-        foe->velocity = VECINIT; // Stop!
-        if (foe->coolDown <= 0)
-        {
-            *playerHealth -= foe->dmg; // Lower player health
-            foe->coolDown = foe->baseCoolDown / numOfEnemy;
-        }
-        else
-        {
-            foe->coolDown -= 1;
-        }
-
-        return; // early return
-    }
-
-    CollisionData **seePLayer = rayShotEnemies(p1, fov, mp, foe, 1); // shoots a ray at the player to see if there is line of sight.
-
-    switch (seePLayer[0] == NULL)
+    switch (seePLayer == NULL)
     {
     case 0: // If there is line of sight
+
+        Vec2 dir;
+        vectorSub(p1.pos, foe->pos, &dir);
+
+        if (vectorLenght(dir) <= foe->attackRadius) // If player is within attackRadius
+        {
+            foe->velocity = VECINIT; // Stop!
+            if (foe->coolDown <= 0)
+            {
+                *playerHealth -= foe->dmg; // Lower player health
+                foe->coolDown = foe->baseCoolDown / numOfEnemy;
+            }
+            else
+            {
+                foe->coolDown -= 1;
+            }
+
+            break;
+            // early return
+        }
 
         normalize(&dir);
         foe->dir = dir;                      // Turn toward player
@@ -288,32 +328,32 @@ Map *loadMap(char *filename)
 
         switch (type)
         {
-        case 0:
+        case 0: // Creates a melee enemy
             result->enemies[i].sprite = LoadTexture("Sprites/MeleeNollantransp.png");
             result->enemies[i].attackRadius = 40.0;
-            result->enemies[i].dmg = 5;
+            result->enemies[i].dmg = 3;
             result->enemies[i].hp = 70;
             result->enemies[i].baseCoolDown = 30;
             result->enemies[i].acceleration = 300;
             result->enemies[i].maxSpeed = 1200;
 
             break;
-        case 1:
-            result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
-            result->enemies[i].attackRadius = 450.0;
-            result->enemies[i].dmg = 10;
+        case 1: // Creates a midrange enemy
+            result->enemies[i].sprite = LoadTexture("Sprites/MidrangeNollantransp.png");
+            result->enemies[i].attackRadius = 330.0;
+            result->enemies[i].dmg = 5;
             result->enemies[i].hp = 100;
-            result->enemies[i].baseCoolDown = 35;
+            result->enemies[i].baseCoolDown = 120;
             result->enemies[i].acceleration = 100;
             result->enemies[i].maxSpeed = 400;
 
             break;
-        case 2:
+        case 2: // Creates a long range enemy
             result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
-            result->enemies[i].attackRadius = 800.0;
+            result->enemies[i].attackRadius = 500.0;
             result->enemies[i].dmg = 20;
             result->enemies[i].hp = 50;
-            result->enemies[i].baseCoolDown = 65;
+            result->enemies[i].baseCoolDown = 300;
             result->enemies[i].acceleration = 100;
             result->enemies[i].maxSpeed = 400;
 
@@ -322,8 +362,8 @@ Map *loadMap(char *filename)
             printf("Invalid enemy type\n");
             break;
         }
-
-        result->enemies[i].coolDown = 1;
+        // Common for all enemies
+        result->enemies[i].coolDown = result->enemies[i].baseCoolDown;
         result->enemies[i].status = ALIVE;
         result->enemies[i].visibility = VISIBLE;
         result->enemies[i].velocity = VECINIT;
