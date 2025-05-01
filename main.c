@@ -52,15 +52,20 @@ void draw3DView(CollisionData **hits, int rayCount)
     
 }
 
-void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderBuffer, Image floorImage, Image roofImage)
+void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels, Image floorImage, Image roofImage)
 {
     float fovRad = DEG_TO_RAD(FOV);
     float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
 
+    // Texture scale factor (adjust as needed)
+    float textureScale = 8.0f;
+
+    // Loop over each row of the screen (lower half for floor, upper half for ceiling)
     for (int y = halfScreenHeight; y < SCREEN_HEIGHT; y++)
     {
         float rowDistance = (TILE_SIZE * halfScreenHeight) / (y - halfScreenHeight);
 
+        // Calculate the direction of the ray at the left and right edges of the FOV
         Vec2 rayDirLeft = {
             player.dir.x - player.dir.y * tanf(fovRad / 2),
             player.dir.y + player.dir.x * tanf(fovRad / 2)};
@@ -70,36 +75,41 @@ void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Colo
 
         for (int x = 0; x < SCREEN_WIDTH; x++)
         {
+            // Calculate the direction of the ray for this column
             float cameraX = (float)x / SCREEN_WIDTH;
             Vec2 rayDir = {
                 rayDirLeft.x + cameraX * (rayDirRight.x - rayDirLeft.x),
                 rayDirLeft.y + cameraX * (rayDirRight.y - rayDirLeft.y)};
 
-            Vec2 floorPos = {
-                player.pos.x + rowDistance * rayDir.x,
-                player.pos.y + rowDistance * rayDir.y};
+            // Calculate the floor and ceiling texture coordinates based on the ray direction
+            // Normalize the ray direction to get texture coordinates
+            float tileX = rayDir.x * rowDistance;
+            float tileY = rayDir.y * rowDistance;
 
-            float textureScale = 8.0f; // Adjust as needed
+            // Use modulo for texture wrapping and scaling
+            int texX = (int)(tileX * textureScale) % floorImage.width;
+            int texY = (int)(tileY * textureScale) % floorImage.height;
 
-            int texX = ((int)(floorPos.x * textureScale)) % floorImage.width;
-            int texY = ((int)(floorPos.y * textureScale)) % floorImage.height;
-                
+            // Ensure texX and texY are within bounds
             if (texX < 0) texX += floorImage.width;
             if (texY < 0) texY += floorImage.height;
-                
 
-            Color floorColor = floorPixels[texY * floorImage.width + texX];
-            renderBuffer[y * SCREEN_WIDTH + x] = floorColor;
+            // Sample the floor texture
+            Color floorColor = GetImageColor(floorImage, texX, texY);
+            renderPixels[y * SCREEN_WIDTH + x] = floorColor;
 
-            // Ceiling (mirror)
+            // Sample the ceiling texture (same as floor but mirrored)
             if (roofPixels)
             {
-                Color roofColor = roofPixels[texY * roofImage.width + texX];
-                renderBuffer[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = roofColor;
+                Color ceilColor = GetImageColor(roofImage, texX, texY);
+                renderPixels[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = ceilColor;
             }
         }
     }
 }
+
+
+
 
 int compareEnemyDistance(const void *a, const void *b)
 {
