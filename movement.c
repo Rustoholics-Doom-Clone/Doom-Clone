@@ -114,13 +114,6 @@ Line vecsToLine(Vec2 v1, Vec2 v2)
 {
     Vec2 n = VECINIT;
     Vec2 a = VECINIT;
-<<<<<<< HEAD
-    if (v2.x - v1.x != 0.0) {
-        n = (Vec2){1.0, (v2.y - v1.y) / (v2.x - v1.x)};
-        a = (Vec2){0, v1.y - n.y * v1.x};
-        normalize(&n);
-    } else {
-=======
     if (v2.x - v1.x != 0.0)
     {
         n = (Vec2){1.0, (v2.y - v1.y) / (v2.x - v1.x)};
@@ -129,7 +122,6 @@ Line vecsToLine(Vec2 v1, Vec2 v2)
     }
     else
     {
->>>>>>> origin/main
         n = (Vec2){0.0, 1.0};
         a = (Vec2){0.0, 0.0};
     }
@@ -359,7 +351,7 @@ int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
         }
     }
 
-    moveEnemy(projectile, projectile->dir, 60);       // Move the projectile
+    moveEnemy(projectile, projectile->dir, 60, NULL, 0);       // Move the projectile
     vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
     if (vectorLenght(diffvec) >= 2000)
     {

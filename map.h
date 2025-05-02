@@ -63,11 +63,11 @@ CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, in
 // Shoots from the enemys point of view so it ignores the fov and such
 CollisionData **rayShotPlayer(Enemy foe, Player p1, Map *mp);
 // Applies a force to an enemy in the dir direction.
-void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS);
+void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount);
 // Updates an enemy
-void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy);
+void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount);
 // Handles a the queue of enemies to be updated
-void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp);
+void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp, Wall *walls, int wallcount);
 
 #endif
 
