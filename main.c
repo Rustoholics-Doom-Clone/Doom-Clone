@@ -355,6 +355,8 @@ int main(void)
     Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
     Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
 
+    Font font = LoadFont("Sprites/Fonts/setback.png");
+
 
     Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -369,7 +371,8 @@ int main(void)
         switch (gameState)
         {
         case MAINMENU:
-        DrawText("Press [ Enter ] to start", SCREEN_WIDTH/2 - 360, SCREEN_HEIGHT/2, 60, WHITE);
+        const char *message = "Press [ Enter ] to start";
+        DrawTextEx(font, message, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, message, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, WHITE);
         if (IsKeyPressed(KEY_ENTER))
         {
             gameState = GAMEPLAY;
@@ -389,7 +392,7 @@ int main(void)
 
         if(IsKeyPressed(KEY_ENTER))
         {
-            gameState = MAINMENU;
+            gameState = PAUSEMENU;
             break;
         }
 
@@ -425,18 +428,6 @@ int main(void)
         if (IsKeyDown(KEY_SPACE) && weapons[currentwpn].currentCooldown == 0 && weapons[currentwpn].ammo > 0)
         {
             attackEnemy(&weapons[currentwpn], &player, mp);
-        }
-        if (IsKeyDown('1'))
-        {
-            currentwpn = 0;
-        }
-        if (IsKeyDown('2'))
-        {
-            currentwpn = 1;
-        }
-        if (IsKeyDown('3'))
-        {
-            currentwpn = 2;
         }
         if (IsKeyDown('1'))
         {
@@ -503,6 +494,9 @@ int main(void)
         freeCollisionData(projectileData, MAXPROJECTILES);
             break;
 
+        case PAUSEMENU:
+            break;
+            
         case ENDSCREEN:
             break;
         
