@@ -2,6 +2,7 @@
 #include "raycast.h"
 #include "movement.h"
 #include "map.h"
+#include "menu.h"
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
@@ -348,10 +349,12 @@ int main(void)
     srand(time(NULL));
 
     Player player = PLAYERINIT;
+    GameState gameState = MAINMENU;
 
     Map *mp = loadMap("testmap1.csv");
     Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
     Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
+
 
     Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -361,9 +364,33 @@ int main(void)
 
     while (!WindowShouldClose())
     {
+        BeginDrawing();
+        ClearBackground(BLACK);
+        switch (gameState)
+        {
+        case MAINMENU:
+        DrawText("Press [ Enter ] to start", SCREEN_WIDTH/2 - 360, SCREEN_HEIGHT/2, 60, WHITE);
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            gameState = GAMEPLAY;
+            player = PLAYERINIT;
+            mp = loadMap("testmap1.csv"); //This is very inefficient, but I don't know how to do better
+            weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
+            projectiles = weapons[2].projectiles;
+            currentwpn = 0;
+        }
+            break;
+
+        case GAMEPLAY:
         if (weapons[currentwpn].currentCooldown > 0)
         {
             weapons[currentwpn].currentCooldown--;
+        }
+
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            gameState = MAINMENU;
+            break;
         }
 
         if (IsKeyDown(KEY_RIGHT))
@@ -440,8 +467,7 @@ int main(void)
 
         CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
 
-        BeginDrawing();
-        ClearBackground(BLACK);
+
 
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, floorTexture, roofTexture);
 
@@ -470,11 +496,22 @@ int main(void)
         sprintf(buffer, "AMMO: %d", weapons[currentwpn].ammo);
         DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
 
-        EndDrawing();
+
 
         freeCollisionData(hits, NUM_RAYS);
         freeCollisionData(enemyData, mp->enemyCount);
         freeCollisionData(projectileData, MAXPROJECTILES);
+            break;
+
+        case ENDSCREEN:
+            break;
+        
+        default:
+            break;
+        }
+        EndDrawing();
+
+
     }
 
     CloseWindow();
