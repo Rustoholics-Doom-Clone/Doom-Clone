@@ -449,10 +449,10 @@ int main(void)
         // drawEnemies(player, enemyData, mp->enemyCount);
 
         // drawEnemies(player, enemyData, mp->enemyCount);
-        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp);
+        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls);
 
         // drawEnemies(player, enemyData, mp->enemyCount);
-        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp); // Yes we know it's a repeat. It looks better like this for now
+        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
         updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);

@@ -114,7 +114,7 @@ CollisionData **rayShotPlayer(Enemy foe, Player p1, Map *mp)
     return result;
 }
 
-void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
+void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
 {
     // Apply acceleration
     Vec2 acc;
@@ -131,13 +131,46 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS)
     float frictionPerFrame = powf(friction, 60.0f / (float)targetFPS);
     vectorScale(foe->velocity, frictionPerFrame, &foe->velocity);
 
+
     // Move position
     Vec2 ds;
+    Vec2 res;
     vectorScale(foe->velocity, 1.0f / (float)targetFPS, &ds);
-    vectorAdd(ds, foe->pos, &foe->pos);
+    vectorAdd(ds, foe->pos, &res);
+
+    Vec2 old_pos = foe->pos;
+    int i = 0;
+    while (i < wallcount)
+    {
+        if (intersect(old_pos, res, walls[i].start, walls[i].stop))
+        {
+            Vec2 pos_res = VECINIT;
+            Vec2 wall_res = VECINIT;
+            Vec2 new_pos = VECINIT;
+            vectorSub(old_pos, res, &pos_res);
+            vectorSub(walls[i].start, walls[i].stop, &wall_res);
+            float dot = vectorDot(pos_res, wall_res);
+            float len = vectorLenght(wall_res);
+            float k = dot / (len * len);
+            vectorScale(wall_res, k, &new_pos);
+            if (vectorLenght(new_pos) < 0.5)
+            {
+                res = old_pos;
+                break;
+            }
+            vectorSub(old_pos, new_pos, &res);
+            i = 0;
+        }
+        else
+        {
+            i += 1;
+        }
+    }
+    foe->pos = res;
+
 }
 
-void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy)
+void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
 {
     if (foe->status == DEAD)
         return;
@@ -176,7 +209,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
 
         normalize(&dir);
         foe->dir = dir;                      // Turn toward player
-        moveEnemy(foe, foe->dir, targetFPS); // Walk forward
+        moveEnemy(foe, foe->dir, targetFPS, walls, wallcount); // Walk forward
         break;
 
     case 1:                       // No line of sight
@@ -184,10 +217,10 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         switch (choice)
         {
         case 0:
-            moveEnemy(foe, foe->dir, targetFPS); // Move forward
+            moveEnemy(foe, foe->dir, targetFPS, walls, wallcount); // Move forward
             break;
         case 1:
-            moveEnemy(foe, foe->dir, targetFPS); // Move forward
+            moveEnemy(foe, foe->dir, targetFPS, walls, wallcount); // Move forward
             break;
         case 2:
             rotate(&foe->dir, DEG_TO_RAD(10.0)); // turn left
@@ -204,14 +237,14 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
     freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp)
+void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp, Wall *walls, int wallcount)
 {
     static int currentIndex = 0; // Index is saved between calls
 
     if (qSize == 0) // if no enemies return
         return;
 
-    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize); // update the enemy at index
+    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
     currentIndex = (currentIndex + 1) % qSize;                                  // move index
 }
 

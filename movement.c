@@ -351,7 +351,7 @@ int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
         }
     }
 
-    moveEnemy(projectile, projectile->dir, 60);       // Move the projectile
+    moveEnemy(projectile, projectile->dir, 60, NULL, 0);       // Move the projectile
     vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
     if (vectorLenght(diffvec) >= 2000)
     {
