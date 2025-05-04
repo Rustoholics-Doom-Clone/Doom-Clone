@@ -54,7 +54,11 @@ typedef struct Enemy
     int coolDown;
     float acceleration;
     float maxSpeed;
+    int friendlyProjectile;
+    int type;
 } Enemy;
+
+void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer, int friendly);
 
 // Checks if enemy is in players field of view
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float FOV, Enemy foe1);
@@ -80,6 +84,8 @@ typedef struct Map
     Wall *walls;
     int enemyCount;
     Enemy *enemies;
+    Enemy **projectiles;
+    int ppointer;
 } Map;
 // Opens a new map file
 FILE *newMap(const char *filename);

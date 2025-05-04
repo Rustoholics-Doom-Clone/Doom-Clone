@@ -131,7 +131,6 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
     float frictionPerFrame = powf(friction, 60.0f / (float)targetFPS);
     vectorScale(foe->velocity, frictionPerFrame, &foe->velocity);
 
-
     // Move position
     Vec2 ds;
     Vec2 res;
@@ -167,7 +166,6 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
         }
     }
     foe->pos = res;
-
 }
 
 void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
@@ -189,13 +187,20 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
 
         Vec2 dir;
         vectorSub(p1.pos, foe->pos, &dir);
+        float dist = vectorLenght(dir);
+        normalize(&dir);
 
-        if (vectorLenght(dir) <= foe->attackRadius) // If player is within attackRadius
+        if (dist <= foe->attackRadius) // If player is within attackRadius
         {
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
             {
-                *playerHealth -= foe->dmg; // Lower player health
+                if (foe->type == 0)
+
+                    *playerHealth -= foe->dmg;
+                else
+                    shootProjectile(foe->pos, dir, foe->dmg, mp->projectiles, &mp->ppointer, 0);
+
                 foe->coolDown = foe->baseCoolDown / numOfEnemy;
             }
             else
@@ -207,8 +212,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
             // early return
         }
 
-        normalize(&dir);
-        foe->dir = dir;                      // Turn toward player
+        foe->dir = dir;                                        // Turn toward player
         moveEnemy(foe, foe->dir, targetFPS, walls, wallcount); // Walk forward
         break;
 
@@ -245,7 +249,7 @@ void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov
         return;
 
     updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
-    currentIndex = (currentIndex + 1) % qSize;                                  // move index
+    currentIndex = (currentIndex + 1) % qSize;                                                    // move index
 }
 
 FILE *newMap(const char *filename)
@@ -372,16 +376,18 @@ Map *loadMap(char *filename)
             result->enemies[i].baseCoolDown = 30;
             result->enemies[i].acceleration = 300;
             result->enemies[i].maxSpeed = 1200;
+            result->enemies[i].type = 0;
 
             break;
         case 1: // Creates a midrange enemy
             result->enemies[i].sprite = LoadTexture("Sprites/MidrangeNollantransp.png");
             result->enemies[i].attackRadius = 330.0;
-            result->enemies[i].dmg = 5;
+            result->enemies[i].dmg = 20;
             result->enemies[i].hp = 100;
-            result->enemies[i].baseCoolDown = 120;
+            result->enemies[i].baseCoolDown = 240;
             result->enemies[i].acceleration = 100;
             result->enemies[i].maxSpeed = 400;
+            result->enemies[i].type = 1;
 
             break;
         case 2: // Creates a long range enemy
@@ -392,6 +398,7 @@ Map *loadMap(char *filename)
             result->enemies[i].baseCoolDown = 300;
             result->enemies[i].acceleration = 100;
             result->enemies[i].maxSpeed = 400;
+            result->enemies[i].type = 2;
 
             break;
         default:
@@ -399,16 +406,21 @@ Map *loadMap(char *filename)
             break;
         }
         // Common for all enemies
-        result->enemies[i].coolDown = result->enemies[i].baseCoolDown;
+        result->enemies[i].coolDown = 0;
         result->enemies[i].status = ALIVE;
         result->enemies[i].visibility = VISIBLE;
         result->enemies[i].velocity = VECINIT;
         result->enemies[i].dir = (Vec2){0.0, 1.0};
-        result->enemies[i].hitRadius = result->enemies[i].sprite.width / 2;
+        result->enemies[i].hitRadius = (result->enemies[i].sprite.width * 16) / 64;
         result->enemies[i].acceleration *= nenemy;
         result->enemies[i].maxSpeed *= nenemy;
+        result->enemies[i].friendlyProjectile = -1;
     }
 
+    result->projectiles = malloc(MAXPROJECTILES * sizeof(Enemy *));
+    for (int i = 0; i < MAXPROJECTILES; i++)
+        result->projectiles[i] = NULL;
+    result->ppointer = 0;
     fclose(mfile); // close file
     return result; // return map
 }
