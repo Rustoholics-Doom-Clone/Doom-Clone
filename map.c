@@ -131,7 +131,6 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
     float frictionPerFrame = powf(friction, 60.0f / (float)targetFPS);
     vectorScale(foe->velocity, frictionPerFrame, &foe->velocity);
 
-
     // Move position
     Vec2 ds;
     Vec2 res;
@@ -167,7 +166,6 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
         }
     }
     foe->pos = res;
-
 }
 
 void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
@@ -208,7 +206,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
         }
 
         normalize(&dir);
-        foe->dir = dir;                      // Turn toward player
+        foe->dir = dir;                                        // Turn toward player
         moveEnemy(foe, foe->dir, targetFPS, walls, wallcount); // Walk forward
         break;
 
@@ -245,7 +243,7 @@ void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov
         return;
 
     updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
-    currentIndex = (currentIndex + 1) % qSize;                                  // move index
+    currentIndex = (currentIndex + 1) % qSize;                                                    // move index
 }
 
 FILE *newMap(const char *filename)
@@ -404,7 +402,7 @@ Map *loadMap(char *filename)
         result->enemies[i].visibility = VISIBLE;
         result->enemies[i].velocity = VECINIT;
         result->enemies[i].dir = (Vec2){0.0, 1.0};
-        result->enemies[i].hitRadius = result->enemies[i].sprite.width / 2;
+        result->enemies[i].hitRadius = (result->enemies[i].sprite.width * 16) / 64;
         result->enemies[i].acceleration *= nenemy;
         result->enemies[i].maxSpeed *= nenemy;
     }

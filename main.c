@@ -200,7 +200,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
 
             // Sprite height scaling factor
             float spritesScale = 24.0;
-            float spriteHeight = spritesScale * (SCREEN_HEIGHT / transformY) * 1.8f; // 1.8 = tune to taste
+            float spriteHeight = spritesScale * (SCREEN_HEIGHT / transformY) * 1.8f * ((float)sprite.height / 64.0); // 1.8 = tune to taste
             float spriteWidth = spriteHeight * aspectRatio;
 
             Rectangle src = {
