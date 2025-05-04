@@ -176,8 +176,9 @@ void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
     }
 }
 
-void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionData **wallhits, int raycount, CollisionData **projectileData, Texture2D floorTexture, Texture2D roofTexture)
+void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionData **wallhits, int raycount, CollisionData **projectileData, Image *floorImage, Texture2D *floorTextureBuffer, Image floorTexture, Image roofTexture)
 {
+
     CollisionData **allData = malloc(sizeof(CollisionData *) * (enemycount + raycount + MAXPROJECTILES));
     if (!allData)
         return;
@@ -187,9 +188,62 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
 
     qsort(allData, (enemycount + raycount + MAXPROJECTILES), sizeof(CollisionData *), compareEnemyDistance);
 
+    Color *pixels = floorImage->data; // Pointer to the Image pixel buffer
+
     Vec2 plane = {
         -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
         p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
+
+    float posScale = 0.0150f; // Achieved through trial and error. If the floor is moving to much in the same direction as the player. I.e moves infront of the player. This is to low and vice versa
+
+    for (int y = SCREEN_HEIGHT / 2 + 1; y < SCREEN_HEIGHT; y++)
+    {
+        float rayDirX0 = p1.dir.x - plane.x;
+        float rayDirY0 = p1.dir.y - plane.y;
+        float rayDirX1 = p1.dir.x + plane.x;
+        float rayDirY1 = p1.dir.y + plane.y;
+
+        float rowDistance = (float)SCREEN_HEIGHT / (2.0f * y - SCREEN_HEIGHT);
+        float stepX = rowDistance * (rayDirX1 - rayDirX0) / SCREEN_WIDTH;
+        float stepY = rowDistance * (rayDirY1 - rayDirY0) / SCREEN_WIDTH;
+
+        float floorX = p1.pos.x * posScale + rowDistance * rayDirX0;
+        float floorY = p1.pos.y * posScale + rowDistance * rayDirY0;
+
+        for (int x = 0; x < SCREEN_WIDTH; ++x)
+        {
+
+            // float scaleFactor = 0.8f;
+
+            float repeatScale = 1.0f; // how much world space each texture tile covers
+
+            int tx = (int)((floorX / repeatScale) * floorTexture.width) % floorTexture.width;
+            int ty = (int)((floorY / repeatScale) * floorTexture.height) % floorTexture.height;
+
+            // Ensure wrapping is safe for negative values
+            tx = (tx + floorTexture.width) % floorTexture.width;
+            ty = (ty + floorTexture.height) % floorTexture.height;
+
+            int ceilingY = SCREEN_HEIGHT - y;
+
+            // Get the floor and ceiling colors
+            Color floorColor = GetImageColor(floorTexture, tx, ty);
+            Color ceilingColor = GetImageColor(roofTexture, tx, ty);
+
+            // Set the pixels in the Image data directly (faster than DrawPixel)
+            pixels[y * SCREEN_WIDTH + x] = floorColor;
+            pixels[ceilingY * SCREEN_WIDTH + x] = ceilingColor;
+
+            floorX += stepX;
+            floorY += stepY;
+        }
+    }
+
+    // After updating the floorImage, we update the floorTextureBuffer
+    UpdateTexture(*floorTextureBuffer, floorImage->data);
+
+    // Draw the modified floorImage (both floor and ceiling) to the screen
+    DrawTexture(*floorTextureBuffer, 0, 0, WHITE); // You can adjust the position here
 
     int wallSliceIndex = 0;
     for (int c = 0; c < (enemycount + raycount + MAXPROJECTILES); c++)
@@ -261,6 +315,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
             float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
             float wallBottom = wallTop + wallHeight;
 
+            /*
             // Compute roof rect
             Rectangle srcRoof = {
                 0, 0,
@@ -274,7 +329,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
             };
 
             // Draw a piece of roof texture stretched to fit
-            DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
+            DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);*/
 
             // --- Draw walls ---
             float texX = allData[c]->textureOffset * texture.width;
@@ -293,7 +348,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
                 wallHeight};
 
             DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-
+            /*
             // Compute floor rect
             Rectangle srcFloor = {
                 0, 0,
@@ -307,7 +362,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
             };
 
             // Draw a piece of floor texture stretched to fit
-            DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
+            DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);*/
 
             wallSliceIndex++;
         }
@@ -366,15 +421,12 @@ int main(void)
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
-    Image floorImage = LoadImage("Sprites/Ground.png");
-    Color *floorPixels = LoadImageColors(floorImage);
 
-    Image roofImage = LoadImage("Sprites/Sky.png");
-    Color *roofPixels = LoadImageColors(roofImage);
+    Image floorImage = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
+    Texture2D floorTextureBuffer = LoadTextureFromImage(floorImage);
 
-    Image floorRender = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
-    Color *renderPixels = LoadImageColors(floorRender);         // ← allocates memory once
-    Texture2D floorTexture = LoadTextureFromImage(floorRender); // send to GPU once
+    Image floorTexture = LoadImage("Sprites/Ground.png");
+    Image roofTexture = LoadImage("Sprites/Sky.png");
 
     Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -467,10 +519,8 @@ int main(void)
         ClearBackground(BLACK);
 
         // drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels, floorImage, roofImage);
-        // UpdateTexture(floorTexture, renderPixels); // ← re-upload to GPU
-        // DrawTexture(floorTexture, 0, 0, WHITE);    // ← draw one quad
 
-        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, floorTexture, floorTexture);
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls);
 
@@ -497,7 +547,7 @@ int main(void)
         freeCollisionData(enemyData, mp->enemyCount);
         freeCollisionData(projectileData, MAXPROJECTILES);
     }
-
+    /*
     // --- Shutdown / Cleanup ---
     UnloadImageColors(floorPixels);
     UnloadImageColors(roofPixels);
@@ -505,7 +555,7 @@ int main(void)
     UnloadImage(floorImage);
     UnloadImage(roofImage);
     UnloadImage(floorRender);
-    UnloadTexture(floorTexture);
+    UnloadTexture(floorTexture);*/
 
     CloseWindow();
 
