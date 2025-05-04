@@ -82,6 +82,7 @@ typedef struct Map
     int enemyCount;
     Enemy *enemies;
     Enemy **projectiles;
+    int ppointer;
 } Map;
 // Opens a new map file
 FILE *newMap(const char *filename);

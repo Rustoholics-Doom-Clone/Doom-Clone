@@ -411,7 +411,7 @@ Map *loadMap(char *filename)
     result->projectiles = malloc(MAXPROJECTILES * sizeof(Enemy *));
     for (int i = 0; i < MAXPROJECTILES; i++)
         result->projectiles[i] = NULL;
-
+    result->ppointer = 0;
     fclose(mfile); // close file
     return result; // return map
 }

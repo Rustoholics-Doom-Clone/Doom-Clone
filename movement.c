@@ -262,7 +262,7 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dm
     }
 }
 
-void shootProjectile(Weapon *wpn, Player *player)
+void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer)
 {
     Enemy *proj = malloc(sizeof(Enemy));
     if (!proj)
@@ -273,15 +273,15 @@ void shootProjectile(Weapon *wpn, Player *player)
     proj->attackRadius = proj->sprite.width / 2;
     proj->baseCoolDown = 0;
     proj->coolDown = 0;
-    proj->dir = player->dir;
-    proj->dmg = wpn->dmg;
+    proj->dir = dir;
+    proj->dmg = dmg;
     proj->hitRadius = 0;
     proj->hp = 1;
     proj->id = -1;
     proj->maxSpeed = 4000.0 * MAXPROJECTILES;
-    proj->pos = player->pos;
+    proj->pos = pos;
     Vec2 offset;
-    vectorScale(player->dir, 20.0, &offset);
+    vectorScale(dir, 20.0, &offset);
     vectorAdd(proj->pos, offset, &proj->pos);
     proj->status = ALIVE;
     proj->velocity = VECINIT;
@@ -291,18 +291,18 @@ void shootProjectile(Weapon *wpn, Player *player)
     int fl = 1;
     for (int i = 0; i < MAXPROJECTILES; i++)
     {
-        if (!wpn->projectiles[i])
+        if (!projectiles[i])
         {
-            wpn->projectiles[i] = proj;
+            projectiles[i] = proj;
             fl = 0;
             break;
         }
     }
     if (fl)
     {
-        free(wpn->projectiles[wpn->ppointer]);
-        wpn->projectiles[wpn->ppointer] = proj;
-        wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES;
+        free(projectiles[*ppointer]);
+        projectiles[*ppointer] = proj;
+        *ppointer = (*ppointer + 1) % MAXPROJECTILES;
     }
 }
 
@@ -329,7 +329,7 @@ void attackEnemy(Weapon *wpn, Player *player, Map *mp)
         break;
 
     case PROJECTILE:
-        shootProjectile(wpn, player); // Shoot a projectile
+        shootProjectile(player->pos, player->dir, wpn->dmg, mp->projectiles, &mp->ppointer); // Shoot a projectile
         break;
     default:
         break;
@@ -361,15 +361,15 @@ int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
     return 0;
 }
 
-void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn)
+void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn, int *ppointer)
 {
 
-    if (projectiles[wpn->ppointer]) // if the current queue slot contains anything
+    if (projectiles[*ppointer]) // if the current queue slot contains anything
     {
-        if (updateProjectile(projectiles[wpn->ppointer], player, enemies, ec)) // update the projectile and check if it should be removed
+        if (updateProjectile(projectiles[*ppointer], player, enemies, ec)) // update the projectile and check if it should be removed
         {
-            free(projectiles[wpn->ppointer]);  // deallocate projectile
-            projectiles[wpn->ppointer] = NULL; // set spot to null
+            free(projectiles[*ppointer]);  // deallocate projectile
+            projectiles[*ppointer] = NULL; // set spot to null
         }
     }
 

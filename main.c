@@ -370,7 +370,7 @@ int main(void)
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
-        updateProjectiles(mp->projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
+        updateProjectiles(mp->projectiles, player, mp->enemies, mp->enemyCount, &weapons[2], &mp->ppointer);
 
         drawWeapon(weapons, currentwpn);
 
