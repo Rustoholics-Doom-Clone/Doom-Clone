@@ -211,6 +211,8 @@ CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **project
         float diff = vectorLenght(diffvec);
         normalize(&diffvec);
 
+        // This is commented out since there is now z-sorting on enemies and projectiles and thus no need to raycast.
+        /*
         int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
         for (int j = 0; j < mp->numOfWalls; j++)
         {
@@ -224,7 +226,7 @@ CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **project
         }
         if (!fl)      // if flag is false
             continue; // check next enemy
-
+        */
         result[i] = malloc(sizeof(CollisionData)); // allocate memory for this collision
 
         result[i]->d = diff;
@@ -232,6 +234,7 @@ CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **project
         // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
         result[i]->angle = vectorDot(p1.dir, diffvec); // well be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
         result[i]->texture = projectiles[i]->sprite;
+        result[i]->textureOffset = NAN;
     }
     return result;
 }
@@ -348,7 +351,7 @@ int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
         }
     }
 
-    moveEnemy(projectile, projectile->dir, 60);       // Move the projectile
+    moveEnemy(projectile, projectile->dir, 60, NULL, 0);       // Move the projectile
     vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
     if (vectorLenght(diffvec) >= 2000)
     {
@@ -374,7 +377,7 @@ void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int e
     return;
 }
 
-Weapon *getWeapons()
+Weapon *getWeapons(int width, int height)
 {
     Weapon *wps = malloc(sizeof(Weapon) * 3);
     if (!wps)
@@ -385,9 +388,9 @@ Weapon *getWeapons()
     wps[0].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
     wps[0].baseCooldown = 15;
     wps[0].currentCooldown = 0;
-    wps[0].screenPos = (Vec2){400, 0};
-    wps[0].normalScale = (Vec2){0.8, 0.8};
-    wps[0].shootingScale = (Vec2){1.0, 1.0};
+    wps[0].screenPos = (Vec2){width * 0.5, 0};
+    wps[0].normalScale = (Vec2){0.6 * width / 800.0, 0.6 * width / 800.0};
+    wps[0].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[0].ppointer = 0;
     wps[0].projectiles = NULL;
     wps[0].type = FIST;
@@ -399,9 +402,9 @@ Weapon *getWeapons()
     wps[1].shootingSprite = LoadTexture("Sprites/Weapons/kpist2transp.png");
     wps[1].baseCooldown = 15;
     wps[1].currentCooldown = 0;
-    wps[1].screenPos = (Vec2){100, 0};
-    wps[1].normalScale = (Vec2){1.0, 1.0};
-    wps[1].shootingScale = (Vec2){1.0, 1.0};
+    wps[1].screenPos = (Vec2){width / 5.0, 0};
+    wps[1].normalScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
+    wps[1].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[1].ppointer = 0;
     wps[1].projectiles = NULL;
     wps[1].type = HITSCAN;
@@ -413,9 +416,9 @@ Weapon *getWeapons()
     wps[2].shootingSprite = LoadTexture("Sprites/Weapons/Fist2transp.png");
     wps[2].baseCooldown = 15;
     wps[2].currentCooldown = 0;
-    wps[2].screenPos = (Vec2){400, 0};
-    wps[2].normalScale = (Vec2){1.0, 1.0};
-    wps[2].shootingScale = (Vec2){1.0, 1.0};
+    wps[2].screenPos = (Vec2){width * 0.5, 0};
+    wps[2].normalScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
+    wps[2].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].ppointer = 0;
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
     for (int i = 0; i < MAXPROJECTILES; i++)
