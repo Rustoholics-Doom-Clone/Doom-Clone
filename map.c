@@ -187,14 +187,20 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
 
         Vec2 dir;
         vectorSub(p1.pos, foe->pos, &dir);
+        float dist = vectorLenght(dir);
         normalize(&dir);
 
-        if (vectorLenght(dir) <= foe->attackRadius) // If player is within attackRadius
+        if (dist <= foe->attackRadius) // If player is within attackRadius
         {
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
             {
-                shootProjectile(foe->pos, dir, foe->dmg, mp->projectiles, &mp->ppointer, 0);
+                if (foe->type == 0)
+
+                    *playerHealth -= foe->dmg;
+                else
+                    shootProjectile(foe->pos, dir, foe->dmg, mp->projectiles, &mp->ppointer, 0);
+
                 foe->coolDown = foe->baseCoolDown / numOfEnemy;
             }
             else
@@ -370,16 +376,18 @@ Map *loadMap(char *filename)
             result->enemies[i].baseCoolDown = 30;
             result->enemies[i].acceleration = 300;
             result->enemies[i].maxSpeed = 1200;
+            result->enemies[i].type = 0;
 
             break;
         case 1: // Creates a midrange enemy
             result->enemies[i].sprite = LoadTexture("Sprites/MidrangeNollantransp.png");
             result->enemies[i].attackRadius = 330.0;
-            result->enemies[i].dmg = 5;
+            result->enemies[i].dmg = 20;
             result->enemies[i].hp = 100;
-            result->enemies[i].baseCoolDown = 120;
+            result->enemies[i].baseCoolDown = 240;
             result->enemies[i].acceleration = 100;
             result->enemies[i].maxSpeed = 400;
+            result->enemies[i].type = 1;
 
             break;
         case 2: // Creates a long range enemy
@@ -390,6 +398,7 @@ Map *loadMap(char *filename)
             result->enemies[i].baseCoolDown = 300;
             result->enemies[i].acceleration = 100;
             result->enemies[i].maxSpeed = 400;
+            result->enemies[i].type = 2;
 
             break;
         default:

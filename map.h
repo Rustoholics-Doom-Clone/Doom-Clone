@@ -55,6 +55,7 @@ typedef struct Enemy
     float acceleration;
     float maxSpeed;
     int friendlyProjectile;
+    int type;
 } Enemy;
 
 void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer, int friendly);
