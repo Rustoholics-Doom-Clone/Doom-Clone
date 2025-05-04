@@ -322,75 +322,37 @@ int main(void)
     while (!WindowShouldClose())
     {
         if (weapons[currentwpn].currentCooldown > 0)
-        {
             weapons[currentwpn].currentCooldown--;
-        }
-
         if (IsKeyDown(KEY_RIGHT))
-        {
             rotateRight(&player);
-        }
-
         if (IsKeyDown(KEY_LEFT))
-        {
             rotateLeft(&player);
-        }
         if (IsKeyDown('W'))
-        {
             wishMoveForward(&player);
-        }
-
         if (IsKeyDown('A'))
-        {
             wishMoveLeft(&player);
-        }
-
         if (IsKeyDown('S'))
-        {
             wishMoveBack(&player);
-        }
-
         if (IsKeyDown('D'))
-        {
             wishMoveRight(&player);
-        }
-
         if (IsKeyDown(KEY_SPACE) && weapons[currentwpn].currentCooldown == 0 && weapons[currentwpn].ammo > 0)
-        {
             attackEnemy(&weapons[currentwpn], &player, mp);
-        }
         if (IsKeyDown('1'))
-        {
             currentwpn = 0;
-        }
         if (IsKeyDown('2'))
-        {
             currentwpn = 1;
-        }
         if (IsKeyDown('3'))
-        {
             currentwpn = 2;
-        }
         if (IsKeyDown('1'))
-        {
             currentwpn = 0;
-        }
         if (IsKeyDown('2'))
-        {
             currentwpn = 1;
-        }
         if (IsKeyDown('3'))
-        {
             currentwpn = 2;
-        }
         if (IsKeyDown('Q'))
-        {
             weapons[currentwpn].currentCooldown = 1;
-        }
         if (IsKeyDown('E'))
-        {
             weapons[currentwpn].currentCooldown = 0;
-        }
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
@@ -430,15 +392,13 @@ int main(void)
         freeCollisionData(enemyData, mp->enemyCount);
         freeCollisionData(projectileData, MAXPROJECTILES);
     }
-    /*
+
     // --- Shutdown / Cleanup ---
-    UnloadImageColors(floorPixels);
-    UnloadImageColors(roofPixels);
-    UnloadImageColors(renderPixels);
+
     UnloadImage(floorImage);
-    UnloadImage(roofImage);
-    UnloadImage(floorRender);
-    UnloadTexture(floorTexture);*/
+    UnloadImage(roofTexture);
+    UnloadTexture(floorTextureBuffer);
+    UnloadImage(floorTexture);
 
     CloseWindow();
 
