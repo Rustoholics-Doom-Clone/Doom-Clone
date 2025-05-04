@@ -405,7 +405,12 @@ Map *loadMap(char *filename)
         result->enemies[i].hitRadius = (result->enemies[i].sprite.width * 16) / 64;
         result->enemies[i].acceleration *= nenemy;
         result->enemies[i].maxSpeed *= nenemy;
+        result->enemies[i].friendlyProjectile = -1;
     }
+
+    result->projectiles = malloc(MAXPROJECTILES * sizeof(Enemy *));
+    for (int i = 0; i < MAXPROJECTILES; i++)
+        result->projectiles[i] = NULL;
 
     fclose(mfile); // close file
     return result; // return map

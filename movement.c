@@ -268,7 +268,7 @@ void shootProjectile(Weapon *wpn, Player *player)
     if (!proj)
         return;
     // Make an enemy object
-    proj->sprite = LoadTexture("Sprites/Projectiles/projectilespritetransp.png");
+    proj->sprite = LoadTexture("Sprites/Projectiles/largerprojectiletransp.png");
     proj->acceleration = 2000.0 * MAXPROJECTILES;
     proj->attackRadius = proj->sprite.width / 2;
     proj->baseCoolDown = 0;
@@ -351,8 +351,8 @@ int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
         }
     }
 
-    moveEnemy(projectile, projectile->dir, 60, NULL, 0);       // Move the projectile
-    vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
+    moveEnemy(projectile, projectile->dir, 60, NULL, 0); // Move the projectile
+    vectorSub(projectile->pos, player.pos, &diffvec);    // Check if the projectile is too far away from the player
     if (vectorLenght(diffvec) >= 2000)
     {
         return 1; // Signal to updateProjectiles that it should free and NULL it
@@ -377,7 +377,7 @@ void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int e
     return;
 }
 
-Weapon *getWeapons(int width, int height)
+Weapon *getWeapons(int width, int height, Enemy **projectiles)
 {
     Weapon *wps = malloc(sizeof(Weapon) * 3);
     if (!wps)
@@ -420,12 +420,15 @@ Weapon *getWeapons(int width, int height)
     wps[2].normalScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].ppointer = 0;
+    /*
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
     for (int i = 0; i < MAXPROJECTILES; i++)
         wps[2].projectiles[i] = NULL; // initialize to NULL
+*/
 
+    wps[2].projectiles = projectiles;
     wps[2].type = PROJECTILE;
-    wps[2].ammo = 10;
+    wps[2].ammo = 11;
     wps[2].dmg = 100;
 
     return wps;

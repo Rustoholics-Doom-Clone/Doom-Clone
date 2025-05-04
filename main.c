@@ -313,9 +313,7 @@ int main(void)
     Image floorTexture = LoadImage("Sprites/Ground.png");
     Image roofTexture = LoadImage("Sprites/Sky.png");
 
-    Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    Enemy **projectiles = weapons[2].projectiles; // Contains all the projectiles from the projectile weapon.
+    Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
 
     int currentwpn = 0;
 
@@ -360,7 +358,7 @@ int main(void)
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
 
-        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
+        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
 
         BeginDrawing();
         ClearBackground(BLACK);
@@ -372,7 +370,7 @@ int main(void)
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
-        updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
+        updateProjectiles(mp->projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
 
         drawWeapon(weapons, currentwpn);
 
