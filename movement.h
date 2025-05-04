@@ -87,11 +87,11 @@ void addAmmo(Player *player, int ammo);
 // Works like rayShotEnemy but with extra safeguards since **projectiles might be empty
 CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles);
 // Creates a projectile that is facing the same direction as the player
-void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer);
+void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer, int friendly);
 // Moves the projectile and checks if it has hit an enemy
-int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec);
+int updateProjectile(Enemy *projectile, Player *player, Enemy *enemies, int ec);
 // Goes through all the projectiles and updates them
-void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn, int *ppointer);
+void updateProjectiles(Enemy **projectiles, Player *player, Enemy *enemies, int ec, Weapon *wpn, int *ppointer);
 // Attacks depending on which weapon you're holding
 void attackEnemy(Weapon *wpn, Player *player, Map *mp);
 // Initializes all the weapons

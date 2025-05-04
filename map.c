@@ -187,13 +187,14 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
 
         Vec2 dir;
         vectorSub(p1.pos, foe->pos, &dir);
+        normalize(&dir);
 
         if (vectorLenght(dir) <= foe->attackRadius) // If player is within attackRadius
         {
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
             {
-                *playerHealth -= foe->dmg; // Lower player health
+                shootProjectile(foe->pos, dir, foe->dmg, mp->projectiles, &mp->ppointer, 0);
                 foe->coolDown = foe->baseCoolDown / numOfEnemy;
             }
             else
@@ -205,7 +206,6 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
             // early return
         }
 
-        normalize(&dir);
         foe->dir = dir;                                        // Turn toward player
         moveEnemy(foe, foe->dir, targetFPS, walls, wallcount); // Walk forward
         break;
@@ -397,7 +397,7 @@ Map *loadMap(char *filename)
             break;
         }
         // Common for all enemies
-        result->enemies[i].coolDown = result->enemies[i].baseCoolDown;
+        result->enemies[i].coolDown = 0;
         result->enemies[i].status = ALIVE;
         result->enemies[i].visibility = VISIBLE;
         result->enemies[i].velocity = VECINIT;

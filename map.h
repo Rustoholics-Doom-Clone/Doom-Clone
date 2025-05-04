@@ -57,6 +57,8 @@ typedef struct Enemy
     int friendlyProjectile;
 } Enemy;
 
+void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer, int friendly);
+
 // Checks if enemy is in players field of view
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float FOV, Enemy foe1);
 // Checks if there is a clear line of sight between a player and enemy. If not then Collisiondata* == NULL
