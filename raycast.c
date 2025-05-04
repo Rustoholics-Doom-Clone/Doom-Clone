@@ -88,6 +88,12 @@ CollisionData *checkCollision(Wall w1, Ray3D r1)
 
     float textureOffset = hitDist / wallLength;
 
+    float repeats = wallLength / TILE_SIZE;
+    textureOffset *= repeats;
+    textureOffset = fmodf(textureOffset, 1.0f);
+    if (textureOffset < 0)
+        textureOffset += 1.0f;
+
     data->textureOffset = textureOffset;
 
     return data;

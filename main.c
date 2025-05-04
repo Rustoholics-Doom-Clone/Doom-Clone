@@ -10,13 +10,11 @@
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
-#define TILE_SIZE 64
 #define MAP_WIDTH 10
 #define MAP_HEIGHT 10
 #define MAX_WALLS 1024
 #define NUM_RAYS 200
 #define FOV 60.0f
-
 
 void draw3DView(CollisionData **hits, int rayCount)
 
@@ -53,7 +51,7 @@ void draw3DView(CollisionData **hits, int rayCount)
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
     }
 }
-
+/*
 void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels, Image floorImage, Image roofImage)
 {
     float fovRad = DEG_TO_RAD(FOV);
@@ -84,8 +82,10 @@ void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Colo
             int texX = ((int)(floorPos.x * TILE_SIZE)) % TILE_SIZE;
             int texY = ((int)(floorPos.y * TILE_SIZE)) % TILE_SIZE;
 
-            if (texX < 0) texX += TILE_SIZE;
-            if (texY < 0) texY += TILE_SIZE;
+            if (texX < 0)
+                texX += TILE_SIZE;
+            if (texY < 0)
+                texY += TILE_SIZE;
 
             Color floorColor = floorPixels[texY * TILE_SIZE + texX];
             renderPixels[y * SCREEN_WIDTH + x] = floorColor;
@@ -98,12 +98,7 @@ void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Colo
             }
         }
     }
-}
-
-
-
-
-
+}*/
 
 int compareEnemyDistance(const void *a, const void *b)
 {
@@ -204,7 +199,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
 
         switch (isnan(allData[c]->textureOffset))
         {
-        case 1:
+        case 1: // Not a wall
         {
             Vec2 enemyPos = allData[c]->position;
 
@@ -252,7 +247,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
             DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
             break;
         }
-        default:
+        default: // A wall
         {
 
             float dist = allData[c]->d;
@@ -373,14 +368,13 @@ int main(void)
     Map *mp = loadMap("testmap1.csv");
     Image floorImage = LoadImage("Sprites/Ground.png");
     Color *floorPixels = LoadImageColors(floorImage);
-    
+
     Image roofImage = LoadImage("Sprites/Sky.png");
     Color *roofPixels = LoadImageColors(roofImage);
 
     Image floorRender = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
-    Color *renderPixels = LoadImageColors(floorRender);  // ← allocates memory once
-    Texture2D floorTexture = LoadTextureFromImage(floorRender);  // send to GPU once
-
+    Color *renderPixels = LoadImageColors(floorRender);         // ← allocates memory once
+    Texture2D floorTexture = LoadTextureFromImage(floorRender); // send to GPU once
 
     Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -472,25 +466,18 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLACK);
 
+        // drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels, floorImage, roofImage);
+        // UpdateTexture(floorTexture, renderPixels); // ← re-upload to GPU
+        // DrawTexture(floorTexture, 0, 0, WHITE);    // ← draw one quad
 
-        drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels, floorImage, roofImage);
-        UpdateTexture(floorTexture, renderPixels);  // ← re-upload to GPU
-        DrawTexture(floorTexture, 0, 0, WHITE);     // ← draw one quad
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, floorTexture, floorTexture);
 
-        draw3DView(hits, NUM_RAYS);
-
-        drawEnemies(player, enemyData, mp->enemyCount);
-
-
-        // drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls);
 
-        // drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
         updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
-        // drawEnemies(player, projectileData, MAXPROJECTILES);
 
         drawWeapon(weapons, currentwpn);
 

@@ -46,6 +46,8 @@ typedef struct
 #ifndef RAYCAST_H
 #define RAYCAST_H
 
+#define TILE_SIZE 64.0f
+
 typedef struct
 {
     Vec2 position; // where the collision happened
