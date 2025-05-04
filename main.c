@@ -16,90 +16,6 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-void draw3DView(CollisionData **hits, int rayCount)
-
-{
-    for (int i = 0; i < rayCount; i++)
-    {
-        if (!hits[i])
-            continue;
-
-        float dist = hits[i]->d;
-        float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));    // Correct fisheye effect
-        float wallHeight = ((TILE_SIZE * SCREEN_HEIGHT) / corrected); // Wall height based on screen size
-
-        Texture2D texture = hits[i]->texture;
-
-        float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
-
-        // --- Draw walls ---
-        float texX = hits[i]->textureOffset * texture.width;
-        // Source rectangle: a vertical slice of the wall texture
-        Rectangle source = {
-            texX,
-            0,
-            1,
-            (float)texture.height};
-
-        // Destination rectangle: the scaled vertical slice on screen
-        Rectangle destination = {
-            i * sliceWidth, // X on screen
-            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f),
-            sliceWidth, // stretches pixels in source retangel to slicewith
-            wallHeight};
-
-        DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-    }
-}
-/*
-void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels, Image floorImage, Image roofImage)
-{
-    float fovRad = DEG_TO_RAD(FOV);
-    float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
-
-    for (int y = halfScreenHeight; y < SCREEN_HEIGHT; y++)
-    {
-        float rowDistance = (TILE_SIZE * halfScreenHeight) / (y - halfScreenHeight);
-
-        Vec2 rayDirLeft = {
-            player.dir.x - player.dir.y * tanf(fovRad / 2),
-            player.dir.y + player.dir.x * tanf(fovRad / 2)};
-        Vec2 rayDirRight = {
-            player.dir.x + player.dir.y * tanf(fovRad / 2),
-            player.dir.y - player.dir.x * tanf(fovRad / 2)};
-
-        for (int x = 0; x < SCREEN_WIDTH; x++)
-        {
-            float cameraX = (float)x / SCREEN_WIDTH;
-            Vec2 rayDir = {
-                rayDirLeft.x + cameraX * (rayDirRight.x - rayDirLeft.x),
-                rayDirLeft.y + cameraX * (rayDirRight.y - rayDirLeft.y)};
-
-            Vec2 floorPos = {
-                player.pos.x + rowDistance * rayDir.x,
-                player.pos.y + rowDistance * rayDir.y};
-
-            int texX = ((int)(floorPos.x * TILE_SIZE)) % TILE_SIZE;
-            int texY = ((int)(floorPos.y * TILE_SIZE)) % TILE_SIZE;
-
-            if (texX < 0)
-                texX += TILE_SIZE;
-            if (texY < 0)
-                texY += TILE_SIZE;
-
-            Color floorColor = floorPixels[texY * TILE_SIZE + texX];
-            renderPixels[y * SCREEN_WIDTH + x] = floorColor;
-
-            // Ceiling (mirror)
-            if (roofPixels)
-            {
-                Color ceilColor = roofPixels[texY * TILE_SIZE + texX];
-                renderPixels[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = ceilColor;
-            }
-        }
-    }
-}*/
-
 int compareEnemyDistance(const void *a, const void *b)
 {
 
@@ -315,22 +231,6 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
             float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
             float wallBottom = wallTop + wallHeight;
 
-            /*
-            // Compute roof rect
-            Rectangle srcRoof = {
-                0, 0,
-                roofTexture.width, roofTexture.height};
-
-            Rectangle destRoof = {
-                screenX,    // X
-                0,          // Y (top of screen)
-                sliceWidth, // Width
-                wallTop     // Height (from top to start of wall)
-            };
-
-            // Draw a piece of roof texture stretched to fit
-            DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);*/
-
             // --- Draw walls ---
             float texX = allData[c]->textureOffset * texture.width;
             // Source rectangle: a vertical slice of the wall texture
@@ -348,21 +248,6 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
                 wallHeight};
 
             DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-            /*
-            // Compute floor rect
-            Rectangle srcFloor = {
-                0, 0,
-                floorTexture.width, floorTexture.height};
-
-            Rectangle destFloor = {
-                screenX,                   // X position on screen
-                wallBottom,                // Y position (below wall)
-                sliceWidth,                // Width on screen (same as wall slice width)
-                SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
-            };
-
-            // Draw a piece of floor texture stretched to fit
-            DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);*/
 
             wallSliceIndex++;
         }
@@ -517,8 +402,6 @@ int main(void)
 
         BeginDrawing();
         ClearBackground(BLACK);
-
-        // drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels, floorImage, roofImage);
 
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
