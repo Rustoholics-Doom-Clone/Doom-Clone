@@ -17,7 +17,9 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Texture2D roofTexture)
+
+void draw3DView(CollisionData **hits, int rayCount)
+
 {
     for (int i = 0; i < rayCount; i++)
     {
@@ -31,23 +33,6 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
         Texture2D texture = hits[i]->texture;
 
         float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
-        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
-        float wallBottom = wallTop + wallHeight;
-
-        // Compute roof rect
-        Rectangle srcRoof = {
-            0, 0,
-            roofTexture.width, roofTexture.height};
-
-        Rectangle destRoof = {
-            i * sliceWidth, // X
-            0,              // Y (top of screen)
-            sliceWidth,     // Width
-            wallTop         // Height (from top to start of wall)
-        };
-
-        // Draw a piece of roof texture stretched to fit
-        DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Draw walls ---
         float texX = hits[i]->textureOffset * texture.width;
@@ -66,23 +51,59 @@ void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Text
             wallHeight};
 
         DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-
-        // Compute floor rect
-        Rectangle srcFloor = {
-            0, 0,
-            floorTexture.width, floorTexture.height};
-
-        Rectangle destFloor = {
-            i * sliceWidth,            // X position on screen
-            wallBottom,                // Y position (below wall)
-            sliceWidth,                // Width on screen (same as wall slice width)
-            SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
-        };
-
-        // Draw a piece of floor texture stretched to fit
-        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
     }
 }
+
+void drawFloorAndRoof(Color *floorPixels, Color *roofPixels, Player player, Color *renderPixels, Image floorImage, Image roofImage)
+{
+    float fovRad = DEG_TO_RAD(FOV);
+    float halfScreenHeight = SCREEN_HEIGHT / 2.0f;
+
+    for (int y = halfScreenHeight; y < SCREEN_HEIGHT; y++)
+    {
+        float rowDistance = (TILE_SIZE * halfScreenHeight) / (y - halfScreenHeight);
+
+        Vec2 rayDirLeft = {
+            player.dir.x - player.dir.y * tanf(fovRad / 2),
+            player.dir.y + player.dir.x * tanf(fovRad / 2)};
+        Vec2 rayDirRight = {
+            player.dir.x + player.dir.y * tanf(fovRad / 2),
+            player.dir.y - player.dir.x * tanf(fovRad / 2)};
+
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+        {
+            float cameraX = (float)x / SCREEN_WIDTH;
+            Vec2 rayDir = {
+                rayDirLeft.x + cameraX * (rayDirRight.x - rayDirLeft.x),
+                rayDirLeft.y + cameraX * (rayDirRight.y - rayDirLeft.y)};
+
+            Vec2 floorPos = {
+                player.pos.x + rowDistance * rayDir.x,
+                player.pos.y + rowDistance * rayDir.y};
+
+            int texX = ((int)(floorPos.x * TILE_SIZE)) % TILE_SIZE;
+            int texY = ((int)(floorPos.y * TILE_SIZE)) % TILE_SIZE;
+
+            if (texX < 0) texX += TILE_SIZE;
+            if (texY < 0) texY += TILE_SIZE;
+
+            Color floorColor = floorPixels[texY * TILE_SIZE + texX];
+            renderPixels[y * SCREEN_WIDTH + x] = floorColor;
+
+            // Ceiling (mirror)
+            if (roofPixels)
+            {
+                Color ceilColor = roofPixels[texY * TILE_SIZE + texX];
+                renderPixels[(SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x] = ceilColor;
+            }
+        }
+    }
+}
+
+
+
+
+
 
 int compareEnemyDistance(const void *a, const void *b)
 {
@@ -350,8 +371,16 @@ int main(void)
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
-    Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
-    Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
+    Image floorImage = LoadImage("Sprites/Ground.png");
+    Color *floorPixels = LoadImageColors(floorImage);
+    
+    Image roofImage = LoadImage("Sprites/Sky.png");
+    Color *roofPixels = LoadImageColors(roofImage);
+
+    Image floorRender = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
+    Color *renderPixels = LoadImageColors(floorRender);  // ← allocates memory once
+    Texture2D floorTexture = LoadTextureFromImage(floorRender);  // send to GPU once
+
 
     Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -443,10 +472,15 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, floorTexture, roofTexture);
 
-        // draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
-        // drawEnemies(player, enemyData, mp->enemyCount);
+        drawFloorAndRoof(floorPixels, roofPixels, player, renderPixels, floorImage, roofImage);
+        UpdateTexture(floorTexture, renderPixels);  // ← re-upload to GPU
+        DrawTexture(floorTexture, 0, 0, WHITE);     // ← draw one quad
+
+        draw3DView(hits, NUM_RAYS);
+
+        drawEnemies(player, enemyData, mp->enemyCount);
+
 
         // drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls);
@@ -477,6 +511,16 @@ int main(void)
         freeCollisionData(projectileData, MAXPROJECTILES);
     }
 
+    // --- Shutdown / Cleanup ---
+    UnloadImageColors(floorPixels);
+    UnloadImageColors(roofPixels);
+    UnloadImageColors(renderPixels);
+    UnloadImage(floorImage);
+    UnloadImage(roofImage);
+    UnloadImage(floorRender);
+    UnloadTexture(floorTexture);
+
     CloseWindow();
+
     return 0;
 }
