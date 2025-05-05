@@ -391,9 +391,9 @@ Map *loadMap(char *filename)
 
             break;
         case 2: // Creates a long range enemy
-            result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
-            result->enemies[i].attackRadius = 500.0;
-            result->enemies[i].dmg = 20;
+            result->enemies[i].sprite = LoadTexture("Sprites/LongRangeNollan.png");
+            result->enemies[i].attackRadius = 600.0;
+            result->enemies[i].dmg = 35;
             result->enemies[i].hp = 50;
             result->enemies[i].baseCoolDown = 300;
             result->enemies[i].acceleration = 100;
