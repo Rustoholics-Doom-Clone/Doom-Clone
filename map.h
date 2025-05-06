@@ -34,7 +34,9 @@ typedef enum EnemyType
 
     MELEE,
     MIDRANGE,
-    SNIPER
+    SNIPER,
+    HEALTH,
+    AMMO
 } EnemyType;
 
 typedef struct Enemy
