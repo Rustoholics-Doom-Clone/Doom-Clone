@@ -16,6 +16,8 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
+Color CERISE = {230, 65, 133, 255};
+
 int compareEnemyDistance(const void *a, const void *b)
 {
 
@@ -30,66 +32,6 @@ int compareEnemyDistance(const void *a, const void *b)
     if (cmp < 0.0)
         return 1;
     return -1;
-}
-
-void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
-{
-    qsort(enemyColl, enemyCount, sizeof(CollisionData *), compareEnemyDistance);
-
-    Vec2 plane = {
-        -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
-        p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
-
-    for (int i = 0; i < enemyCount; i++)
-    {
-        if (!enemyColl[i])
-            continue;
-
-        Vec2 enemyPos = enemyColl[i]->position;
-
-        // Vector from player to enemy
-        float dx = enemyPos.x - p1.pos.x;
-        float dy = enemyPos.y - p1.pos.y;
-
-        // Inverse camera transform
-        float invDet = 1.0f / (plane.x * p1.dir.y - p1.dir.x * plane.y);
-
-        float transformX = invDet * (p1.dir.y * dx - p1.dir.x * dy);
-        float transformY = invDet * (-plane.y * dx + plane.x * dy);
-
-        if (transformY <= 0)
-            continue; // Enemy is behind the player
-
-        // Projected X position on screen
-        float enemyScreenX = (SCREEN_WIDTH / 2) * (1 + transformX / transformY);
-
-        Texture2D sprite = enemyColl[i]->texture;
-
-        // Preserve sprite aspect ratio
-        float aspectRatio = (float)sprite.width / (float)sprite.height;
-
-        float dist = enemyColl[i]->d;
-        float corrected = dist * enemyColl[i]->angle;               // Correct fisheye effect
-        float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
-
-        // Sprite height scaling factor
-        float spritesScale = 24.0;
-        float spriteHeight = spritesScale * (SCREEN_HEIGHT / transformY) * 1.8f; // 1.8 = tune to taste
-        float spriteWidth = spriteHeight * aspectRatio;
-
-        Rectangle src = {
-            0, 0,
-            (float)sprite.width,
-            (float)sprite.height};
-
-        Rectangle dest = {
-            enemyScreenX - spriteWidth / 2,
-            SCREEN_HEIGHT / 2 + wallHeight / 2 - spriteHeight,
-            spriteWidth,
-            spriteHeight};
-
-        DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
-    }
 }
 
 void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionData **wallhits, int raycount, CollisionData **projectileData, Image *floorImage, Texture2D *floorTextureBuffer, Image floorTexture, Image roofTexture)
@@ -297,15 +239,81 @@ void drawWeapon(Weapon *wpns, int wpnid)
     }
 }
 
+Texture2D wpnslct1;
+Texture2D wpnslct2;
+Texture2D wpnslct3;
+Texture2D kngligDoomGuy;
+Font jupiter;
+
+void drawHud(Player player, Weapon wpn, int wpnn)
+{
+
+    float hudHeightScale = 0.8f * (float)SCREEN_HEIGHT / 1080.0;
+
+    DrawRectangle(0, SCREEN_HEIGHT - 90 * hudHeightScale, SCREEN_WIDTH, 90 * hudHeightScale, CERISE);
+
+    Rectangle src = {
+        0, 0, kngligDoomGuy.width, kngligDoomGuy.height};
+    Rectangle dest = {
+        (SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2,
+        SCREEN_HEIGHT - hudHeightScale * kngligDoomGuy.height,
+        kngligDoomGuy.width * hudHeightScale,
+        kngligDoomGuy.height * hudHeightScale};
+    DrawTexturePro(kngligDoomGuy, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+
+    src = (Rectangle){0, 0, wpnslct1.width, wpnslct1.height};
+    dest = (Rectangle){(SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2, SCREEN_HEIGHT - hudHeightScale * kngligDoomGuy.height, wpnslct1.width, wpnslct1.height};
+
+    switch (wpnn)
+    {
+    case 0:
+        DrawTexturePro(wpnslct1, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    case 1:
+        DrawTexturePro(wpnslct2, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    case 2:
+        DrawTexturePro(wpnslct3, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    default:
+        break;
+    }
+
+    DrawRectangle(((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 300, 90 * hudHeightScale - 8, BLACK);
+    DrawRectangle(((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 204, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 200, 90 * hudHeightScale - 8, BLACK);
+
+    char buffer[64];
+    sprintf(buffer, "HP: %d", player.hp);
+    // DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
+    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 200, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
+
+    sprintf(buffer, "+");
+    DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
+
+    if (wpnn == 0)
+        sprintf(buffer, "AMMO: inf");
+    else
+        sprintf(buffer, "AMMO: %d", wpn.ammo);
+
+    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 8, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
+}
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
     srand(time(NULL));
 
+    ToggleFullscreen();
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
+
+    wpnslct1 = LoadTexture("Sprites/HUD/Weaponselect1.png");
+    wpnslct2 = LoadTexture("Sprites/HUD/Weaponselect2.png");
+    wpnslct3 = LoadTexture("Sprites/HUD/Weaponselect3.png");
+    kngligDoomGuy = LoadTexture("Sprites/HUD/85ed57ab85bbe08a0edfd3cfa5edfc38.jpg");
+    jupiter = LoadFont("Sprites/HUD/fonts/jupiter_crash.png");
 
     Image floorImage = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
     Texture2D floorTextureBuffer = LoadTextureFromImage(floorImage);
@@ -374,15 +382,7 @@ int main(void)
 
         drawWeapon(weapons, currentwpn);
 
-        char buffer[64];
-        sprintf(buffer, "HP: %d", player.hp);
-        DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
-
-        sprintf(buffer, "+");
-        DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
-
-        sprintf(buffer, "AMMO: %d", weapons[currentwpn].ammo);
-        DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+        drawHud(player, weapons[currentwpn], currentwpn);
 
         EndDrawing();
 
@@ -397,6 +397,8 @@ int main(void)
     UnloadImage(roofTexture);
     UnloadTexture(floorTextureBuffer);
     UnloadImage(floorTexture);
+
+    freeMap(mp);
 
     CloseWindow();
 
