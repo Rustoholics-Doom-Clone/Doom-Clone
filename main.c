@@ -263,6 +263,7 @@ int main(void)
     SetTargetFPS(60);
     srand(time(NULL));
 
+    ToggleFullscreen();
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
