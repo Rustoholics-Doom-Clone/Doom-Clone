@@ -167,10 +167,6 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
         }
     }
     foe->pos = res;
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 }
 
 void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
@@ -217,12 +213,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
             // early return
         }
 
-<<<<<<< HEAD
-        normalize(&dir);
-        foe->dir = dir;                      // Turn toward player
-=======
         foe->dir = dir;                                        // Turn toward player
->>>>>>> origin/main
         moveEnemy(foe, foe->dir, targetFPS, walls, wallcount); // Walk forward
         break;
 
@@ -259,11 +250,7 @@ void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov
         return;
 
     updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
-<<<<<<< HEAD
-    currentIndex = (currentIndex + 1) % qSize;                                  // move index
-=======
     currentIndex = (currentIndex + 1) % qSize;                                                    // move index
->>>>>>> origin/main
 }
 
 FILE *newMap(const char *filename)

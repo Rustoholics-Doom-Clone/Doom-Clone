@@ -95,13 +95,8 @@ void updateProjectiles(Enemy **projectiles, Player *player, Enemy *enemies, int 
 // Attacks depending on which weapon you're holding
 void attackEnemy(Weapon *wpn, Player *player, Map *mp);
 // Initializes all the weapons
-<<<<<<< HEAD
-Weapon *getWeapons(int width, int height);
-//Get if there is intersection between line p1q1 and p2q2
-=======
 Weapon *getWeapons(int width, int height, Enemy **projectiles);
 // Get if there is intersection between line p1q1 and p2q2
->>>>>>> origin/main
 bool intersect(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2);
 
 #endif

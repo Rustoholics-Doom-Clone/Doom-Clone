@@ -304,12 +304,13 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
     srand(time(NULL));
-
+    SetExitKey(KEY_BACKSPACE);
     ToggleFullscreen();
+    HideCursor();
     Player player = PLAYERINIT;
     GameState gameState = MAINMENU;
 
-    Map *mp = loadMap("testmap1.csv");
+    Map *mp = loadMap("Maps/testmap1.csv");
 
     Font font = LoadFont("Sprites/Fonts/setback.png");
 
@@ -333,29 +334,40 @@ int main(void)
     {
         BeginDrawing();
         ClearBackground(BLACK);
+
+        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS); // Gets wall CollisionData
+
+        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
+
+        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
+
         switch (gameState)
         {
         case MAINMENU:
-        const char *message = "Press [ Enter ] to start";
-        DrawTextEx(font, message, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, message, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, WHITE);
+
         if (IsKeyPressed(KEY_ENTER))
         {
             gameState = GAMEPLAY;
             player = PLAYERINIT;
-            mp = loadMap("testmap1.csv"); //This is very inefficient, but I don't know how to do better
+            mp = loadMap("Maps/testmap1.csv"); //This is very inefficient, but I don't know how to reset a map in a better way
             weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
             currentwpn = 0;
         }
+
+        rotate(&player.dir, ROTSPEED/10);
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+
+        const char *message = "Press [ Enter ] to start";
+        DrawTextEx(font, message, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, message, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, BLACK);
             break;
 
         case GAMEPLAY:
         if (weapons[currentwpn].currentCooldown > 0)
             weapons[currentwpn].currentCooldown--;
 
-        if(IsKeyPressed(KEY_ENTER))
+        if(IsKeyPressed(KEY_ESCAPE))
         {
             gameState = PAUSEMENU;
-            break;
         }
 
         if (IsKeyDown(KEY_RIGHT))
@@ -385,11 +397,15 @@ int main(void)
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
-        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS); // Gets wall CollisionData
-
-        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
-
-        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
+        int deadEnemies = 0;
+        for(int i = 0; i < mp->enemyCount; i++) {
+            if (mp->enemies[i].status == DEAD) {
+                deadEnemies++;
+            }
+        }
+        if (deadEnemies == mp->enemyCount) {
+            gameState = ENDSCREEN;
+        }
 
 
 
@@ -408,20 +424,41 @@ int main(void)
 
 
 
-        freeCollisionData(hits, NUM_RAYS);
-        freeCollisionData(enemyData, mp->enemyCount);
-        freeCollisionData(projectileData, MAXPROJECTILES);
+
             break;
 
         case PAUSEMENU:
+
+        if(IsKeyPressed(KEY_ESCAPE))
+        {
+            gameState = GAMEPLAY;
+        }
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            player = PLAYERINIT;
+            gameState = MAINMENU;
+        }
+
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+        drawWeapon(weapons, currentwpn);
+        drawHud(player, weapons[currentwpn], currentwpn);
             break;
             
         case ENDSCREEN:
+
+        
+
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+        drawWeapon(weapons, currentwpn);
+        drawHud(player, weapons[currentwpn], currentwpn);
             break;
         
         default:
             break;
         }
+        freeCollisionData(hits, NUM_RAYS);
+        freeCollisionData(enemyData, mp->enemyCount);
+        freeCollisionData(projectileData, MAXPROJECTILES);
         EndDrawing();
 
 

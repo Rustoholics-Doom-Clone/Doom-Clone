@@ -347,10 +347,6 @@ int updateProjectile(Enemy *projectile, Player *player, Enemy *enemies, int ec)
 {
     Vec2 diffvec;
 
-<<<<<<< HEAD
-    moveEnemy(projectile, projectile->dir, 60, NULL, 0);       // Move the projectile
-    vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
-=======
     switch (projectile->friendlyProjectile)
     {
     case 1:
@@ -378,7 +374,6 @@ int updateProjectile(Enemy *projectile, Player *player, Enemy *enemies, int ec)
     }
     moveEnemy(projectile, projectile->dir, 60, NULL, 0); // Move the projectile
     vectorSub(projectile->pos, player->pos, &diffvec);   // Check if the projectile is too far away from the player
->>>>>>> origin/main
     if (vectorLenght(diffvec) >= 2000)
     {
         return 1; // Signal to updateProjectiles that it should free and NULL it
