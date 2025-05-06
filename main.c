@@ -32,66 +32,6 @@ int compareEnemyDistance(const void *a, const void *b)
     return -1;
 }
 
-void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
-{
-    qsort(enemyColl, enemyCount, sizeof(CollisionData *), compareEnemyDistance);
-
-    Vec2 plane = {
-        -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
-        p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
-
-    for (int i = 0; i < enemyCount; i++)
-    {
-        if (!enemyColl[i])
-            continue;
-
-        Vec2 enemyPos = enemyColl[i]->position;
-
-        // Vector from player to enemy
-        float dx = enemyPos.x - p1.pos.x;
-        float dy = enemyPos.y - p1.pos.y;
-
-        // Inverse camera transform
-        float invDet = 1.0f / (plane.x * p1.dir.y - p1.dir.x * plane.y);
-
-        float transformX = invDet * (p1.dir.y * dx - p1.dir.x * dy);
-        float transformY = invDet * (-plane.y * dx + plane.x * dy);
-
-        if (transformY <= 0)
-            continue; // Enemy is behind the player
-
-        // Projected X position on screen
-        float enemyScreenX = (SCREEN_WIDTH / 2) * (1 + transformX / transformY);
-
-        Texture2D sprite = enemyColl[i]->texture;
-
-        // Preserve sprite aspect ratio
-        float aspectRatio = (float)sprite.width / (float)sprite.height;
-
-        float dist = enemyColl[i]->d;
-        float corrected = dist * enemyColl[i]->angle;               // Correct fisheye effect
-        float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
-
-        // Sprite height scaling factor
-        float spritesScale = 24.0;
-        float spriteHeight = spritesScale * (SCREEN_HEIGHT / transformY) * 1.8f; // 1.8 = tune to taste
-        float spriteWidth = spriteHeight * aspectRatio;
-
-        Rectangle src = {
-            0, 0,
-            (float)sprite.width,
-            (float)sprite.height};
-
-        Rectangle dest = {
-            enemyScreenX - spriteWidth / 2,
-            SCREEN_HEIGHT / 2 + wallHeight / 2 - spriteHeight,
-            spriteWidth,
-            spriteHeight};
-
-        DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
-    }
-}
-
 void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionData **wallhits, int raycount, CollisionData **projectileData, Image *floorImage, Texture2D *floorTextureBuffer, Image floorTexture, Image roofTexture)
 {
 
