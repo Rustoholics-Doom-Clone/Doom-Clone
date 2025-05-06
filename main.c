@@ -16,6 +16,14 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
+typedef enum
+{
+    MAINMENU,
+    GAMEPLAY,
+    PAUSEMENU,
+    ENDSCREEN
+} GameState;
+
 Color CERISE = {230, 65, 133, 255};
 
 int compareEnemyDistance(const void *a, const void *b)
@@ -303,11 +311,15 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
     srand(time(NULL));
-
+    SetExitKey(KEY_BACKSPACE);
     ToggleFullscreen();
+    HideCursor();
     Player player = PLAYERINIT;
+    GameState gameState = MAINMENU;
 
-    Map *mp = loadMap("testmap1.csv");
+    Map *mp = loadMap("Maps/testmap1.csv");
+
+    Font font = LoadFont("Sprites/Fonts/setback.png");
 
     wpnslct1 = LoadTexture("Sprites/HUD/Weaponselect1.png");
     wpnslct2 = LoadTexture("Sprites/HUD/Weaponselect2.png");
@@ -324,11 +336,49 @@ int main(void)
     Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
 
     int currentwpn = 0;
+    const char *exit = "Exit game [ Backspace ]";
 
     while (!WindowShouldClose())
     {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS); // Gets wall CollisionData
+
+        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
+
+        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
+
+        switch (gameState)
+        {
+        case MAINMENU:
+
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            gameState = GAMEPLAY;
+            player = PLAYERINIT;
+            mp = loadMap("Maps/testmap1.csv"); //This is very inefficient, but I don't know how to reset a map in a better way
+            weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
+            currentwpn = 0;
+        }
+
+        rotate(&player.dir, ROTSPEED/10);
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+
+        const char *start = "Start Game [ Enter ]";
+        DrawTextEx(font, start, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, start, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2+font.baseSize*5}, font.baseSize*5, 5, BLACK);
+            break;
+
+        case GAMEPLAY:
         if (weapons[currentwpn].currentCooldown > 0)
             weapons[currentwpn].currentCooldown--;
+
+        if(IsKeyPressed(KEY_ESCAPE))
+        {
+            gameState = PAUSEMENU;
+        }
+
         if (IsKeyDown(KEY_RIGHT))
             rotateRight(&player);
         if (IsKeyDown(KEY_LEFT))
@@ -349,12 +399,6 @@ int main(void)
             currentwpn = 1;
         if (IsKeyDown('3'))
             currentwpn = 2;
-        if (IsKeyDown('1'))
-            currentwpn = 0;
-        if (IsKeyDown('2'))
-            currentwpn = 1;
-        if (IsKeyDown('3'))
-            currentwpn = 2;
         if (IsKeyDown('Q'))
             weapons[currentwpn].currentCooldown = 1;
         if (IsKeyDown('E'))
@@ -362,14 +406,17 @@ int main(void)
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
-        CollisionData **hits = multiRayShot(player.pos, player.dir, FOV, mp->numOfWalls, mp->walls, NUM_RAYS); // Gets wall CollisionData
+        int deadEnemies = 0;
+        for(int i = 0; i < mp->enemyCount; i++) {
+            if (mp->enemies[i].status == DEAD) {
+                deadEnemies++;
+            }
+        }
+        if (deadEnemies == mp->enemyCount) {
+            gameState = ENDSCREEN;
+        }
 
-        CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
 
-        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
-
-        BeginDrawing();
-        ClearBackground(BLACK);
 
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
@@ -384,11 +431,67 @@ int main(void)
 
         drawHud(player, weapons[currentwpn], currentwpn);
 
-        EndDrawing();
 
+
+
+            break;
+
+        case PAUSEMENU:
+
+        if(IsKeyPressed(KEY_ESCAPE))
+        {
+            gameState = GAMEPLAY;
+        }
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            player = PLAYERINIT;
+            gameState = MAINMENU;
+        }
+
+
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+        drawWeapon(weapons, currentwpn);
+        drawHud(player, weapons[currentwpn], currentwpn);
+
+        const char *resume = "Resume [ Esc ]";
+        const char *main = "Main Menu [ Enter ]";
+        DrawTextEx(font, resume, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, resume, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, main, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, main, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
+            break;
+            
+        case ENDSCREEN:
+
+        if(IsKeyPressed(KEY_ESCAPE))
+        {
+            gameState = MAINMENU;
+        }
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            //TODO: Load next map
+            gameState = GAMEPLAY;
+        }
+
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+        drawWeapon(weapons, currentwpn);
+        drawHud(player, weapons[currentwpn], currentwpn);
+
+        const char *next = "Next level [ Enter ]";
+        const char *ret = "Main Menu [ Esc ]";
+        DrawTextEx(font, next, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, next, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, ret, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
+            break;
+        
+        default:
+            break;
+        }
         freeCollisionData(hits, NUM_RAYS);
         freeCollisionData(enemyData, mp->enemyCount);
         freeCollisionData(projectileData, MAXPROJECTILES);
+        EndDrawing();
+
+
     }
 
     // --- Shutdown / Cleanup ---
