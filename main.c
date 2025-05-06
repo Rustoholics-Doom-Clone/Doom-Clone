@@ -338,6 +338,8 @@ int main(void)
     UnloadTexture(floorTextureBuffer);
     UnloadImage(floorTexture);
 
+    freeMap(mp);
+
     CloseWindow();
 
     return 0;

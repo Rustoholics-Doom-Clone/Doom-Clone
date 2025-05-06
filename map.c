@@ -432,5 +432,17 @@ void freeMap(Map *m)
         free(m->walls);
     if (m->enemies)
         free(m->enemies);
+    if (m->projectiles)
+    {
+        for (int i = 0; i < MAXPROJECTILES; i++)
+        {
+            if (m->projectiles[i])
+            {
+                free(m->projectiles[i]);
+            }
+        }
+        free(m->projectiles);
+    }
+
     free(m);
 }
