@@ -2,7 +2,6 @@
 #include "raycast.h"
 #include "movement.h"
 #include "map.h"
-#include "menu.h"
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
@@ -16,6 +15,14 @@
 #define MAX_WALLS 1024
 #define NUM_RAYS 200
 #define FOV 60.0f
+
+typedef enum
+{
+    MAINMENU,
+    GAMEPLAY,
+    PAUSEMENU,
+    ENDSCREEN
+} GameState;
 
 Color CERISE = {230, 65, 133, 255};
 
@@ -329,6 +336,7 @@ int main(void)
     Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
 
     int currentwpn = 0;
+    const char *exit = "Exit game [ Backspace ]";
 
     while (!WindowShouldClose())
     {
@@ -357,8 +365,9 @@ int main(void)
         rotate(&player.dir, ROTSPEED/10);
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
-        const char *message = "Press [ Enter ] to start";
-        DrawTextEx(font, message, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, message, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, BLACK);
+        const char *start = "Start Game [ Enter ]";
+        DrawTextEx(font, start, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, start, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2+font.baseSize*5}, font.baseSize*5, 5, BLACK);
             break;
 
         case GAMEPLAY:
@@ -439,18 +448,39 @@ int main(void)
             gameState = MAINMENU;
         }
 
+
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
         drawWeapon(weapons, currentwpn);
         drawHud(player, weapons[currentwpn], currentwpn);
+
+        const char *resume = "Resume [ Esc ]";
+        const char *main = "Main Menu [ Enter ]";
+        DrawTextEx(font, resume, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, resume, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, main, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, main, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
             break;
             
         case ENDSCREEN:
 
-        
+        if(IsKeyPressed(KEY_ESCAPE))
+        {
+            gameState = MAINMENU;
+        }
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            //TODO: Load next map
+            gameState = GAMEPLAY;
+        }
 
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
         drawWeapon(weapons, currentwpn);
         drawHud(player, weapons[currentwpn], currentwpn);
+
+        const char *next = "Next level [ Enter ]";
+        const char *ret = "Main Menu [ Esc ]";
+        DrawTextEx(font, next, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, next, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, ret, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
             break;
         
         default:
