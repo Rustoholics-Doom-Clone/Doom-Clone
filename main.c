@@ -239,6 +239,24 @@ void drawWeapon(Weapon *wpns, int wpnid)
     }
 }
 
+void drawHud(Player player, Weapon wpn, int wpnn)
+{
+
+    float hudHeightScale = 1.0f * (float)SCREEN_HEIGHT / 1080.0;
+
+    DrawRectangle(0, SCREEN_HEIGHT - 90 * hudHeightScale, SCREEN_WIDTH, 90 * hudHeightScale, CERISE);
+
+    char buffer[64];
+    sprintf(buffer, "HP: %d", player.hp);
+    DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
+
+    sprintf(buffer, "+");
+    DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
+
+    sprintf(buffer, "AMMO: %d", wpn.ammo);
+    DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+}
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
@@ -316,15 +334,7 @@ int main(void)
 
         drawWeapon(weapons, currentwpn);
 
-        char buffer[64];
-        sprintf(buffer, "HP: %d", player.hp);
-        DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
-
-        sprintf(buffer, "+");
-        DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
-
-        sprintf(buffer, "AMMO: %d", weapons[currentwpn].ammo);
-        DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+        drawHud(player, weapons[currentwpn], currentwpn);
 
         EndDrawing();
 
