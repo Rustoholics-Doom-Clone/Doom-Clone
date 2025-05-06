@@ -239,16 +239,52 @@ void drawWeapon(Weapon *wpns, int wpnid)
     }
 }
 
+Texture2D wpnslct1;
+Texture2D wpnslct2;
+Texture2D wpnslct3;
+Texture2D kngligDoomGuy;
+Font jupiter;
+
 void drawHud(Player player, Weapon wpn, int wpnn)
 {
 
-    float hudHeightScale = 1.0f * (float)SCREEN_HEIGHT / 1080.0;
+    float hudHeightScale = 0.8f * (float)SCREEN_HEIGHT / 1080.0;
 
     DrawRectangle(0, SCREEN_HEIGHT - 90 * hudHeightScale, SCREEN_WIDTH, 90 * hudHeightScale, CERISE);
 
+    Rectangle src = {
+        0, 0, kngligDoomGuy.width, kngligDoomGuy.height};
+    Rectangle dest = {
+        (SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2,
+        SCREEN_HEIGHT - hudHeightScale * kngligDoomGuy.height,
+        kngligDoomGuy.width * hudHeightScale,
+        kngligDoomGuy.height * hudHeightScale};
+    DrawTexturePro(kngligDoomGuy, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+
+    src = (Rectangle){0, 0, wpnslct1.width, wpnslct1.height};
+    dest = (Rectangle){(SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2, SCREEN_HEIGHT - hudHeightScale * kngligDoomGuy.height, wpnslct1.width, wpnslct1.height};
+
+    switch (wpnn)
+    {
+    case 0:
+        DrawTexturePro(wpnslct1, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    case 1:
+        DrawTexturePro(wpnslct2, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    case 2:
+        DrawTexturePro(wpnslct3, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    default:
+        break;
+    }
+
+    DrawRectangle(((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 200, 90 * hudHeightScale - 8, BLACK);
+
     char buffer[64];
     sprintf(buffer, "HP: %d", player.hp);
-    DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
+    // DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
+    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 8, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 1, RED);
 
     sprintf(buffer, "+");
     DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
@@ -267,6 +303,12 @@ int main(void)
     Player player = PLAYERINIT;
 
     Map *mp = loadMap("testmap1.csv");
+
+    wpnslct1 = LoadTexture("Sprites/HUD/Weaponselect1.png");
+    wpnslct2 = LoadTexture("Sprites/HUD/Weaponselect2.png");
+    wpnslct3 = LoadTexture("Sprites/HUD/Weaponselect3.png");
+    kngligDoomGuy = LoadTexture("Sprites/HUD/85ed57ab85bbe08a0edfd3cfa5edfc38.jpg");
+    jupiter = LoadFont("Sprites/HUD/fonts/jupiter_crash.png");
 
     Image floorImage = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
     Texture2D floorTextureBuffer = LoadTextureFromImage(floorImage);
