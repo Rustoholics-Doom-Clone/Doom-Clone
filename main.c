@@ -279,18 +279,23 @@ void drawHud(Player player, Weapon wpn, int wpnn)
         break;
     }
 
-    DrawRectangle(((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 200, 90 * hudHeightScale - 8, BLACK);
+    DrawRectangle(((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 300, 90 * hudHeightScale - 8, BLACK);
+    DrawRectangle(((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 204, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 200, 90 * hudHeightScale - 8, BLACK);
 
     char buffer[64];
     sprintf(buffer, "HP: %d", player.hp);
     // DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
-    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 8, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 1, RED);
+    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 200, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
 
     sprintf(buffer, "+");
     DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
 
-    sprintf(buffer, "AMMO: %d", wpn.ammo);
-    DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+    if (wpnn == 0)
+        sprintf(buffer, "AMMO: inf");
+    else
+        sprintf(buffer, "AMMO: %d", wpn.ammo);
+
+    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 8, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
 }
 
 int main(void)
