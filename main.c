@@ -11,79 +11,13 @@
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
-#define TILE_SIZE 64
 #define MAP_WIDTH 10
 #define MAP_HEIGHT 10
 #define MAX_WALLS 1024
 #define NUM_RAYS 200
 #define FOV 60.0f
 
-void draw3DView(CollisionData **hits, int rayCount, Texture2D floorTexture, Texture2D roofTexture)
-{
-    for (int i = 0; i < rayCount; i++)
-    {
-        if (!hits[i])
-            continue;
-
-        float dist = hits[i]->d;
-        float corrected = dist * cosf(DEG_TO_RAD(hits[i]->angle));    // Correct fisheye effect
-        float wallHeight = ((TILE_SIZE * SCREEN_HEIGHT) / corrected); // Wall height based on screen size
-
-        Texture2D texture = hits[i]->texture;
-
-        float sliceWidth = (float)SCREEN_WIDTH / NUM_RAYS;
-        float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
-        float wallBottom = wallTop + wallHeight;
-
-        // Compute roof rect
-        Rectangle srcRoof = {
-            0, 0,
-            roofTexture.width, roofTexture.height};
-
-        Rectangle destRoof = {
-            i * sliceWidth, // X
-            0,              // Y (top of screen)
-            sliceWidth,     // Width
-            wallTop         // Height (from top to start of wall)
-        };
-
-        // Draw a piece of roof texture stretched to fit
-        DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
-
-        // --- Draw walls ---
-        float texX = hits[i]->textureOffset * texture.width;
-        // Source rectangle: a vertical slice of the wall texture
-        Rectangle source = {
-            texX,
-            0,
-            1,
-            (float)texture.height};
-
-        // Destination rectangle: the scaled vertical slice on screen
-        Rectangle destination = {
-            i * sliceWidth, // X on screen
-            (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f),
-            sliceWidth, // stretches pixels in source retangel to slicewith
-            wallHeight};
-
-        DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-
-        // Compute floor rect
-        Rectangle srcFloor = {
-            0, 0,
-            floorTexture.width, floorTexture.height};
-
-        Rectangle destFloor = {
-            i * sliceWidth,            // X position on screen
-            wallBottom,                // Y position (below wall)
-            sliceWidth,                // Width on screen (same as wall slice width)
-            SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
-        };
-
-        // Draw a piece of floor texture stretched to fit
-        DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
-    }
-}
+Color CERISE = {230, 65, 133, 255};
 
 int compareEnemyDistance(const void *a, const void *b)
 {
@@ -101,68 +35,9 @@ int compareEnemyDistance(const void *a, const void *b)
     return -1;
 }
 
-void drawEnemies(Player p1, CollisionData **enemyColl, int enemyCount)
+void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionData **wallhits, int raycount, CollisionData **projectileData, Image *floorImage, Texture2D *floorTextureBuffer, Image floorTexture, Image roofTexture)
 {
-    qsort(enemyColl, enemyCount, sizeof(CollisionData *), compareEnemyDistance);
 
-    Vec2 plane = {
-        -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
-        p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
-
-    for (int i = 0; i < enemyCount; i++)
-    {
-        if (!enemyColl[i])
-            continue;
-
-        Vec2 enemyPos = enemyColl[i]->position;
-
-        // Vector from player to enemy
-        float dx = enemyPos.x - p1.pos.x;
-        float dy = enemyPos.y - p1.pos.y;
-
-        // Inverse camera transform
-        float invDet = 1.0f / (plane.x * p1.dir.y - p1.dir.x * plane.y);
-
-        float transformX = invDet * (p1.dir.y * dx - p1.dir.x * dy);
-        float transformY = invDet * (-plane.y * dx + plane.x * dy);
-
-        if (transformY <= 0)
-            continue; // Enemy is behind the player
-
-        // Projected X position on screen
-        float enemyScreenX = (SCREEN_WIDTH / 2) * (1 + transformX / transformY);
-
-        Texture2D sprite = enemyColl[i]->texture;
-
-        // Preserve sprite aspect ratio
-        float aspectRatio = (float)sprite.width / (float)sprite.height;
-
-        float dist = enemyColl[i]->d;
-        float corrected = dist * enemyColl[i]->angle;               // Correct fisheye effect
-        float wallHeight = (TILE_SIZE * SCREEN_HEIGHT) / corrected; // Wall height based on screen size
-
-        // Sprite height scaling factor
-        float spritesScale = 24.0;
-        float spriteHeight = spritesScale * (SCREEN_HEIGHT / transformY) * 1.8f; // 1.8 = tune to taste
-        float spriteWidth = spriteHeight * aspectRatio;
-
-        Rectangle src = {
-            0, 0,
-            (float)sprite.width,
-            (float)sprite.height};
-
-        Rectangle dest = {
-            enemyScreenX - spriteWidth / 2,
-            SCREEN_HEIGHT / 2 + wallHeight / 2 - spriteHeight,
-            spriteWidth,
-            spriteHeight};
-
-        DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
-    }
-}
-
-void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionData **wallhits, int raycount, CollisionData **projectileData, Texture2D floorTexture, Texture2D roofTexture)
-{
     CollisionData **allData = malloc(sizeof(CollisionData *) * (enemycount + raycount + MAXPROJECTILES));
     if (!allData)
         return;
@@ -172,9 +47,62 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
 
     qsort(allData, (enemycount + raycount + MAXPROJECTILES), sizeof(CollisionData *), compareEnemyDistance);
 
+    Color *pixels = floorImage->data; // Pointer to the Image pixel buffer
+
     Vec2 plane = {
         -p1.dir.y * tanf(DEG_TO_RAD(FOV / 2)),
         p1.dir.x * tanf(DEG_TO_RAD(FOV / 2))};
+
+    float posScale = 0.0150f; // Achieved through trial and error. If the floor is moving to much in the same direction as the player. I.e moves infront of the player. This is to low and vice versa
+
+    for (int y = SCREEN_HEIGHT / 2 + 1; y < SCREEN_HEIGHT; y++)
+    {
+        float rayDirX0 = p1.dir.x - plane.x;
+        float rayDirY0 = p1.dir.y - plane.y;
+        float rayDirX1 = p1.dir.x + plane.x;
+        float rayDirY1 = p1.dir.y + plane.y;
+
+        float rowDistance = (float)SCREEN_HEIGHT / (2.0f * y - SCREEN_HEIGHT);
+        float stepX = rowDistance * (rayDirX1 - rayDirX0) / SCREEN_WIDTH;
+        float stepY = rowDistance * (rayDirY1 - rayDirY0) / SCREEN_WIDTH;
+
+        float floorX = p1.pos.x * posScale + rowDistance * rayDirX0;
+        float floorY = p1.pos.y * posScale + rowDistance * rayDirY0;
+
+        for (int x = 0; x < SCREEN_WIDTH; ++x)
+        {
+
+            // float scaleFactor = 0.8f;
+
+            float repeatScale = 1.0f; // how much world space each texture tile covers
+
+            int tx = (int)((floorX / repeatScale) * floorTexture.width) % floorTexture.width;
+            int ty = (int)((floorY / repeatScale) * floorTexture.height) % floorTexture.height;
+
+            // Ensure wrapping is safe for negative values
+            tx = (tx + floorTexture.width) % floorTexture.width;
+            ty = (ty + floorTexture.height) % floorTexture.height;
+
+            int ceilingY = SCREEN_HEIGHT - y;
+
+            // Get the floor and ceiling colors
+            Color floorColor = GetImageColor(floorTexture, tx, ty);
+            Color ceilingColor = GetImageColor(roofTexture, tx, ty);
+
+            // Set the pixels in the Image data directly (faster than DrawPixel)
+            pixels[y * SCREEN_WIDTH + x] = floorColor;
+            pixels[ceilingY * SCREEN_WIDTH + x] = ceilingColor;
+
+            floorX += stepX;
+            floorY += stepY;
+        }
+    }
+
+    // After updating the floorImage, we update the floorTextureBuffer
+    UpdateTexture(*floorTextureBuffer, floorImage->data);
+
+    // Draw the modified floorImage (both floor and ceiling) to the screen
+    DrawTexture(*floorTextureBuffer, 0, 0, WHITE); // You can adjust the position here
 
     int wallSliceIndex = 0;
     for (int c = 0; c < (enemycount + raycount + MAXPROJECTILES); c++)
@@ -184,7 +112,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
 
         switch (isnan(allData[c]->textureOffset))
         {
-        case 1:
+        case 1: // Not a wall
         {
             Vec2 enemyPos = allData[c]->position;
 
@@ -215,7 +143,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
 
             // Sprite height scaling factor
             float spritesScale = 24.0;
-            float spriteHeight = spritesScale * (SCREEN_HEIGHT / transformY) * 1.8f; // 1.8 = tune to taste
+            float spriteHeight = spritesScale * (SCREEN_HEIGHT / transformY) * 1.8f * ((float)sprite.height / 64.0); // 1.8 = tune to taste
             float spriteWidth = spriteHeight * aspectRatio;
 
             Rectangle src = {
@@ -232,7 +160,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
             DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
             break;
         }
-        default:
+        default: // A wall
         {
 
             float dist = allData[c]->d;
@@ -245,21 +173,6 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
             float screenX = allData[c]->id * sliceWidth;
             float wallTop = (SCREEN_HEIGHT / 2.0f) - (wallHeight / 2.0f);
             float wallBottom = wallTop + wallHeight;
-
-            // Compute roof rect
-            Rectangle srcRoof = {
-                0, 0,
-                roofTexture.width, roofTexture.height};
-
-            Rectangle destRoof = {
-                screenX,    // X
-                0,          // Y (top of screen)
-                sliceWidth, // Width
-                wallTop     // Height (from top to start of wall)
-            };
-
-            // Draw a piece of roof texture stretched to fit
-            DrawTexturePro(roofTexture, srcRoof, destRoof, (Vector2){0, 0}, 0.0f, WHITE);
 
             // --- Draw walls ---
             float texX = allData[c]->textureOffset * texture.width;
@@ -278,21 +191,6 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
                 wallHeight};
 
             DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-
-            // Compute floor rect
-            Rectangle srcFloor = {
-                0, 0,
-                floorTexture.width, floorTexture.height};
-
-            Rectangle destFloor = {
-                screenX,                   // X position on screen
-                wallBottom,                // Y position (below wall)
-                sliceWidth,                // Width on screen (same as wall slice width)
-                SCREEN_HEIGHT - wallBottom // Height from wall bottom to bottom of screen
-            };
-
-            // Draw a piece of floor texture stretched to fit
-            DrawTexturePro(floorTexture, srcFloor, destFloor, (Vector2){0, 0}, 0.0f, WHITE);
 
             wallSliceIndex++;
         }
@@ -342,25 +240,92 @@ void drawWeapon(Weapon *wpns, int wpnid)
     }
 }
 
+Texture2D wpnslct1;
+Texture2D wpnslct2;
+Texture2D wpnslct3;
+Texture2D kngligDoomGuy;
+Font jupiter;
+
+void drawHud(Player player, Weapon wpn, int wpnn)
+{
+
+    float hudHeightScale = 0.8f * (float)SCREEN_HEIGHT / 1080.0;
+
+    DrawRectangle(0, SCREEN_HEIGHT - 90 * hudHeightScale, SCREEN_WIDTH, 90 * hudHeightScale, CERISE);
+
+    Rectangle src = {
+        0, 0, kngligDoomGuy.width, kngligDoomGuy.height};
+    Rectangle dest = {
+        (SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2,
+        SCREEN_HEIGHT - hudHeightScale * kngligDoomGuy.height,
+        kngligDoomGuy.width * hudHeightScale,
+        kngligDoomGuy.height * hudHeightScale};
+    DrawTexturePro(kngligDoomGuy, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+
+    src = (Rectangle){0, 0, wpnslct1.width, wpnslct1.height};
+    dest = (Rectangle){(SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2, SCREEN_HEIGHT - hudHeightScale * kngligDoomGuy.height, wpnslct1.width, wpnslct1.height};
+
+    switch (wpnn)
+    {
+    case 0:
+        DrawTexturePro(wpnslct1, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    case 1:
+        DrawTexturePro(wpnslct2, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    case 2:
+        DrawTexturePro(wpnslct3, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
+        break;
+    default:
+        break;
+    }
+
+    DrawRectangle(((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 300, 90 * hudHeightScale - 8, BLACK);
+    DrawRectangle(((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 204, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 200, 90 * hudHeightScale - 8, BLACK);
+
+    char buffer[64];
+    sprintf(buffer, "HP: %d", player.hp);
+    // DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
+    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 200, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
+
+    sprintf(buffer, "+");
+    DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
+
+    if (wpnn == 0)
+        sprintf(buffer, "AMMO: inf");
+    else
+        sprintf(buffer, "AMMO: %d", wpn.ammo);
+
+    DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 8, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
+}
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
     srand(time(NULL));
 
+    ToggleFullscreen();
     Player player = PLAYERINIT;
     GameState gameState = MAINMENU;
 
     Map *mp = loadMap("testmap1.csv");
-    Texture2D floorTexture = LoadTexture("Sprites/Ground.png");
-    Texture2D roofTexture = LoadTexture("Sprites/Sky.png");
 
     Font font = LoadFont("Sprites/Fonts/setback.png");
 
+    wpnslct1 = LoadTexture("Sprites/HUD/Weaponselect1.png");
+    wpnslct2 = LoadTexture("Sprites/HUD/Weaponselect2.png");
+    wpnslct3 = LoadTexture("Sprites/HUD/Weaponselect3.png");
+    kngligDoomGuy = LoadTexture("Sprites/HUD/85ed57ab85bbe08a0edfd3cfa5edfc38.jpg");
+    jupiter = LoadFont("Sprites/HUD/fonts/jupiter_crash.png");
 
-    Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
+    Image floorImage = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
+    Texture2D floorTextureBuffer = LoadTextureFromImage(floorImage);
 
-    Enemy **projectiles = weapons[2].projectiles; // Contains all the projectiles from the projectile weapon.
+    Image floorTexture = LoadImage("Sprites/Ground.png");
+    Image roofTexture = LoadImage("Sprites/Sky.png");
+
+    Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
 
     int currentwpn = 0;
 
@@ -378,17 +343,14 @@ int main(void)
             gameState = GAMEPLAY;
             player = PLAYERINIT;
             mp = loadMap("testmap1.csv"); //This is very inefficient, but I don't know how to do better
-            weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT);
-            projectiles = weapons[2].projectiles;
+            weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
             currentwpn = 0;
         }
             break;
 
         case GAMEPLAY:
         if (weapons[currentwpn].currentCooldown > 0)
-        {
             weapons[currentwpn].currentCooldown--;
-        }
 
         if(IsKeyPressed(KEY_ENTER))
         {
@@ -397,58 +359,29 @@ int main(void)
         }
 
         if (IsKeyDown(KEY_RIGHT))
-        {
             rotateRight(&player);
-        }
-
         if (IsKeyDown(KEY_LEFT))
-        {
             rotateLeft(&player);
-        }
         if (IsKeyDown('W'))
-        {
             wishMoveForward(&player);
-        }
-
         if (IsKeyDown('A'))
-        {
             wishMoveLeft(&player);
-        }
-
         if (IsKeyDown('S'))
-        {
             wishMoveBack(&player);
-        }
-
         if (IsKeyDown('D'))
-        {
             wishMoveRight(&player);
-        }
-
         if (IsKeyDown(KEY_SPACE) && weapons[currentwpn].currentCooldown == 0 && weapons[currentwpn].ammo > 0)
-        {
             attackEnemy(&weapons[currentwpn], &player, mp);
-        }
         if (IsKeyDown('1'))
-        {
             currentwpn = 0;
-        }
         if (IsKeyDown('2'))
-        {
             currentwpn = 1;
-        }
         if (IsKeyDown('3'))
-        {
             currentwpn = 2;
-        }
         if (IsKeyDown('Q'))
-        {
             weapons[currentwpn].currentCooldown = 1;
-        }
         if (IsKeyDown('E'))
-        {
             weapons[currentwpn].currentCooldown = 0;
-        }
 
         executeMovement(&player, mp->walls, mp->numOfWalls);
 
@@ -456,36 +389,22 @@ int main(void)
 
         CollisionData **enemyData = rayShotEnemies(player, FOV, mp, mp->enemies, mp->enemyCount); // Gets enemy CollisionData
 
-        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, projectiles); // Gets projectile CollisionData
+        CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
 
 
 
-        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, floorTexture, roofTexture);
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
-        // draw3DView(hits, NUM_RAYS, floorTexture, roofTexture);
-        // drawEnemies(player, enemyData, mp->enemyCount);
-
-        // drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls);
 
-        // drawEnemies(player, enemyData, mp->enemyCount);
         updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
-        updateProjectiles(projectiles, player, mp->enemies, mp->enemyCount, &weapons[2]);
-        // drawEnemies(player, projectileData, MAXPROJECTILES);
+        updateProjectiles(mp->projectiles, &player, mp->enemies, mp->enemyCount, &weapons[2], &mp->ppointer);
 
         drawWeapon(weapons, currentwpn);
 
-        char buffer[64];
-        sprintf(buffer, "HP: %d", player.hp);
-        DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
-
-        sprintf(buffer, "+");
-        DrawText(buffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, (Color){245, 40, 145, 204});
-
-        sprintf(buffer, "AMMO: %d", weapons[currentwpn].ammo);
-        DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 30, 20, BLACK);
+        drawHud(player, weapons[currentwpn], currentwpn);
 
 
 
@@ -508,6 +427,16 @@ int main(void)
 
     }
 
+    // --- Shutdown / Cleanup ---
+
+    UnloadImage(floorImage);
+    UnloadImage(roofTexture);
+    UnloadTexture(floorTextureBuffer);
+    UnloadImage(floorTexture);
+
+    freeMap(mp);
+
     CloseWindow();
+
     return 0;
 }

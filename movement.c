@@ -262,47 +262,52 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dm
     }
 }
 
-void shootProjectile(Weapon *wpn, Player *player)
+void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer, int friendly)
 {
     Enemy *proj = malloc(sizeof(Enemy));
     if (!proj)
         return;
     // Make an enemy object
-    proj->sprite = LoadTexture("Sprites/Projectiles/projectilespritetransp.png");
+    if (friendly)
+        proj->sprite = LoadTexture("Sprites/Projectiles/largerprojectiletransp.png");
+    else
+        proj->sprite = LoadTexture("Sprites/Projectiles/EvilProjectile.png");
+
     proj->acceleration = 2000.0 * MAXPROJECTILES;
     proj->attackRadius = proj->sprite.width / 2;
     proj->baseCoolDown = 0;
     proj->coolDown = 0;
-    proj->dir = player->dir;
-    proj->dmg = wpn->dmg;
+    proj->dir = dir;
+    proj->dmg = dmg;
     proj->hitRadius = 0;
     proj->hp = 1;
     proj->id = -1;
     proj->maxSpeed = 4000.0 * MAXPROJECTILES;
-    proj->pos = player->pos;
+    proj->pos = pos;
     Vec2 offset;
-    vectorScale(player->dir, 20.0, &offset);
+    vectorScale(dir, 20.0, &offset);
     vectorAdd(proj->pos, offset, &proj->pos);
     proj->status = ALIVE;
     proj->velocity = VECINIT;
     proj->visibility = VISIBLE;
+    proj->friendlyProjectile = friendly;
 
     // Try to slot in the object somewhere
     int fl = 1;
     for (int i = 0; i < MAXPROJECTILES; i++)
     {
-        if (!wpn->projectiles[i])
+        if (!projectiles[i])
         {
-            wpn->projectiles[i] = proj;
+            projectiles[i] = proj;
             fl = 0;
             break;
         }
     }
     if (fl)
     {
-        free(wpn->projectiles[wpn->ppointer]);
-        wpn->projectiles[wpn->ppointer] = proj;
-        wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES;
+        free(projectiles[*ppointer]);
+        projectiles[*ppointer] = proj;
+        *ppointer = (*ppointer + 1) % MAXPROJECTILES;
     }
 }
 
@@ -329,7 +334,7 @@ void attackEnemy(Weapon *wpn, Player *player, Map *mp)
         break;
 
     case PROJECTILE:
-        shootProjectile(wpn, player); // Shoot a projectile
+        shootProjectile(player->pos, player->dir, wpn->dmg, mp->projectiles, &mp->ppointer, 1); // Shoot a projectile
         break;
     default:
         break;
@@ -338,46 +343,66 @@ void attackEnemy(Weapon *wpn, Player *player, Map *mp)
     wpn->ammo--;                              // lower ammo
 }
 
-int updateProjectile(Enemy *projectile, Player player, Enemy *enemies, int ec)
+int updateProjectile(Enemy *projectile, Player *player, Enemy *enemies, int ec)
 {
     Vec2 diffvec;
-    for (int i = 0; i < ec; i++)
-    {
-        vectorSub(projectile->pos, enemies[i].pos, &diffvec);
-        if (vectorLenght(diffvec) <= (projectile->attackRadius + enemies[i].hitRadius))
-        {
-            enemies[i].hp -= projectile->dmg;
-            return 1; // Signal to updateProjectiles that it should free and NULL it
-        }
-    }
 
+<<<<<<< HEAD
     moveEnemy(projectile, projectile->dir, 60, NULL, 0);       // Move the projectile
     vectorSub(projectile->pos, player.pos, &diffvec); // Check if the projectile is too far away from the player
+=======
+    switch (projectile->friendlyProjectile)
+    {
+    case 1:
+        for (int i = 0; i < ec; i++)
+        {
+            vectorSub(projectile->pos, enemies[i].pos, &diffvec);
+            if (vectorLenght(diffvec) <= (projectile->attackRadius + enemies[i].hitRadius))
+            {
+                enemies[i].hp -= projectile->dmg;
+                return 1; // Signal to updateProjectiles that it should free and NULL it
+            }
+        }
+
+        break;
+    case 0:
+        vectorSub(projectile->pos, player->pos, &diffvec);
+        if (vectorLenght(diffvec) <= 50.0)
+        {
+            player->hp -= projectile->dmg;
+            return 1;
+        }
+        break;
+    default:
+        break;
+    }
+    moveEnemy(projectile, projectile->dir, 60, NULL, 0); // Move the projectile
+    vectorSub(projectile->pos, player->pos, &diffvec);   // Check if the projectile is too far away from the player
+>>>>>>> origin/main
     if (vectorLenght(diffvec) >= 2000)
     {
         return 1; // Signal to updateProjectiles that it should free and NULL it
     }
-
     return 0;
 }
 
-void updateProjectiles(Enemy **projectiles, Player player, Enemy *enemies, int ec, Weapon *wpn)
+void updateProjectiles(Enemy **projectiles, Player *player, Enemy *enemies, int ec, Weapon *wpn, int *ppointer)
 {
 
-    if (projectiles[wpn->ppointer]) // if the current queue slot contains anything
+    if (projectiles[*ppointer]) // if the current queue slot contains anything
     {
-        if (updateProjectile(projectiles[wpn->ppointer], player, enemies, ec)) // update the projectile and check if it should be removed
+        if (updateProjectile(projectiles[*ppointer], player, enemies, ec)) // update the projectile and check if it should be removed
         {
-            free(projectiles[wpn->ppointer]);  // deallocate projectile
-            projectiles[wpn->ppointer] = NULL; // set spot to null
+            free(projectiles[*ppointer]);  // deallocate projectile
+            projectiles[*ppointer] = NULL; // set spot to null
         }
     }
 
-    wpn->ppointer = (wpn->ppointer + 1) % MAXPROJECTILES; // move over one spot in the queue
+    *ppointer = (*ppointer + 1) % MAXPROJECTILES; // move over one spot in the queue
     return;
 }
 
-Weapon *getWeapons(int width, int height)
+Weapon *getWeapons(int width, int height, Enemy **projectiles)
 {
     Weapon *wps = malloc(sizeof(Weapon) * 3);
     if (!wps)
@@ -420,12 +445,15 @@ Weapon *getWeapons(int width, int height)
     wps[2].normalScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].ppointer = 0;
+    /*
     wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
     for (int i = 0; i < MAXPROJECTILES; i++)
         wps[2].projectiles[i] = NULL; // initialize to NULL
+*/
 
+    wps[2].projectiles = projectiles;
     wps[2].type = PROJECTILE;
-    wps[2].ammo = 10;
+    wps[2].ammo = 11;
     wps[2].dmg = 100;
 
     return wps;
