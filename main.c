@@ -16,6 +16,8 @@
 #define NUM_RAYS 200
 #define FOV 60.0f
 
+Color CERISE = {230, 65, 133, 255};
+
 int compareEnemyDistance(const void *a, const void *b)
 {
 
