@@ -368,7 +368,9 @@ int main(void)
         rotate(&player.dir, ROTSPEED/10);
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
+        const char *title = "Schlem on Campus";
         const char *start = "Start Game [ Enter ]";
+        DrawTextEx(font, title, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, title, font.baseSize*10, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*10, 10, BLACK);
         DrawTextEx(font, start, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, start, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, BLACK);
         DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2+font.baseSize*5}, font.baseSize*5, 5, BLACK);
             break;
