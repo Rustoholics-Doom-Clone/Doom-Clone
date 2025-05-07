@@ -258,6 +258,7 @@ void drawHud(Player player, Weapon wpn, int wpnn)
 
     float hudHeightScale = 0.8f * (float)SCREEN_HEIGHT / 1080.0;
 
+    DrawRectangle(0, (SCREEN_HEIGHT - 90 * hudHeightScale) - 4, SCREEN_WIDTH, 90 * hudHeightScale, WHITE);
     DrawRectangle(0, SCREEN_HEIGHT - 90 * hudHeightScale, SCREEN_WIDTH, 90 * hudHeightScale, CERISE);
 
     Rectangle src = {
