@@ -260,7 +260,7 @@ Texture2D wpnslct3;
 Texture2D kngligDoomGuy;
 Font jupiter;
 
-void drawHud(Player player, Weapon wpn, int wpnn)
+void drawHud(Player player, Weapon wpn, int wpnn, int remaingingEnemies)
 {
 
     float hudHeightScale = 0.8f * (float)SCREEN_HEIGHT / 1080.0;
@@ -297,6 +297,7 @@ void drawHud(Player player, Weapon wpn, int wpnn)
 
     DrawRectangle(((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 300, 90 * hudHeightScale - 8, BLACK);
     DrawRectangle(((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 204, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 200, 90 * hudHeightScale - 8, BLACK);
+    DrawRectangle(4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 450, 90 * hudHeightScale - 8, BLACK);
 
     char buffer[64];
     sprintf(buffer, "HP: %d", player.hp);
@@ -312,6 +313,9 @@ void drawHud(Player player, Weapon wpn, int wpnn)
         sprintf(buffer, "AMMO: %d", wpn.ammo);
 
     DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 8, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
+
+    sprintf(buffer, "REMAINING 0an: %d", remaingingEnemies);
+    DrawTextEx(jupiter, buffer, (Vector2){8, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
 }
 
 int main(void)
@@ -345,6 +349,8 @@ int main(void)
 
     int currentMap = 0;
     int currentwpn = 0;
+    int totalEnemies;
+    int remainingEnemies = 0;
     const char *exit = "Exit game [ Backspace ]";
     const char *ret = "Main Menu [ Esc ]";
 
@@ -369,6 +375,7 @@ int main(void)
                 player = PLAYERINIT;
                 freeMap(mp);
                 mp = loadMap(Maps[currentMap]); // This is very inefficient, but I don't know how to reset a map in a better way
+                totalEnemies = mp->enemyCount;
                 weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
                 currentwpn = 0;
             }
@@ -427,6 +434,7 @@ int main(void)
                     deadEnemies++;
                 }
             }
+            remainingEnemies = totalEnemies - deadEnemies;
             if (deadEnemies == mp->enemyCount)
             {
                 gameState = ENDSCREEN;
@@ -447,7 +455,7 @@ int main(void)
 
             drawWeapon(weapons, currentwpn);
 
-            drawHud(player, weapons[currentwpn], currentwpn);
+            drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             break;
 
@@ -465,7 +473,7 @@ int main(void)
 
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
-            drawHud(player, weapons[currentwpn], currentwpn);
+            drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             const char *resume = "Resume [ Esc ]";
             const char *main = "Main Menu [ Enter ]";
@@ -502,6 +510,7 @@ int main(void)
 
                 freeMap(mp);                    // Unload old map
                 mp = loadMap(Maps[currentMap]); // load next Map
+                totalEnemies = mp->enemyCount;
                 weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
                 currentwpn = 0;
 
@@ -511,7 +520,7 @@ int main(void)
 
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
-            drawHud(player, weapons[currentwpn], currentwpn);
+            drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             const char *next = "Next level [ Enter ]";
             DrawTextEx(font, next, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, next, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 5, 5, BLACK);
@@ -539,6 +548,7 @@ int main(void)
 
                 freeMap(mp);                    // Unload old map
                 mp = loadMap(Maps[currentMap]); // load next Map
+                totalEnemies = mp->enemyCount;
                 weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
                 currentwpn = 0;
 
@@ -548,7 +558,7 @@ int main(void)
 
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
-            drawHud(player, weapons[currentwpn], currentwpn);
+            drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             const char *dead = "YOU DIED";
             const char *retry = "Retry Level [ Enter ]";
@@ -566,7 +576,7 @@ int main(void)
 
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
-            drawHud(player, weapons[currentwpn], currentwpn);
+            drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             const char *won = "YOU'VE WON";
             const char *congrts = "CONGRATULATIONS ON FINISHING THE GAME";
