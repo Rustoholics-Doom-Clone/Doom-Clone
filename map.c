@@ -131,7 +131,6 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
     float frictionPerFrame = powf(friction, 60.0f / (float)targetFPS);
     vectorScale(foe->velocity, frictionPerFrame, &foe->velocity);
 
-
     // Move position
     Vec2 ds;
     Vec2 res;
@@ -294,7 +293,7 @@ int saveMap(int numOfWalls, Wall *walls, char *filename) // kindof redundant rig
     return 1;
 }
 
-Map *loadMap(char *filename)
+Map *loadMap(const char *filename)
 {
     // Opening file
     FILE *mfile = fopen(filename, "r");
