@@ -15,7 +15,7 @@
 #define MAX_WALLS 1024
 #define NUM_RAYS 200
 #define FOV 60.0f
-#define NUM_MAPS 2
+#define NUM_MAPS 4
 
 typedef enum
 {
