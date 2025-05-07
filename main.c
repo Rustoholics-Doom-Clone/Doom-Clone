@@ -25,6 +25,12 @@ typedef enum
     DEATHSCREEN
 } GameState;
 
+const char *Maps[] = {
+    "Maps/map1.csv",
+    "Maps/map2.csv",
+    "Maps/Map3.csv",
+    "Maps/Map4.csv"};
+
 Color CERISE = {230, 65, 133, 255};
 
 int compareEnemyDistance(const void *a, const void *b)
