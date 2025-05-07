@@ -183,7 +183,11 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
             {
-                if (foe->type == 0 | foe->type == 3 | foe->type == 4)
+                if (foe->type == 4)
+                {
+                    player
+                }
+                if (foe->type == 0 | foe->type == 3)
 
                     *playerHealth -= foe->dmg;
                     if (foe->type == 3 | foe->type == 4)
