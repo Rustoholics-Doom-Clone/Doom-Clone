@@ -21,7 +21,8 @@ typedef enum
     MAINMENU,
     GAMEPLAY,
     PAUSEMENU,
-    ENDSCREEN
+    ENDSCREEN,
+    DEATHSCREEN
 } GameState;
 
 Color CERISE = {230, 65, 133, 255};
@@ -338,6 +339,7 @@ int main(void)
 
     int currentwpn = 0;
     const char *exit = "Exit game [ Backspace ]";
+    const char *ret = "Main Menu [ Esc ]";
 
     while (!WindowShouldClose())
     {
@@ -416,6 +418,9 @@ int main(void)
         if (deadEnemies == mp->enemyCount) {
             gameState = ENDSCREEN;
         }
+        if (player.hp <= 0) {
+            gameState = DEATHSCREEN;
+        }
 
 
 
@@ -478,10 +483,32 @@ int main(void)
         drawHud(player, weapons[currentwpn], currentwpn);
 
         const char *next = "Next level [ Enter ]";
-        const char *ret = "Main Menu [ Esc ]";
         DrawTextEx(font, next, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, next, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*5, 5, BLACK);
         DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, ret, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
         DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
+            break;
+
+        case DEATHSCREEN:
+        if(IsKeyPressed(KEY_ESCAPE))
+        {
+            gameState = MAINMENU;
+        }
+        if(IsKeyPressed(KEY_ENTER))
+        {
+            //TODO: Reload map
+            gameState = GAMEPLAY;
+        }
+
+        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+        drawWeapon(weapons, currentwpn);
+        drawHud(player, weapons[currentwpn], currentwpn);
+
+        const char *dead = "YOU DIED";
+        const char *retry = "Retry Level [ Enter ]";
+        DrawTextEx(font, dead, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, dead, font.baseSize*8, 5).x/2, SCREEN_HEIGHT/10}, font.baseSize*8, 8, BLACK);
+        DrawTextEx(font, retry, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, retry, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, ret, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
+        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*15}, font.baseSize*5, 5, BLACK);
             break;
         
         default:
