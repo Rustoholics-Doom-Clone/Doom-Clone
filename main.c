@@ -15,6 +15,7 @@
 #define MAX_WALLS 1024
 #define NUM_RAYS 200
 #define FOV 60.0f
+#define NUM_MAPS 4
 
 typedef enum
 {
@@ -341,8 +342,9 @@ int main(void)
     Image floorTexture = LoadImage("Sprites/Ground.png");
     Image roofTexture = LoadImage("Sprites/Sky.png");
 
-    Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
+    Weapon *weapons;
 
+    int currentMap = 0;
     int currentwpn = 0;
     const char *exit = "Exit game [ Backspace ]";
     const char *ret = "Main Menu [ Esc ]";
@@ -367,7 +369,7 @@ int main(void)
                 gameState = GAMEPLAY;
                 player = PLAYERINIT;
                 freeMap(mp);
-                mp = loadMap("Maps/map1.csv"); // This is very inefficient, but I don't know how to reset a map in a better way
+                mp = loadMap(Maps[currentMap]); // This is very inefficient, but I don't know how to reset a map in a better way
                 weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
                 currentwpn = 0;
             }
@@ -481,8 +483,24 @@ int main(void)
             }
             if (IsKeyPressed(KEY_ENTER))
             {
-                // TODO: Load next map
+                currentMap++; // Advance to next map
                 gameState = GAMEPLAY;
+                player = PLAYERINIT; // Reset player
+
+                // Free data before mp changes in order to avoid memory leaks and segmentation faults
+                freeCollisionData(hits, NUM_RAYS);
+                freeCollisionData(enemyData, mp->enemyCount);
+                freeCollisionData(projectileData, MAXPROJECTILES);
+                free(weapons);
+                EndDrawing();
+
+                freeMap(mp);                    // Unload old map
+                mp = loadMap(Maps[currentMap]); // load next Map
+                weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
+                currentwpn = 0;
+
+                continue; // Only one should be needed
+                break;    // Extra just in case
             }
 
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
@@ -502,8 +520,24 @@ int main(void)
             }
             if (IsKeyPressed(KEY_ENTER))
             {
-                // TODO: Reload map
+                currentMap = 0; // Advance to next map
                 gameState = GAMEPLAY;
+                player = PLAYERINIT; // Reset player
+
+                // Free data before mp changes in order to avoid memory leaks and segmentation faults
+                freeCollisionData(hits, NUM_RAYS);
+                freeCollisionData(enemyData, mp->enemyCount);
+                freeCollisionData(projectileData, MAXPROJECTILES);
+                free(weapons);
+                EndDrawing();
+
+                freeMap(mp);                    // Unload old map
+                mp = loadMap(Maps[currentMap]); // load next Map
+                weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
+                currentwpn = 0;
+
+                continue; // Only one should be needed
+                break;    // Extra just in case
             }
 
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
