@@ -211,7 +211,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
 
 void drawWeapon(Weapon *wpns, int wpnid)
 {
-    switch (wpns[wpnid].currentCooldown) // draws Different sprite depending on cooldown
+    switch (wpns[wpnid].currentCooldown > (wpns[wpnid].baseCooldown / 2)) // draws Different sprite depending on cooldown
     {
     case 0:
     {
