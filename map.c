@@ -394,7 +394,7 @@ Map *loadMap(char *filename)
 
             break;
         case 3: // Creates a health pickup
-            result->enemies[i].sprite = LoadTexture("Sprites/Nollekorttransp.png");
+            result->enemies[i].sprite = LoadTexture("Sprites/Health.png");
             result->enemies[i].attackRadius = 50.0;
             result->enemies[i].dmg = -20;
             result->enemies[i].hp = 1;
@@ -405,13 +405,13 @@ Map *loadMap(char *filename)
 
             break;
         case 4: // Creates a ammo pickup
-            result->enemies[i].sprite = LoadTexture("Sprites/FlameDemonEvolved.png");
-            result->enemies[i].attackRadius = 500.0;
-            result->enemies[i].dmg = 20;
-            result->enemies[i].hp = 50;
-            result->enemies[i].baseCoolDown = 300;
-            result->enemies[i].acceleration = 100;
-            result->enemies[i].maxSpeed = 400;
+            result->enemies[i].sprite = LoadTexture("Sprites/Ammo.png");
+            result->enemies[i].attackRadius = 50.0;
+            result->enemies[i].dmg = 0;
+            result->enemies[i].hp = 1;
+            result->enemies[i].baseCoolDown = 0;
+            result->enemies[i].acceleration = 0;
+            result->enemies[i].maxSpeed = 0;
             result->enemies[i].type = 4;
 
             break;
