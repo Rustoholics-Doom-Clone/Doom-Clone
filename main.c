@@ -15,7 +15,7 @@
 #define MAX_WALLS 1024
 #define NUM_RAYS 200
 #define FOV 60.0f
-#define NUM_MAPS 4
+#define NUM_MAPS 2
 
 typedef enum
 {
@@ -483,6 +483,13 @@ int main(void)
             if (IsKeyPressed(KEY_ENTER))
             {
                 currentMap++; // Advance to next map
+                if (currentMap == NUM_MAPS)
+                {
+                    gameState = THEEND;
+                    currentMap = 0;
+                    break;
+                }
+
                 gameState = GAMEPLAY;
                 player = PLAYERINIT; // Reset player
 
@@ -552,6 +559,21 @@ int main(void)
             break;
 
         case THEEND:
+            if (IsKeyPressed(KEY_ESCAPE))
+            {
+                gameState = MAINMENU;
+            }
+
+            drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
+            drawWeapon(weapons, currentwpn);
+            drawHud(player, weapons[currentwpn], currentwpn);
+
+            const char *won = "YOU'VE WON";
+            const char *congrts = "CONGRATULATIONS ON FINISHING THE GAME";
+            DrawTextEx(font, won, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, won, font.baseSize * 8, 5).x / 2, SCREEN_HEIGHT / 10}, font.baseSize * 8, 8, CERISE);
+            DrawTextEx(font, congrts, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, congrts, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 5}, font.baseSize * 5, 5, CERISE);
+            DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, ret, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 10}, font.baseSize * 5, 5, BLACK);
+            DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, exit, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 15}, font.baseSize * 5, 5, BLACK);
             break;
         default:
             break;
