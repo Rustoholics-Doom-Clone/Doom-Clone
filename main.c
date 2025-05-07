@@ -263,11 +263,13 @@ Font jupiter;
 void drawHud(Player player, Weapon wpn, int wpnn, int remaingingEnemies)
 {
 
-    float hudHeightScale = 0.8f * (float)SCREEN_HEIGHT / 1080.0;
+    float hudHeightScale = 0.8f * (float)SCREEN_HEIGHT / 1080.0; // An attempt to make the hud scale to different aspect ratios. For your own sanity, don't
 
+    // Draw the hud background
     DrawRectangle(0, (SCREEN_HEIGHT - 90 * hudHeightScale) - 4, SCREEN_WIDTH, 90 * hudHeightScale, WHITE);
     DrawRectangle(0, SCREEN_HEIGHT - 90 * hudHeightScale, SCREEN_WIDTH, 90 * hudHeightScale, CERISE);
 
+    // Draw konglig doomguy
     Rectangle src = {
         0, 0, kngligDoomGuy.width, kngligDoomGuy.height};
     Rectangle dest = {
@@ -277,9 +279,11 @@ void drawHud(Player player, Weapon wpn, int wpnn, int remaingingEnemies)
         kngligDoomGuy.height * hudHeightScale};
     DrawTexturePro(kngligDoomGuy, src, dest, (Vector2){0.0, 0.0}, 0.0f, WHITE);
 
+    // Make an offset to the right of konglig doomguy
     src = (Rectangle){0, 0, wpnslct1.width, wpnslct1.height};
     dest = (Rectangle){(SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2, SCREEN_HEIGHT - hudHeightScale * kngligDoomGuy.height, wpnslct1.width, wpnslct1.height};
 
+    // Draw the corresponding weapon select sprite
     switch (wpnn)
     {
     case 0:
@@ -294,14 +298,14 @@ void drawHud(Player player, Weapon wpn, int wpnn, int remaingingEnemies)
     default:
         break;
     }
-
+    // make three black squares
     DrawRectangle(((SCREEN_WIDTH + kngligDoomGuy.width * hudHeightScale) / 2) + wpnslct1.width + 4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 300, 90 * hudHeightScale - 8, BLACK);
     DrawRectangle(((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 204, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 200, 90 * hudHeightScale - 8, BLACK);
     DrawRectangle(4, SCREEN_HEIGHT - 90 * hudHeightScale + 4, 450, 90 * hudHeightScale - 8, BLACK);
 
+    // Draw some text in the squares
     char buffer[64];
     sprintf(buffer, "HP: %d", player.hp);
-    // DrawText(buffer, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 60, 20, BLACK);
     DrawTextEx(jupiter, buffer, (Vector2){((SCREEN_WIDTH - kngligDoomGuy.width * hudHeightScale) / 2) - 200, SCREEN_HEIGHT - 90 * hudHeightScale + 4}, 75, 2, RED);
 
     sprintf(buffer, "+");
