@@ -293,7 +293,7 @@ int saveMap(int numOfWalls, Wall *walls, char *filename) // kindof redundant rig
     return 1;
 }
 
-Map *loadMap(char *filename)
+Map *loadMap(const char *filename)
 {
     // Opening file
     FILE *mfile = fopen(filename, "r");

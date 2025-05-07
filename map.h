@@ -96,7 +96,7 @@ int addEnemy(FILE *map, Vec2 pos, int id, EnemyType type);
 // saves an array of walls as a map.
 int saveMap(int numOfWalls, Wall *walls, char *filename);
 // reads a map from a file.
-Map *loadMap(char *filename);
+Map *loadMap(const char *filename);
 // Frees a Map
 void freeMap(Map *m);
 
