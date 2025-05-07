@@ -37,12 +37,12 @@ Color CERISE = {230, 65, 133, 255};
 
 int compareEnemyDistance(const void *a, const void *b)
 {
-
+    // Load in thwo collisiondata pointers
     CollisionData *f1 = *(CollisionData **)a;
     CollisionData *f2 = *(CollisionData **)b;
+    // Compare their distance
     if (!f1 || !f2)
         return -1;
-
     float cmp = f1->d - f2->d;
     if (cmp == 0.0)
         return 0;
@@ -54,6 +54,7 @@ int compareEnemyDistance(const void *a, const void *b)
 void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionData **wallhits, int raycount, CollisionData **projectileData, Image *floorImage, Texture2D *floorTextureBuffer, Image floorTexture, Image roofTexture)
 {
 
+    // Group all the collisiondata into one huge array
     CollisionData **allData = malloc(sizeof(CollisionData *) * (enemycount + raycount + MAXPROJECTILES));
     if (!allData)
         return;
@@ -61,6 +62,7 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
     memcpy(allData + enemycount, wallhits, raycount * sizeof(CollisionData *));
     memcpy(allData + enemycount + raycount, projectileData, MAXPROJECTILES * sizeof(CollisionData *));
 
+    // quicksort the array based on the distance of the collisions
     qsort(allData, (enemycount + raycount + MAXPROJECTILES), sizeof(CollisionData *), compareEnemyDistance);
 
     Color *pixels = floorImage->data; // Pointer to the Image pixel buffer
@@ -88,8 +90,6 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
         for (int x = 0; x < SCREEN_WIDTH; ++x)
         {
 
-            // float scaleFactor = 0.8f;
-
             float repeatScale = 1.0f; // how much world space each texture tile covers
 
             int tx = (int)((floorX / repeatScale) * floorTexture.width) % floorTexture.width;
@@ -114,19 +114,18 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
         }
     }
 
-    // After updating the floorImage, we update the floorTextureBuffer
+    // After updating the floorImage, update the floorTextureBuffer
     UpdateTexture(*floorTextureBuffer, floorImage->data);
 
     // Draw the modified floorImage (both floor and ceiling) to the screen
     DrawTexture(*floorTextureBuffer, 0, 0, WHITE); // You can adjust the position here
 
-    int wallSliceIndex = 0;
     for (int c = 0; c < (enemycount + raycount + MAXPROJECTILES); c++)
     {
-        if (!allData[c])
+        if (!allData[c]) // skip null data
             continue;
 
-        switch (isnan(allData[c]->textureOffset))
+        switch (isnan(allData[c]->textureOffset)) // Collisions with non wall objects have textureOffset as Nan
         {
         case 1: // Not a wall
         {
@@ -207,14 +206,12 @@ void drawScene(Player p1, CollisionData **enemyColl, int enemycount, CollisionDa
                 wallHeight};
 
             DrawTexturePro(texture, source, destination, (Vector2){0, 0}, 0.0f, WHITE);
-
-            wallSliceIndex++;
         }
 
         break;
         }
     }
-    free(allData);
+    free(allData); // Since we memcpy the only thing stored is pointers to the other pointers and thus the data itself will be freed later
 }
 
 void drawWeapon(Weapon *wpns, int wpnid)
@@ -256,6 +253,7 @@ void drawWeapon(Weapon *wpns, int wpnid)
     }
 }
 
+// These are hud elements. They are global so that they don't have to be passed by reference or reloaded into graphics memory every time the hud is drawn
 Texture2D wpnslct1;
 Texture2D wpnslct2;
 Texture2D wpnslct3;
