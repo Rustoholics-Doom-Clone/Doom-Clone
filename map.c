@@ -158,6 +158,11 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
     if (foe->hp <= 0)
     { // Check if enemy is or should be dead
         foe->status = DEAD;
+        if (foe->type == 3 | foe->type == 4)
+        {
+            foe->visibility = INVISIBLE;
+            return;
+        }
         foe->sprite = LoadTexture("Sprites/Nollekorttransp.png");
         return;
     }
@@ -178,9 +183,13 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
             {
-                if (foe->type == 0)
+                if (foe->type == 0 | foe->type == 3 | foe->type == 4)
 
                     *playerHealth -= foe->dmg;
+                    if (foe->type == 3 | foe->type == 4)
+                    {
+                        foe->hp -= 1;
+                    }
                 else
                     shootProjectile(foe->pos, dir, foe->dmg, mp->projectiles, &mp->ppointer, 0);
 
@@ -389,7 +398,7 @@ Map *loadMap(char *filename)
             result->enemies[i].attackRadius = 50.0;
             result->enemies[i].dmg = -20;
             result->enemies[i].hp = 1;
-            result->enemies[i].baseCoolDown = 300;
+            result->enemies[i].baseCoolDown = 0;
             result->enemies[i].acceleration = 0;
             result->enemies[i].maxSpeed = 0;
             result->enemies[i].type = 3;
