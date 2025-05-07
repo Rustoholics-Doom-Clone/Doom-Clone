@@ -23,7 +23,8 @@ typedef enum
     GAMEPLAY,
     PAUSEMENU,
     ENDSCREEN,
-    DEATHSCREEN
+    DEATHSCREEN,
+    THEEND
 } GameState;
 
 const char *Maps[] = {
@@ -552,6 +553,8 @@ int main(void)
             DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, exit, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 15}, font.baseSize * 5, 5, BLACK);
             break;
 
+        case THEEND:
+            break;
         default:
             break;
         }
