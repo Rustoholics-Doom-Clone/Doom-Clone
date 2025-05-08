@@ -467,6 +467,7 @@ int main(void)
             }
             if (IsKeyPressed(KEY_ENTER))
             {
+                // Reset player pos and open main menu
                 player.pos = STARTPOS;
                 player.dir = (Vec2){0.0, 1.0};
                 gameState = MAINMENU;
@@ -476,7 +477,7 @@ int main(void)
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show pause menu
             const char *resume = "Resume [ Esc ]";
             const char *main = "Main Menu [ Enter ]";
             DrawTextEx(font, resume, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, resume, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 5, 5, BLACK);
@@ -524,7 +525,7 @@ int main(void)
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show end of level screen
             const char *next = "Next level [ Enter ]";
             DrawTextEx(font, next, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, next, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 5, 5, BLACK);
             DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, ret, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 5}, font.baseSize * 5, 5, BLACK);
@@ -563,7 +564,7 @@ int main(void)
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show death screen
             const char *dead = "YOU DIED";
             const char *retry = "Restart [ Enter ]";
             DrawTextEx(font, dead, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, dead, font.baseSize * 8, 5).x / 2, SCREEN_HEIGHT / 10}, font.baseSize * 8, 8, BLACK);
@@ -575,6 +576,7 @@ int main(void)
         case THEEND:
             if (IsKeyPressed(KEY_ESCAPE))
             {
+                // Reset the player and show main menu
                 gameState = MAINMENU;
                 player = PLAYERINIT;
                 free(weapons);
@@ -585,7 +587,7 @@ int main(void)
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show end screen
             const char *won = "YOU'VE WON";
             const char *congrts = "CONGRATULATIONS ON FINISHING THE GAME";
             DrawTextEx(font, won, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, won, font.baseSize * 8, 5).x / 2, SCREEN_HEIGHT / 10}, font.baseSize * 8, 8, CERISE);
@@ -596,6 +598,7 @@ int main(void)
         default:
             break;
         }
+        // Always clean memory
         freeCollisionData(hits, NUM_RAYS);
         freeCollisionData(enemyData, mp->enemyCount);
         freeCollisionData(projectileData, MAXPROJECTILES);
