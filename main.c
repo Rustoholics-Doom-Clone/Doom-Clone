@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "enemy.h"
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
@@ -327,26 +328,22 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
     srand(time(NULL));
-    SetExitKey(KEY_BACKSPACE); //set close program key, so esc can be used for pause
+    SetExitKey(KEY_BACKSPACE); // set close program key, so esc can be used for pause
     ToggleFullscreen();
     HideCursor();
     Player player = PLAYERINIT;
     GameState gameState = MAINMENU;
 
-    //Load assets
+    // Load assets
     Map *mp = loadMap("Maps/map1.csv");
-
     Font font = LoadFont("Sprites/Fonts/setback.png");
-
     wpnslct1 = LoadTexture("Sprites/HUD/Weaponselect1.png");
     wpnslct2 = LoadTexture("Sprites/HUD/Weaponselect2.png");
     wpnslct3 = LoadTexture("Sprites/HUD/Weaponselect3.png");
     kngligDoomGuy = LoadTexture("Sprites/HUD/85ed57ab85bbe08a0edfd3cfa5edfc38.jpg");
     jupiter = LoadFont("Sprites/HUD/fonts/jupiter_crash.png");
-
     Image floorImage = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
     Texture2D floorTextureBuffer = LoadTextureFromImage(floorImage);
-
     Image floorTexture = LoadImage("Sprites/Ground.png");
     Image roofTexture = LoadImage("Sprites/Sky.png");
 
@@ -370,8 +367,7 @@ int main(void)
 
         CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
 
-
-        //Switch between the different states
+        // Switch between the different states
         switch (gameState)
         {
         case MAINMENU:
@@ -390,7 +386,7 @@ int main(void)
 
             rotate(&player.dir, ROTSPEED / 10);
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
-
+            // Show main menu
             const char *title = "Schlem on Campus";
             const char *start = "Start Game [ Enter ]";
             DrawTextEx(font, title, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, title, font.baseSize * 10, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 10, 10, BLACK);
@@ -453,8 +449,6 @@ int main(void)
             drawWeapon(weapons, currentwpn);
             updateProjectiles(mp->projectiles, &player, mp->enemies, mp->enemyCount, &weapons[2], &mp->ppointer);
 
-            drawWeapon(weapons, currentwpn);
-
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             break;
@@ -467,16 +461,17 @@ int main(void)
             }
             if (IsKeyPressed(KEY_ENTER))
             {
+                // Reset player pos and open main menu
                 player.pos = STARTPOS;
                 player.dir = (Vec2){0.0, 1.0};
                 gameState = MAINMENU;
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show pause menu
             const char *resume = "Resume [ Esc ]";
             const char *main = "Main Menu [ Enter ]";
             DrawTextEx(font, resume, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, resume, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 5, 5, BLACK);
@@ -520,11 +515,11 @@ int main(void)
                 break;    // Extra just in case
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show end of level screen
             const char *next = "Next level [ Enter ]";
             DrawTextEx(font, next, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, next, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 5, 5, BLACK);
             DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, ret, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 5}, font.baseSize * 5, 5, BLACK);
@@ -559,11 +554,11 @@ int main(void)
                 break;    // Extra just in case
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show death screen
             const char *dead = "YOU DIED";
             const char *retry = "Restart [ Enter ]";
             DrawTextEx(font, dead, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, dead, font.baseSize * 8, 5).x / 2, SCREEN_HEIGHT / 10}, font.baseSize * 8, 8, BLACK);
@@ -575,17 +570,18 @@ int main(void)
         case THEEND:
             if (IsKeyPressed(KEY_ESCAPE))
             {
+                // Reset the player and show main menu
                 gameState = MAINMENU;
                 player = PLAYERINIT;
                 free(weapons);
                 weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
-
+            // Show end screen
             const char *won = "YOU'VE WON";
             const char *congrts = "CONGRATULATIONS ON FINISHING THE GAME";
             DrawTextEx(font, won, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, won, font.baseSize * 8, 5).x / 2, SCREEN_HEIGHT / 10}, font.baseSize * 8, 8, CERISE);
@@ -596,6 +592,7 @@ int main(void)
         default:
             break;
         }
+        // Always clean memory
         freeCollisionData(hits, NUM_RAYS);
         freeCollisionData(enemyData, mp->enemyCount);
         freeCollisionData(projectileData, MAXPROJECTILES);

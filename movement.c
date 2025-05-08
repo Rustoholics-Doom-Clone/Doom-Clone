@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "movement.h"
+#include "enemy.h"
 #include "map.h"
 
 void wishMoveForward(Player *player)
@@ -25,7 +26,7 @@ void wishMoveLeft(Player *player)
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
     rotate(&v1, PI / 2);
-    vectorScale(v1, -1, &v1); //Mirrors right, so they can perfectly cancel out
+    vectorScale(v1, -1, &v1); // Mirrors right, so they can perfectly cancel out
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -34,7 +35,7 @@ void wishMoveBack(Player *player)
 {
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
-    vectorScale(v1, -1, &v1); //Mirrors forward, so they can perfectly cancel out
+    vectorScale(v1, -1, &v1); // Mirrors forward, so they can perfectly cancel out
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -49,7 +50,7 @@ void rotateLeft(Player *player)
     rotate(&player->dir, -ROTSPEED);
 };
 
-//Helper function for intersect
+// Helper function for intersect
 bool onSegment(Vec2 p, Vec2 q, Vec2 r)
 {
     if (q.x <= fmaxf(p.x, r.x) && q.x >= fminf(p.x, r.x) &&
@@ -59,8 +60,7 @@ bool onSegment(Vec2 p, Vec2 q, Vec2 r)
     return false;
 }
 
-
-//Helper function for intersect
+// Helper function for intersect
 int orientation(Vec2 p, Vec2 q, Vec2 r)
 {
     int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
@@ -95,7 +95,7 @@ bool intersect(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2)
     return false;
 }
 
-//Gets the shortest length from a vector to a line
+// Gets the shortest length from a vector to a line
 float lenFromPointToLine(Vec2 vec, Line line)
 {
     Vec2 ap = VECINIT;
@@ -110,7 +110,7 @@ float lenFromPointToLine(Vec2 vec, Line line)
     return len;
 };
 
-//Transforms two vectors into a line
+// Transforms two vectors into a line
 Line vecsToLine(Vec2 v1, Vec2 v2)
 {
     Vec2 n = VECINIT;
@@ -137,7 +137,7 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
     Vec2 wish_dir = player->wishDir;
     Vec2 res = VECINIT;
     Vec2 new_vel = VECINIT;
-    if (vectorLenght(wish_dir) != 0.0) //Avoid division by 0
+    if (vectorLenght(wish_dir) != 0.0) // Avoid division by 0
     {
         normalize(&wish_dir);
     }
@@ -145,13 +145,13 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
     vectorScale(wish_dir, accel_speed, &wish_dir);
     vectorAdd(old_vel, wish_dir, &new_vel);
     vectorScale(new_vel, 0.9, &new_vel);
-    if (vectorLenght(new_vel) < 0.1) //Stop the player if speed is too low
+    if (vectorLenght(new_vel) < 0.1) // Stop the player if speed is too low
     {
         new_vel = VECINIT;
     }
     vectorAdd(old_pos, new_vel, &res);
     int i = 0;
-    while (i < wallcount) //Wall collision
+    while (i < wallcount) // Wall collision
     {
         if (intersect(old_pos, res, walls[i].start, walls[i].stop))
         {
@@ -170,7 +170,7 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
                 break;
             }
             vectorSub(old_pos, new_pos, &res);
-            i = 0; //Always recheck all walls after collision, in order to make corners work
+            i = 0; // Always recheck all walls after collision, in order to make corners work
         }
         else
         {
@@ -200,28 +200,11 @@ CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **project
         float diff = vectorLenght(diffvec);
         normalize(&diffvec);
 
-        // This is commented out since there is now z-sorting on enemies and projectiles and thus no need to raycast.
-        /*
-        int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
-        for (int j = 0; j < mp->numOfWalls; j++)
-        {
-            CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
-            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
-            if (temp && temp->d < diff) // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
-            {
-                fl = 0; // flag is false
-                break;  // break loop early
-            }
-        }
-        if (!fl)      // if flag is false
-            continue; // check next enemy
-        */
         result[i] = malloc(sizeof(CollisionData)); // allocate memory for this collision
 
         result[i]->d = diff;
         result[i]->position = projectiles[i]->pos;
-        // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
-        result[i]->angle = vectorDot(p1.dir, diffvec); // well be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
+        result[i]->angle = vectorDot(p1.dir, diffvec); // we'll be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
         result[i]->texture = projectiles[i]->sprite;
         result[i]->textureOffset = NAN;
     }
@@ -234,6 +217,7 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dm
     Vec2 player_look = VECINIT;
     vectorAdd(player->pos, player->dir, &player_look);
 
+    // Count how many walls are in the way
     int nbwall = 0;
     for (int j = 0; j < wallcount; j++)
     {
@@ -242,11 +226,11 @@ void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dm
             nbwall++;
         }
     }
-    if (nbwall == wallcount)
+    if (nbwall == wallcount) // if there isn't a wall in the way
     {
-        if (lenFromPointToLine(enemy->pos, vecsToLine(player->pos, player_look)) < enemy->hitRadius)
+        if (lenFromPointToLine(enemy->pos, vecsToLine(player->pos, player_look)) < enemy->hitRadius) // if the player is pointing to the enemy sprite (With some slight tolerance)
         {
-            enemy->hp -= dmg;
+            enemy->hp -= dmg; // damage enemy
         }
     }
 }
@@ -257,6 +241,7 @@ void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppoi
     if (!proj)
         return;
     // Make an enemy object
+
     if (friendly)
         proj->sprite = LoadTexture("Sprites/Projectiles/largerprojectiletransp.png");
     else
@@ -338,24 +323,24 @@ int updateProjectile(Enemy *projectile, Player *player, Enemy *enemies, int ec)
 
     switch (projectile->friendlyProjectile)
     {
-    case 1:
-        for (int i = 0; i < ec; i++)
+    case 1:                          // if the projectile is friendly
+        for (int i = 0; i < ec; i++) // check every enemy
         {
             vectorSub(projectile->pos, enemies[i].pos, &diffvec);
-            if (vectorLenght(diffvec) <= (projectile->attackRadius + enemies[i].hitRadius))
+            if (vectorLenght(diffvec) <= (projectile->attackRadius + enemies[i].hitRadius)) // if enemy is too close to projectile
             {
-                enemies[i].hp -= projectile->dmg;
-                return 1; // Signal to updateProjectiles that it should free and NULL it
+                enemies[i].hp -= projectile->dmg; // damage enemy
+                return 1;                         // Signal to updateProjectiles that it should free and NULL it
             }
         }
 
         break;
-    case 0:
-        vectorSub(projectile->pos, player->pos, &diffvec);
-        if (vectorLenght(diffvec) <= 50.0)
+    case 0:                                                // if the projectile is hostile
+        vectorSub(projectile->pos, player->pos, &diffvec); // get distance to player
+        if (vectorLenght(diffvec) <= 50.0)                 // if it gets to close to player
         {
-            player->hp -= projectile->dmg;
-            return 1;
+            player->hp -= projectile->dmg; // Damage player
+            return 1;                      // Signal to updateProjectiles that it should free and NULL it
         }
         break;
     default:
@@ -429,13 +414,7 @@ Weapon *getWeapons(int width, int height, Enemy **projectiles)
     wps[2].normalScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].shootingScale = (Vec2){0.8 * width / 800.0, 0.8 * width / 800.0};
     wps[2].ppointer = 0;
-    /*
-    wps[2].projectiles = malloc(sizeof(Enemy *) * MAXPROJECTILES);
-    for (int i = 0; i < MAXPROJECTILES; i++)
-        wps[2].projectiles[i] = NULL; // initialize to NULL
-*/
-
-    wps[2].projectiles = projectiles;
+    wps[2].projectiles = projectiles; // Give the weapon access to the maps collection of projectiles
     wps[2].type = PROJECTILE;
     wps[2].ammo = 11;
     wps[2].dmg = 100;

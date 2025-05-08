@@ -10,17 +10,19 @@ Det finns även menyer för när man startar, pausar, dör eller vinner.
 - Pausmenyn låter spelaren stänga ner spelet, gå tillbaka till startmenyn, eller återvända till spelet. 
 - Dödsmenyn låter spelaren gå tillbaka till startmenyn eller börja om.
 - Vinstmenyn låter spelaren gå tillbaka till menyn eller gå vidare till nästa nivå.
+- Slutmenyn visas när man klarar sista nivån och då kan man återgå till huvudmenyn.
 
 ## Förklaring av våra filer:
 - Main: Huvudspelloopen, ritandet, menyer
-- Map: Maploading, enemies, pickups
+- Map: Maploading, pickups
+- Enemy: Logik för fiender
 - Movement: Spelarlogik, Vapenlogik
 - Raycast: Vectorlogik/matte, Raylogik
 - Raylib: Ritarlogik, inputs, Spelframework (Kommer från https://www.raylib.com/index.html) 
 
 ## Hur man kompilerar spelet:
 Skriv in i terminalen:
-gcc main.c raycast.c map.c movement.c -o schlem.exe -Iinclude -Llib -lraylib -lopengl32 -lgdi32 -lwinmm 
+gcc main.c raycast.c map.c movement.c enemy.c -o schlem.exe -Iinclude -Llib -lraylib -lopengl32 -lgdi32 -lwinmm 
 
 (Se till att ha rätt compiler: https://winlibs.com )
 
