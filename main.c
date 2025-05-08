@@ -349,7 +349,7 @@ int main(void)
     Image floorTexture = LoadImage("Sprites/Ground.png");
     Image roofTexture = LoadImage("Sprites/Sky.png");
 
-    Weapon *weapons;
+    Weapon *weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
 
     int currentMap = 0;
     int currentwpn = 0;
@@ -381,7 +381,7 @@ int main(void)
                 freeMap(mp);
                 mp = loadMap(Maps[currentMap]); // This is very inefficient, but I don't know how to reset a map in a better way
                 totalEnemies = countHostiles(mp);
-                weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
+                weapons[2].projectiles = mp->projectiles;
                 currentwpn = 0;
             }
 
@@ -504,13 +504,12 @@ int main(void)
                 freeCollisionData(hits, NUM_RAYS);
                 freeCollisionData(enemyData, mp->enemyCount);
                 freeCollisionData(projectileData, MAXPROJECTILES);
-                free(weapons);
                 EndDrawing();
 
                 freeMap(mp);                    // Unload old map
                 mp = loadMap(Maps[currentMap]); // load next Map
                 totalEnemies = mp->enemyCount;
-                weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
+                weapons[2].projectiles = mp->projectiles;
                 currentwpn = 0;
 
                 continue; // Only one should be needed
@@ -560,7 +559,7 @@ int main(void)
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             const char *dead = "YOU DIED";
-            const char *retry = "Retry Level [ Enter ]";
+            const char *retry = "Restart [ Enter ]";
             DrawTextEx(font, dead, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, dead, font.baseSize * 8, 5).x / 2, SCREEN_HEIGHT / 10}, font.baseSize * 8, 8, BLACK);
             DrawTextEx(font, retry, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, retry, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 5}, font.baseSize * 5, 5, BLACK);
             DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, ret, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 10}, font.baseSize * 5, 5, BLACK);
@@ -571,6 +570,9 @@ int main(void)
             if (IsKeyPressed(KEY_ESCAPE))
             {
                 gameState = MAINMENU;
+                player = PLAYERINIT;
+                free(weapons);
+                weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
             }
 
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
