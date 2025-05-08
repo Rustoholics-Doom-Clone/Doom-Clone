@@ -7,11 +7,11 @@
 
 typedef struct
 {
-    Vec2 start, stop; // Both ends of the wall
+    Vec2 start, stop;  // Both ends of the wall
+    Texture2D texture; // The texture of the wall
 } Wall;
 
 #endif
-
 #ifndef ENEMY
 #define ENEMY
 

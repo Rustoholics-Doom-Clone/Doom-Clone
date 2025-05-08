@@ -33,16 +33,7 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 
 #endif
 
-#ifndef WALLSTRUCT
-#define WALLSTRUCT
-
-typedef struct
-{
-    Vec2 start, stop;  // Both ends of the wall
-    Texture2D texture; // The texture of the wall
-} Wall;
-
-#endif
+typedef struct Wall Wall;
 
 #ifndef RAYCAST_H
 #define RAYCAST_H
