@@ -1,13 +1,10 @@
 #include "raycast.h"
 #include "raylib.h"
 
-// how long a step should be
-#define STEP (Vec2){1.0, 0.0}
+// player maxhp
 #define MAXHP 100
-#define MAXAMMO 100
 #define STARTPOS (Vec2){0.0, 0.0}
 #define MAXSPEED 320
-#define SHOOTDELAY 30
 #define MAXPROJECTILES 30
 
 // How fast character rotates
@@ -24,7 +21,7 @@ typedef struct
 {
     Vec2 n;
     Vec2 a;
-} Line;
+} Line; //n = dir, a = offset
 
 typedef struct Enemy Enemy;
 
@@ -58,32 +55,26 @@ typedef struct
     Vec2 vel;
     Vec2 wishDir;
     int hp;
-    int ammo;
-    int shoot_cd;
 } Player;
 
-#define PLAYERINIT (Player){STARTPOS, (Vec2){0.0, 1.0}, VECINIT, VECINIT, MAXHP, MAXAMMO, 0}
+#define PLAYERINIT (Player){STARTPOS, (Vec2){0.0, 1.0}, VECINIT, VECINIT, MAXHP}
 
-// move character forwards, requires current position and angle in radians
+// add forwards to the wish vector
 void wishMoveForward(Player *player);
-// move character right
+// add right to the wish vector
 void wishMoveRight(Player *player);
-// move character left
+// add left to the wish vector
 void wishMoveLeft(Player *player);
-// move character back
+// add backwards to the wish vector
 void wishMoveBack(Player *player);
 // rotates character right by ROTSPEED rad
 void rotateRight(Player *player);
 // rotates character left by ROTSPEED rad
 void rotateLeft(Player *player);
-// executes current movement in current wishDir
+// Tries to match current velocity with the players wishdir
 void executeMovement(Player *player, Wall *walls, int wallCount);
 // Shoots an enemy if they are within line of sight and close enough to the crosshair
 void shootEnemy(Player *player, Enemy *enemy, Wall *walls, int wallcount, int dmg);
-// Makes sure player health doesn't go over max health
-void healPlayer(Player *player, int heal);
-// Makes sure player ammo doesn't go over max ammo
-void addAmmo(Player *player, int ammo);
 // Works like rayShotEnemy but with extra safeguards since **projectiles might be empty
 CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles);
 // Creates a projectile that is facing the same direction as the player

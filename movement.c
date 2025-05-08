@@ -3,10 +3,6 @@
 #include "movement.h"
 #include "map.h"
 
-/*TODO:
-Add rotation by mouse (?)
-*/
-
 void wishMoveForward(Player *player)
 {
     Vec2 old_wish = player->wishDir;
@@ -29,7 +25,7 @@ void wishMoveLeft(Player *player)
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
     rotate(&v1, PI / 2);
-    vectorScale(v1, -1, &v1);
+    vectorScale(v1, -1, &v1); //Mirrors right, so they can perfectly cancel out
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -38,7 +34,7 @@ void wishMoveBack(Player *player)
 {
     Vec2 old_wish = player->wishDir;
     Vec2 v1 = player->dir;
-    vectorScale(v1, -1, &v1);
+    vectorScale(v1, -1, &v1); //Mirrors forward, so they can perfectly cancel out
     Vec2 res = VECINIT;
     vectorAdd(old_wish, v1, &res);
     player->wishDir = res;
@@ -53,6 +49,7 @@ void rotateLeft(Player *player)
     rotate(&player->dir, -ROTSPEED);
 };
 
+//Helper function for intersect
 bool onSegment(Vec2 p, Vec2 q, Vec2 r)
 {
     if (q.x <= fmaxf(p.x, r.x) && q.x >= fminf(p.x, r.x) &&
@@ -62,6 +59,8 @@ bool onSegment(Vec2 p, Vec2 q, Vec2 r)
     return false;
 }
 
+
+//Helper function for intersect
 int orientation(Vec2 p, Vec2 q, Vec2 r)
 {
     int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
@@ -96,6 +95,7 @@ bool intersect(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2)
     return false;
 }
 
+//Gets the shortest length from a vector to a line
 float lenFromPointToLine(Vec2 vec, Line line)
 {
     Vec2 ap = VECINIT;
@@ -110,6 +110,7 @@ float lenFromPointToLine(Vec2 vec, Line line)
     return len;
 };
 
+//Transforms two vectors into a line
 Line vecsToLine(Vec2 v1, Vec2 v2)
 {
     Vec2 n = VECINIT;
@@ -136,7 +137,7 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
     Vec2 wish_dir = player->wishDir;
     Vec2 res = VECINIT;
     Vec2 new_vel = VECINIT;
-    if (vectorLenght(wish_dir) != 0.0)
+    if (vectorLenght(wish_dir) != 0.0) //Avoid division by 0
     {
         normalize(&wish_dir);
     }
@@ -144,13 +145,13 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
     vectorScale(wish_dir, accel_speed, &wish_dir);
     vectorAdd(old_vel, wish_dir, &new_vel);
     vectorScale(new_vel, 0.9, &new_vel);
-    if (vectorLenght(new_vel) < 0.1)
+    if (vectorLenght(new_vel) < 0.1) //Stop the player if speed is too low
     {
         new_vel = VECINIT;
     }
     vectorAdd(old_pos, new_vel, &res);
     int i = 0;
-    while (i < wallcount)
+    while (i < wallcount) //Wall collision
     {
         if (intersect(old_pos, res, walls[i].start, walls[i].stop))
         {
@@ -169,7 +170,7 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
                 break;
             }
             vectorSub(old_pos, new_pos, &res);
-            i = 0;
+            i = 0; //Always recheck all walls after collision, in order to make corners work
         }
         else
         {
@@ -180,18 +181,6 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
     player->wishDir = VECINIT;
     player->vel = new_vel;
     player->pos = res;
-}
-
-void healPlayer(Player *player, int heal)
-{
-    int old_hp = player->hp;
-    player->hp = MIN(MAXHP, old_hp + heal);
-}
-
-void addAmmo(Player *player, int ammo)
-{
-    int old_ammo = player->ammo;
-    player->ammo = MIN(MAXAMMO, old_ammo + ammo);
 }
 
 CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles)
