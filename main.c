@@ -453,8 +453,6 @@ int main(void)
             drawWeapon(weapons, currentwpn);
             updateProjectiles(mp->projectiles, &player, mp->enemies, mp->enemyCount, &weapons[2], &mp->ppointer);
 
-            drawWeapon(weapons, currentwpn);
-
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
 
             break;
