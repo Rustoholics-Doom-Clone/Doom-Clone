@@ -183,20 +183,27 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int *k_pistAmmo, int 
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
             {
-                if (foe->type == 4)
+
+                switch (foe->type)
                 {
+                case 0:
+                    *playerHealth -= foe->dmg;
+                    break;
+                case 3:
+                    *playerHealth -= foe->dmg;
+                    foe->hp = 0;
+                    break;
+                case 4:
                     *k_pistAmmo += 10;
                     *pieAmmo += 2;
-                }
-                if (foe->type == 0 | foe->type == 3)
+                    foe->hp = 0;
+                    break;
 
-                    *playerHealth -= foe->dmg;
-                    if (foe->type == 3 | foe->type == 4)
-                    {
-                        foe->hp -= 1;
-                    }
-                else
+                default:
                     shootProjectile(foe->pos, dir, foe->dmg, mp->projectiles, &mp->ppointer, 0);
+
+                    break;
+                }
 
                 foe->coolDown = foe->baseCoolDown / numOfEnemy;
             }
@@ -246,7 +253,20 @@ void updateEnemies(Enemy *Queue, int qSize, Player *p1, Weapon *k_pist, Weapon *
         return;
 
     updateEnemy(Queue + currentIndex, *p1, &p1->hp, &k_pist->ammo, &pie->ammo, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
-    currentIndex = (currentIndex + 1) % qSize;                                                    // move index
+    currentIndex = (currentIndex + 1) % qSize;                                                                               // move index
+}
+
+int countHostiles(Map *mp)
+{
+    int result = 0;
+    for (int i = 0; i < mp->enemyCount; i++)
+    {
+        if (mp->enemies[i].status == ALIVE && mp->enemies[i].type < 3)
+        {
+            result++;
+        }
+    }
+    return result;
 }
 
 FILE *newMap(const char *filename)
@@ -402,7 +422,7 @@ Map *loadMap(const char *filename)
             result->enemies[i].sprite = LoadTexture("Sprites/Health.png");
             result->enemies[i].attackRadius = 50.0;
             result->enemies[i].dmg = -20;
-            result->enemies[i].hp = 1;
+            result->enemies[i].hp = INT_MAX;
             result->enemies[i].baseCoolDown = 0;
             result->enemies[i].acceleration = 0;
             result->enemies[i].maxSpeed = 0;
@@ -413,7 +433,7 @@ Map *loadMap(const char *filename)
             result->enemies[i].sprite = LoadTexture("Sprites/Ammo.png");
             result->enemies[i].attackRadius = 50.0;
             result->enemies[i].dmg = 0;
-            result->enemies[i].hp = 1;
+            result->enemies[i].hp = INT_MAX;
             result->enemies[i].baseCoolDown = 0;
             result->enemies[i].acceleration = 0;
             result->enemies[i].maxSpeed = 0;
