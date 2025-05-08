@@ -298,18 +298,6 @@ int addEnemy(FILE *map, Vec2 pos, int id, EnemyType type)
     return 1;                                              // success
 }
 
-int saveMap(int numOfWalls, Wall *walls, char *filename) // kindof redundant right now. Don't use
-{
-    FILE *mfile = fopen(filename, "w");
-    if (!mfile)
-        return 0;
-    fprintf(mfile, "%d,0\n", numOfWalls);
-    for (int i = 0; i < numOfWalls; i++)
-        fprintf(mfile, "%f,%f,%f,%f\n", walls[i].start.x, walls[i].start.y, walls[i].stop.x, walls[i].stop.y);
-    fclose(mfile);
-    return 1;
-}
-
 Map *loadMap(const char *filename)
 {
     // Opening file

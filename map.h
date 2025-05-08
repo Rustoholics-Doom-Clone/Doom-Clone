@@ -97,8 +97,6 @@ FILE *newMap(const char *filename);
 int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int closed);
 // Adds an enemy to the map file.
 int addEnemy(FILE *map, Vec2 pos, int id, EnemyType type);
-// saves an array of walls as a map.
-int saveMap(int numOfWalls, Wall *walls, char *filename);
 // reads a map from a file.
 Map *loadMap(const char *filename);
 // Frees a Map
