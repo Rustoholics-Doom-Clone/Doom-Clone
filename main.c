@@ -314,12 +314,12 @@ int main(void)
     SetTargetFPS(60);
     srand(time(NULL));
     SetExitKey(KEY_BACKSPACE);
-    ToggleFullscreen();
-    HideCursor();
+    //ToggleFullscreen();
+    //HideCursor();
     Player player = PLAYERINIT;
     GameState gameState = MAINMENU;
 
-    Map *mp = loadMap("Maps/testmap1.csv");
+    Map *mp = loadMap("Maps/hardlevel.csv");
 
     Font font = LoadFont("Sprites/Fonts/setback.png");
 
@@ -360,7 +360,7 @@ int main(void)
         {
             gameState = GAMEPLAY;
             player = PLAYERINIT;
-            mp = loadMap("Maps/testmap1.csv"); //This is very inefficient, but I don't know how to reset a map in a better way
+            mp = loadMap("Maps/hardlevel.csv"); //This is very inefficient, but I don't know how to reset a map in a better way
             weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
             currentwpn = 0;
         }
