@@ -182,18 +182,6 @@ void executeMovement(Player *player, Wall *walls, int wallcount)
     player->pos = res;
 }
 
-void healPlayer(Player *player, int heal)
-{
-    int old_hp = player->hp;
-    player->hp = MIN(MAXHP, old_hp + heal);
-}
-
-void addAmmo(Player *player, int ammo)
-{
-    int old_ammo = player->ammo;
-    player->ammo = MIN(MAXAMMO, old_ammo + ammo);
-}
-
 CollisionData **rayShotProjectile(Player p1, float fov, Map *mp, Enemy **projectiles)
 {
     CollisionData **result = malloc(sizeof(CollisionData *) * MAXPROJECTILES); // allocate memory for the data
