@@ -23,12 +23,8 @@ typedef enum
     GAMEPLAY,
     PAUSEMENU,
     ENDSCREEN,
-<<<<<<< HEAD
-    DEATHSCREEN
-=======
     DEATHSCREEN,
     THEEND
->>>>>>> origin/main
 } GameState;
 
 const char *Maps[] = {
@@ -337,11 +333,7 @@ int main(void)
     Player player = PLAYERINIT;
     GameState gameState = MAINMENU;
 
-<<<<<<< HEAD
-    Map *mp = loadMap("Maps/hardlevel.csv");
-=======
     Map *mp = loadMap("Maps/map1.csv");
->>>>>>> origin/main
 
     Font font = LoadFont("Sprites/Fonts/setback.png");
 
@@ -381,16 +373,6 @@ int main(void)
         {
         case MAINMENU:
 
-<<<<<<< HEAD
-        if (IsKeyPressed(KEY_ENTER))
-        {
-            gameState = GAMEPLAY;
-            player = PLAYERINIT;
-            mp = loadMap("Maps/hardlevel.csv"); //This is very inefficient, but I don't know how to reset a map in a better way
-            weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
-            currentwpn = 0;
-        }
-=======
             if (IsKeyPressed(KEY_ENTER))
             {
                 gameState = GAMEPLAY;
@@ -402,24 +384,15 @@ int main(void)
                 weapons[2].projectiles = mp->projectiles;
                 currentwpn = 0;
             }
->>>>>>> origin/main
 
             rotate(&player.dir, ROTSPEED / 10);
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
-<<<<<<< HEAD
-        const char *title = "Schlem on Campus";
-        const char *start = "Start Game [ Enter ]";
-        DrawTextEx(font, title, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, title, font.baseSize*10, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*10, 10, BLACK);
-        DrawTextEx(font, start, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, start, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2}, font.baseSize*5, 5, BLACK);
-        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/2+font.baseSize*5}, font.baseSize*5, 5, BLACK);
-=======
             const char *title = "Schlem on Campus";
             const char *start = "Start Game [ Enter ]";
             DrawTextEx(font, title, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, title, font.baseSize * 10, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 10, 10, BLACK);
             DrawTextEx(font, start, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, start, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 2}, font.baseSize * 5, 5, BLACK);
             DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, exit, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 2 + font.baseSize * 5}, font.baseSize * 5, 5, BLACK);
->>>>>>> origin/main
             break;
 
         case GAMEPLAY:
@@ -430,16 +403,6 @@ int main(void)
             {
                 gameState = PAUSEMENU;
             }
-<<<<<<< HEAD
-        }
-        if (deadEnemies == mp->enemyCount) {
-            gameState = ENDSCREEN;
-        }
-        if (player.hp <= 0) {
-            gameState = DEATHSCREEN;
-        }
-=======
->>>>>>> origin/main
 
             if (IsKeyDown(KEY_RIGHT))
                 rotateRight(&player);
@@ -537,37 +500,6 @@ int main(void)
                 player.pos = STARTPOS;
                 player.dir = (Vec2){0.0, 1.0};
 
-<<<<<<< HEAD
-        const char *next = "Next level [ Enter ]";
-        DrawTextEx(font, next, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, next, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6}, font.baseSize*5, 5, BLACK);
-        DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, ret, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
-        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
-            break;
-
-        case DEATHSCREEN:
-        if(IsKeyPressed(KEY_ESCAPE))
-        {
-            gameState = MAINMENU;
-        }
-        if(IsKeyPressed(KEY_ENTER))
-        {
-            //TODO: Reload map
-            gameState = GAMEPLAY;
-        }
-
-        drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
-        drawWeapon(weapons, currentwpn);
-        drawHud(player, weapons[currentwpn], currentwpn);
-
-        const char *dead = "YOU DIED";
-        const char *retry = "Retry Level [ Enter ]";
-        DrawTextEx(font, dead, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, dead, font.baseSize*8, 5).x/2, SCREEN_HEIGHT/10}, font.baseSize*8, 8, BLACK);
-        DrawTextEx(font, retry, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, retry, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*5}, font.baseSize*5, 5, BLACK);
-        DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, ret, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*10}, font.baseSize*5, 5, BLACK);
-        DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH/2 - MeasureTextEx(font, exit, font.baseSize*5, 5).x/2, SCREEN_HEIGHT/6+font.baseSize*15}, font.baseSize*5, 5, BLACK);
-            break;
-        
-=======
                 // Free data before mp changes in order to avoid memory leaks and segmentation faults
                 freeCollisionData(hits, NUM_RAYS);
                 freeCollisionData(enemyData, mp->enemyCount);
@@ -654,7 +586,6 @@ int main(void)
             DrawTextEx(font, ret, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, ret, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 10}, font.baseSize * 5, 5, BLACK);
             DrawTextEx(font, exit, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, exit, font.baseSize * 5, 5).x / 2, SCREEN_HEIGHT / 6 + font.baseSize * 15}, font.baseSize * 5, 5, BLACK);
             break;
->>>>>>> origin/main
         default:
             break;
         }
