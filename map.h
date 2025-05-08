@@ -2,34 +2,25 @@
 #include "movement.h"
 #include <stdio.h>
 
-#ifndef WALLSTRUCT
-#define WALLSTRUCT
-
-typedef struct
-{
-    Vec2 start, stop; // Both ends of the wall
-} Wall;
-
-#endif
-
 #ifndef ENEMY
 #define ENEMY
 
+// Clamp a value within a range
 #define CLAMP(x, lower, upper) ((x) < (lower) ? (lower) : ((x) > (upper) ? (upper) : (x)))
 
-typedef enum Visibility
+typedef enum Visibility // To see if an enemy should be drawn on the screen or not
 {
     VISIBLE,
     INVISIBLE
 } Visibility;
 
-typedef enum Status
+typedef enum Status // To see if an enemy is dead or alive
 {
     DEAD,
     ALIVE
 } Status;
 
-typedef enum EnemyType
+typedef enum EnemyType // To see what properties it should have
 {
 
     MELEE,
@@ -39,29 +30,29 @@ typedef enum EnemyType
     AMMO
 } EnemyType;
 
-typedef struct Enemy
+typedef struct Enemy // The enemy
 {
-    Status status;
-    Visibility visibility;
-    float hitRadius;
-    float attackRadius;
-    Texture2D sprite;
-    Vec2 pos;
+    Status status;         // Dead or no
+    Visibility visibility; // Visible or no
+    float hitRadius;       // How girthy is the enemy
+    float attackRadius;    // How far away can he attack
+    Texture2D sprite;      // How does he look
+    Vec2 pos;              // You're a fart smeller you can figure out some of theese yourself
     Vec2 dir;
     Vec2 velocity;
     int hp;
     int dmg;
     int id;
-    int baseCoolDown;
-    int coolDown;
+    int baseCoolDown; // reload time
+    int coolDown;     // how far along he is reloading
     float acceleration;
     float maxSpeed;
-    int friendlyProjectile;
+    int friendlyProjectile; // If he happens to be a friendly flying object
     int type;
 } Enemy;
 
+// Shoots a projectile
 void shootProjectile(Vec2 pos, Vec2 dir, int dmg, Enemy **projectiles, int *ppointer, int friendly);
-
 // Checks if enemy is in players field of view
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float FOV, Enemy foe1);
 // Checks if there is a clear line of sight between a player and enemy. If not then Collisiondata* == NULL
@@ -82,6 +73,12 @@ int countHostiles(Map *mp);
 #ifndef MAPH
 #define MAPH
 
+typedef struct Wall
+{
+    Vec2 start, stop;  // Both ends of the wall
+    Texture2D texture; // The texture of the wall
+} Wall;
+
 typedef struct Map
 {
     int numOfWalls;
@@ -97,8 +94,6 @@ FILE *newMap(const char *filename);
 int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int closed);
 // Adds an enemy to the map file.
 int addEnemy(FILE *map, Vec2 pos, int id, EnemyType type);
-// saves an array of walls as a map.
-int saveMap(int numOfWalls, Wall *walls, char *filename);
 // reads a map from a file.
 Map *loadMap(const char *filename);
 // Frees a Map

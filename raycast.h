@@ -8,10 +8,11 @@ typedef struct
     float y;
 } Vec2;
 
+// Convert Degrees and radians
 #define DEG_TO_RAD(deg) ((deg) * (PI / 180.0))
 #define RAD_TO_DEG(rad) ((rad) * (180.0 / PI))
 
-#define VECINIT (Vec2){0.0, 0.0}
+#define VECINIT (Vec2){0.0, 0.0} // Macro for 0-vector
 
 // Stores v1-v2 in result
 void vectorSub(Vec2 v1, Vec2 v2, Vec2 *result);
@@ -32,35 +33,27 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result);
 
 #endif
 
-#ifndef WALLSTRUCT
-#define WALLSTRUCT
-
-typedef struct
-{
-    Vec2 start, stop; // Both ends of the wall
-    Texture2D texture;
-} Wall;
-
-#endif
+typedef struct Wall Wall;
 
 #ifndef RAYCAST_H
 #define RAYCAST_H
 
 #define TILE_SIZE 64.0f
+typedef struct Map Map; // Because Map is defined elsewhere
 
 typedef struct
 {
-    Vec2 position; // where the collision happened
-    float d;       // how far away it happened
-    float angle;   // used when firing multiple rays to determine the angle from the source.
-    Texture2D texture;
-    float textureOffset;
-    int id;
+    Vec2 position;       // where the collision happened
+    float d;             // how far away it happened
+    float angle;         // used when firing multiple rays to determine the angle from the source.
+    Texture2D texture;   // the texture of the thing that was collided with
+    float textureOffset; // texture offset for walls so that the texture doesn't follow the camera
+    int id;              // id for when many rays are cast at walls
 } CollisionData;
 
 typedef struct
 {
-    Vec2 start, dir;
+    Vec2 start, dir; // Where the ray starts, where it's pointing
 } Ray3D;
 
 // Returns info on if and where a ray hits a wall. NULL == Doesn't hit, Remember to free the result
@@ -69,12 +62,4 @@ CollisionData *checkCollision(Wall w1, Ray3D r1);
 CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *walls, int rn);
 // Frees an array of collisiondata pointers of length n, handles entries that are null as well.
 void freeCollisionData(CollisionData **a, int n);
-// Takes an array of collisiondata of length n and returns an array of floats of lenght n that is the collision distance scaled.
-float *wallHeightArray(CollisionData **a, int n, float fov, int width);
 #endif
-
-typedef struct Map Map;
-// Works like checkCollision but checks against all walls in m and returns the closest.
-CollisionData *mapCollision(Map *m, Ray3D r1);
-// Works like multiRayShot but with a map instead of a manual list of walls.
-CollisionData **mapMultiRayShot(Ray3D cam, float fov, int rn, Map *m);

@@ -56,27 +56,30 @@ CollisionData *checkCollision(Wall w1, Ray3D r1)
     Vec2 wdir = VECINIT;
 
     normalize(&r1.dir);
-    vectorSub(w1.stop, w1.start, &wdir);
-    vectorSub(w1.start, r1.start, &odelta);
+    vectorSub(w1.stop, w1.start, &wdir);    // get wall direction vector
+    vectorSub(w1.start, r1.start, &odelta); // get difference between ray start and wall start
 
-    if (!solveSystem(r1.dir, wdir, odelta, &result))
+    if (!solveSystem(r1.dir, wdir, odelta, &result)) // Solve for a collision between the walls direction and the ray
     {
         return NULL;
     }
-    if (result.x < 0.0 || result.y > 0.0 || result.y < -1.0)
+    if (result.x < 0.0 || result.y > 0.0 || result.y < -1.0) // if the wall is in negative ray direction or the collision is outside of the walls actual lenght
     {
         return NULL;
     }
 
+    // Create colliisonData
     CollisionData *data = malloc(sizeof(CollisionData));
-    data->d = result.x;
-    data->angle = NAN;
-    data->texture = w1.texture;
+    data->d = result.x;         // Distance of collision
+    data->angle = NAN;          // Not applicable in the single ray case
+    data->texture = w1.texture; // Get texture now since it would be impossible to do later
 
+    // Get the position of the collision
     Vec2 temp = VECINIT;
     vectorScale(r1.dir, result.x, &temp);
     vectorAdd(r1.start, temp, &data->position);
 
+    // Calculate the texture offset and repeating
     Vec2 wallVec;
     vectorSub(w1.stop, w1.start, &wallVec);
     float wallLength = vectorLenght(wallVec);
@@ -105,11 +108,10 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
 
     if (det == 0.0f)
     {
-        // printf("Parallel or singular system\n");
         return 0;
     }
 
-    // Cramer's Rule
+    // Cramer's Rule for a system with two unknowns
     result->x = (v3.x * v2.y - v2.x * v3.y) / det;
     result->y = (v1.x * v3.y - v3.x * v1.y) / det;
 
@@ -118,8 +120,8 @@ int solveSystem(Vec2 v1, Vec2 v2, Vec2 v3, Vec2 *result)
 
 CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *walls, int rn)
 {
-    float step = fov / (rn - 1);
-    float start = (-1.0 * fov) / 2;
+    float step = fov / (rn - 1);    // Devide the FOV into equal slices
+    float start = (-1.0 * fov) / 2; // Start at one side of the FOV
 
     normalize(&camdir);
 
@@ -130,61 +132,31 @@ CollisionData **multiRayShot(Vec2 campos, Vec2 camdir, float fov, int wn, Wall *
         return NULL;
     }
 
-    rotate(&camdir, DEG_TO_RAD(start));
-    for (int i = 0; i < rn; i++)
+    rotate(&camdir, DEG_TO_RAD(start)); // Rotate to start
+    for (int i = 0; i < rn; i++)        // Every ray
     {
         result[i] = NULL; // Initialize to NULL
 
-        for (int j = 0; j < wn; j++)
+        for (int j = 0; j < wn; j++) // Every Wall
         {
-            CollisionData *temp = checkCollision(walls[j], (Ray3D){campos, camdir});
-            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
-            if (temp && (!result[i] || result[i]->d > temp->d))
+            CollisionData *temp = checkCollision(walls[j], (Ray3D){campos, camdir}); // See if ray collides with wall
+            if (temp && (!result[i] || result[i]->d > temp->d))                      // If there is a valid result and either there is no valid result yet or the distance is shorter
             {
-                if (!result[i])
+                if (!result[i]) // If there is no result yet
                     result[i] = malloc(sizeof(CollisionData));
 
-                if (result[i])
-                    *result[i] = *temp;
+                if (result[i])          // If the result is allocated
+                    *result[i] = *temp; // save the data
             }
         }
-        if (result[i])
+        if (result[i]) // If data was found
         {
-            result[i]->angle = start + i * step;
-            result[i]->id = i;
+            result[i]->angle = start + i * step; // Give the data an angle relative to the player direction
+            result[i]->id = i;                   // Give the data an id
         }
-        rotate(&camdir, DEG_TO_RAD(step));
+        rotate(&camdir, DEG_TO_RAD(step)); // Rotate camera
     }
-    rotate(&camdir, DEG_TO_RAD(start));
-    return result;
-}
-
-float *wallHeightArray(CollisionData **a, int n, float fov, int width)
-{
-    float *result = malloc(sizeof(float) * n);
-    if (!result)
-    {
-        return NULL;
-    }
-
-    float ppdistance = ((float)width / 2.0) / tanf(DEG_TO_RAD(fov / 2.0));
-    printf("PP %f\n", ppdistance);
-
-    for (int i = 0; i < n; i++)
-    {
-        if (!a[i])
-        {
-            result[i] = FLT_MAX;
-            continue;
-        }
-        if (isnan(a[i]->angle))
-        {
-            result[i] = FLT_MAX;
-            continue;
-        }
-
-        result[i] = ppdistance / (a[i]->d * cosf(DEG_TO_RAD(a[i]->angle)));
-    }
+    rotate(&camdir, DEG_TO_RAD(start)); // Rotate camera back to original direction
     return result;
 }
 
@@ -199,31 +171,4 @@ void freeCollisionData(CollisionData **a, int n)
         }
         free(a);
     }
-}
-CollisionData *mapCollision(Map *m, Ray3D r1)
-{
-    normalize(&r1.dir);
-
-    CollisionData *result = NULL;
-
-    for (int j = 0; j < m->numOfWalls; j++)
-    {
-        CollisionData *temp = checkCollision(m->walls[j], r1);
-        // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
-        if (temp && (!result || result->d > temp->d))
-        {
-            if (!result)
-                result = malloc(sizeof(CollisionData));
-
-            if (result)
-                *result = *temp;
-        }
-    }
-    result->angle = 0;
-    return result;
-}
-
-CollisionData **mapMultiRayShot(Ray3D cam, float fov, int rn, Map *m)
-{
-    return multiRayShot(cam.start, cam.dir, fov, m->numOfWalls, m->walls, rn);
 }
