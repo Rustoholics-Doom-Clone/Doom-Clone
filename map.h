@@ -5,7 +5,7 @@
 #ifndef WALLSTRUCT
 #define WALLSTRUCT
 
-typedef struct
+typedef struct Wall
 {
     Vec2 start, stop;  // Both ends of the wall
     Texture2D texture; // The texture of the wall
