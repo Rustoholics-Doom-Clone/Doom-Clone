@@ -256,6 +256,19 @@ void updateEnemies(Enemy *Queue, int qSize, Player *p1, Weapon *k_pist, Weapon *
     currentIndex = (currentIndex + 1) % qSize;                                                                               // move index
 }
 
+int countHostiles(Map *mp)
+{
+    int result = 0;
+    for (int i = 0; i < mp->enemyCount; i++)
+    {
+        if (mp->enemies[i].status == ALIVE && mp->enemies[i].type < 3)
+        {
+            result++;
+        }
+    }
+    return result;
+}
+
 FILE *newMap(const char *filename)
 {
     return fopen(filename, "w");

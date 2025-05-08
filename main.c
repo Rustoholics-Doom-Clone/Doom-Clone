@@ -379,7 +379,7 @@ int main(void)
                 player = PLAYERINIT;
                 freeMap(mp);
                 mp = loadMap(Maps[currentMap]); // This is very inefficient, but I don't know how to reset a map in a better way
-                totalEnemies = mp->enemyCount;
+                totalEnemies = countHostiles(mp);
                 weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
                 currentwpn = 0;
             }
@@ -430,16 +430,8 @@ int main(void)
 
             executeMovement(&player, mp->walls, mp->numOfWalls);
 
-            int deadEnemies = 0;
-            for (int i = 0; i < mp->enemyCount; i++)
-            {
-                if (mp->enemies[i].status == DEAD)
-                {
-                    deadEnemies++;
-                }
-            }
-            remainingEnemies = totalEnemies - deadEnemies;
-            if (deadEnemies == mp->enemyCount)
+            remainingEnemies = countHostiles(mp);
+            if (remainingEnemies <= 0)
             {
                 gameState = ENDSCREEN;
             }
