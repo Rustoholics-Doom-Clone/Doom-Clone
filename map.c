@@ -151,7 +151,7 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
     foe->pos = res;
 }
 
-void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
+void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int *k_pistAmmo, int *pieAmmo, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
 {
     if (foe->status == DEAD)
         return;
@@ -185,7 +185,8 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
             {
                 if (foe->type == 4)
                 {
-                    player
+                    *k_pistAmmo += 10;
+                    *pieAmmo += 2;
                 }
                 if (foe->type == 0 | foe->type == 3)
 
@@ -237,14 +238,14 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
     freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp, Wall *walls, int wallcount)
+void updateEnemies(Enemy *Queue, int qSize, Player *p1, Weapon *k_pist, Weapon *pie, int targetFPS, float fov, Map *mp, Wall *walls, int wallcount)
 {
     static int currentIndex = 0; // Index is saved between calls
 
     if (qSize == 0) // if no enemies return
         return;
 
-    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
+    updateEnemy(Queue + currentIndex, *p1, &p1->hp, &k_pist->ammo, &pie->ammo, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
     currentIndex = (currentIndex + 1) % qSize;                                                    // move index
 }
 

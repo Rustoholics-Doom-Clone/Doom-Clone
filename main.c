@@ -365,9 +365,9 @@ int main(void)
 
         drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
 
-        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls);
+        updateEnemies(mp->enemies, mp->enemyCount, &player, &weapons[1], &weapons[2], 60, FOV, mp, mp->walls, mp->numOfWalls);
 
-        updateEnemies(mp->enemies, mp->enemyCount, &player, 60, FOV, mp, mp->walls, mp->numOfWalls); // Yes we know it's a repeat. It looks better like this for now
+        updateEnemies(mp->enemies, mp->enemyCount, &player, &weapons[1], &weapons[2], 60, FOV, mp, mp->walls, mp->numOfWalls); // Yes we know it's a repeat. It looks better like this for now
 
         drawWeapon(weapons, currentwpn);
         updateProjectiles(mp->projectiles, &player, mp->enemies, mp->enemyCount, &weapons[2], &mp->ppointer);
