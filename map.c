@@ -47,27 +47,10 @@ CollisionData **rayShotEnemies(Player p1, float fov, Map *mp, Enemy *enemies, in
         float diff = vectorLenght(diffvec);
         normalize(&diffvec);
 
-        // This is commented out since there is now z-sorting on enemies and projectiles and thus no need to raycast.
-        /*
-        int fl = 1; // this is a flag to see wether or not there was a wall closer to the player that the enemy
-        for (int j = 0; j < mp->numOfWalls; j++)
-        {
-            CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
-            // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
-            if (temp && temp->d < diff) // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
-            {
-                fl = 0; // flag is false
-                break;  // break loop early
-            }
-        }
-        if (!fl)      // if flag is false
-            continue; // check next enemy
-        */
         result[i] = malloc(sizeof(CollisionData)); // allocate memory for this collision
 
         result[i]->d = diff;
         result[i]->position = enemies[i].pos;
-        // result[i]->angle = RAD_TO_DEG(acosf(vectorDot(playerdir, diffvec)));
         result[i]->angle = vectorDot(p1.dir, diffvec); // well be using the cos of the angle later and since both of the vectors are normalized this is the cos of the angle
         result[i]->texture = enemies[i].sprite;
         result[i]->textureOffset = NAN;
@@ -131,7 +114,6 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
     float frictionPerFrame = powf(friction, 60.0f / (float)targetFPS);
     vectorScale(foe->velocity, frictionPerFrame, &foe->velocity);
 
-
     // Move position
     Vec2 ds;
     Vec2 res;
@@ -169,13 +151,18 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
     foe->pos = res;
 }
 
-void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
+void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int *k_pistAmmo, int *pieAmmo, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
 {
     if (foe->status == DEAD)
         return;
     if (foe->hp <= 0)
     { // Check if enemy is or should be dead
         foe->status = DEAD;
+        if (foe->type == 3 | foe->type == 4)
+        {
+            foe->visibility = INVISIBLE;
+            return;
+        }
         foe->sprite = LoadTexture("Sprites/Nollekorttransp.png");
         return;
     }
@@ -196,11 +183,27 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
             foe->velocity = VECINIT; // Stop!
             if (foe->coolDown <= 0)
             {
-                if (foe->type == 0)
 
+                switch (foe->type)
+                {
+                case 0:
                     *playerHealth -= foe->dmg;
-                else
+                    break;
+                case 3:
+                    *playerHealth -= foe->dmg;
+                    foe->hp = 0;
+                    break;
+                case 4:
+                    *k_pistAmmo += 10;
+                    *pieAmmo += 2;
+                    foe->hp = 0;
+                    break;
+
+                default:
                     shootProjectile(foe->pos, dir, foe->dmg, mp->projectiles, &mp->ppointer, 0);
+
+                    break;
+                }
 
                 foe->coolDown = foe->baseCoolDown / numOfEnemy;
             }
@@ -242,15 +245,28 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int targetFPS, float 
     freeCollisionData(seePLayer, 1);
 }
 
-void updateEnemies(Enemy *Queue, int qSize, Player *p1, int targetFPS, float fov, Map *mp, Wall *walls, int wallcount)
+void updateEnemies(Enemy *Queue, int qSize, Player *p1, Weapon *k_pist, Weapon *pie, int targetFPS, float fov, Map *mp, Wall *walls, int wallcount)
 {
     static int currentIndex = 0; // Index is saved between calls
 
     if (qSize == 0) // if no enemies return
         return;
 
-    updateEnemy(Queue + currentIndex, *p1, &p1->hp, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
-    currentIndex = (currentIndex + 1) % qSize;                                                    // move index
+    updateEnemy(Queue + currentIndex, *p1, &p1->hp, &k_pist->ammo, &pie->ammo, targetFPS, fov, mp, qSize, walls, wallcount); // update the enemy at index
+    currentIndex = (currentIndex + 1) % qSize;                                                                               // move index
+}
+
+int countHostiles(Map *mp)
+{
+    int result = 0;
+    for (int i = 0; i < mp->enemyCount; i++)
+    {
+        if (mp->enemies[i].status == ALIVE && mp->enemies[i].type < 3)
+        {
+            result++;
+        }
+    }
+    return result;
 }
 
 FILE *newMap(const char *filename)
@@ -294,7 +310,7 @@ int saveMap(int numOfWalls, Wall *walls, char *filename) // kindof redundant rig
     return 1;
 }
 
-Map *loadMap(char *filename)
+Map *loadMap(const char *filename)
 {
     // Opening file
     FILE *mfile = fopen(filename, "r");
@@ -400,6 +416,28 @@ Map *loadMap(char *filename)
             result->enemies[i].acceleration = 100;
             result->enemies[i].maxSpeed = 400;
             result->enemies[i].type = 2;
+
+            break;
+        case 3: // Creates a health pickup
+            result->enemies[i].sprite = LoadTexture("Sprites/Health.png");
+            result->enemies[i].attackRadius = 50.0;
+            result->enemies[i].dmg = -20;
+            result->enemies[i].hp = INT_MAX;
+            result->enemies[i].baseCoolDown = 0;
+            result->enemies[i].acceleration = 0;
+            result->enemies[i].maxSpeed = 0;
+            result->enemies[i].type = 3;
+
+            break;
+        case 4: // Creates a ammo pickup
+            result->enemies[i].sprite = LoadTexture("Sprites/Ammo.png");
+            result->enemies[i].attackRadius = 50.0;
+            result->enemies[i].dmg = 0;
+            result->enemies[i].hp = INT_MAX;
+            result->enemies[i].baseCoolDown = 0;
+            result->enemies[i].acceleration = 0;
+            result->enemies[i].maxSpeed = 0;
+            result->enemies[i].type = 4;
 
             break;
         default:
