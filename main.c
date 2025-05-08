@@ -336,18 +336,14 @@ int main(void)
 
     // Load assets
     Map *mp = loadMap("Maps/map1.csv");
-
     Font font = LoadFont("Sprites/Fonts/setback.png");
-
     wpnslct1 = LoadTexture("Sprites/HUD/Weaponselect1.png");
     wpnslct2 = LoadTexture("Sprites/HUD/Weaponselect2.png");
     wpnslct3 = LoadTexture("Sprites/HUD/Weaponselect3.png");
     kngligDoomGuy = LoadTexture("Sprites/HUD/85ed57ab85bbe08a0edfd3cfa5edfc38.jpg");
     jupiter = LoadFont("Sprites/HUD/fonts/jupiter_crash.png");
-
     Image floorImage = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
     Texture2D floorTextureBuffer = LoadTextureFromImage(floorImage);
-
     Image floorTexture = LoadImage("Sprites/Ground.png");
     Image roofTexture = LoadImage("Sprites/Sky.png");
 
@@ -390,7 +386,7 @@ int main(void)
 
             rotate(&player.dir, ROTSPEED / 10);
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
-
+            // Show main menu
             const char *title = "Schlem on Campus";
             const char *start = "Start Game [ Enter ]";
             DrawTextEx(font, title, (Vector2){SCREEN_WIDTH / 2 - MeasureTextEx(font, title, font.baseSize * 10, 5).x / 2, SCREEN_HEIGHT / 6}, font.baseSize * 10, 10, BLACK);
