@@ -10,9 +10,9 @@
 int inFieldOfView(Vec2 playerpos, Vec2 playerdir, float fov, Enemy foe1)
 {
     Vec2 toEnemy;
-    vectorSub(foe1.pos, playerpos, &toEnemy);
+    vectorSub(foe1.pos, playerpos, &toEnemy); // Draw a line between player and enemy
 
-    float distance = vectorLenght(toEnemy);
+    float distance = vectorLenght(toEnemy); // How far away is the enemy
     if (distance < 0.001f)
         return 1; // Player is on top of the enemy — it's visible
 
@@ -74,21 +74,20 @@ CollisionData **rayShotPlayer(Enemy foe, Player p1, Map *mp)
     for (int j = 0; j < mp->numOfWalls; j++)
     {
         CollisionData *temp = checkCollision(mp->walls[j], (Ray3D){p1.pos, diffvec}); // checks if a wall is in the way of the enemy
-        // printf("Shot ray with direction,%f %f\n", camdir.x, camdir.y);
-        if (temp && temp->d < diff) // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
+        if (temp && temp->d < diff)                                                   // If there is a collision with a wall and the collision is closer than the distance between the player and enemy
         {
             fl = 0; // flag is false
             break;  // break loop early
         }
     }
-    if (!fl)
+    if (!fl) // there is a wall in the way, Abandon ship!
     {
         free(result);
         return NULL;
     }
 
     result[0] = malloc(sizeof(CollisionData)); // allocate memory for this collision
-
+    // Save the important stuff
     result[0]->d = diff;
     result[0]->position = foe.pos;
     result[0]->angle = RAD_TO_DEG(acosf(vectorDot(p1.dir, diffvec)));
@@ -122,10 +121,11 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
 
     Vec2 old_pos = foe->pos;
     int i = 0;
-    while (i < wallcount)
+    while (i < wallcount) // go through each wall, (Not literally that would hurt)
     {
-        if (intersect(old_pos, res, walls[i].start, walls[i].stop))
+        if (intersect(old_pos, res, walls[i].start, walls[i].stop)) // If broken nose (Walked into the Wall)
         {
+            // Lots of linear algebra to try and end up on the right side of the wall
             Vec2 pos_res = VECINIT;
             Vec2 wall_res = VECINIT;
             Vec2 new_pos = VECINIT;
@@ -153,17 +153,17 @@ void moveEnemy(Enemy *foe, Vec2 dir, int targetFPS, Wall *walls, int wallcount)
 
 void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int *k_pistAmmo, int *pieAmmo, int targetFPS, float fov, Map *mp, int numOfEnemy, Wall *walls, int wallcount)
 {
-    if (foe->status == DEAD)
+    if (foe->status == DEAD) // You're dead, skip your turn
         return;
     if (foe->hp <= 0)
-    { // Check if enemy is or should be dead
+    { // Check if enemy should be dead
         foe->status = DEAD;
         if (foe->type == 3 | foe->type == 4)
         {
-            foe->visibility = INVISIBLE;
+            foe->visibility = INVISIBLE; // Health packs and ammo are invisible when dead
             return;
         }
-        foe->sprite = LoadTexture("Sprites/Nollekorttransp.png");
+        foe->sprite = LoadTexture("Sprites/Nollekorttransp.png"); // Nollan becomes nollekort.
         return;
     }
 
@@ -173,6 +173,7 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int *k_pistAmmo, int 
     {
     case 0: // If there is line of sight
 
+        // Draw a line towards the player
         Vec2 dir;
         vectorSub(p1.pos, foe->pos, &dir);
         float dist = vectorLenght(dir);
@@ -181,10 +182,10 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int *k_pistAmmo, int 
         if (dist <= foe->attackRadius) // If player is within attackRadius
         {
             foe->velocity = VECINIT; // Stop!
-            if (foe->coolDown <= 0)
+            if (foe->coolDown <= 0)  // if not reloading
             {
 
-                switch (foe->type)
+                switch (foe->type) // Attack the player depending on which type of enemy
                 {
                 case 0:
                     *playerHealth -= foe->dmg;
@@ -261,7 +262,7 @@ int countHostiles(Map *mp)
     int result = 0;
     for (int i = 0; i < mp->enemyCount; i++)
     {
-        if (mp->enemies[i].status == ALIVE && mp->enemies[i].type < 3)
+        if (mp->enemies[i].status == ALIVE && mp->enemies[i].type < 3) // All alive enemies that are not health- or ammo-packs are counted
         {
             result++;
         }
@@ -271,7 +272,7 @@ int countHostiles(Map *mp)
 
 FILE *newMap(const char *filename)
 {
-    return fopen(filename, "w");
+    return fopen(filename, "w"); // It's not the size of the function that matters
 }
 
 int addShape(FILE *map, Vec2 *corners, const char *texture, int cornercount, int closed)
@@ -295,7 +296,7 @@ int addEnemy(FILE *map, Vec2 pos, int id, EnemyType type)
     if (!map)                                              // if the file isn't opened properly
         return 0;                                          // Fail
     fprintf(map, "%f,%f,%d,%d\n", pos.x, pos.y, id, type); // write enemy properties to file
-    return 1;                                              // success
+    return 1;                                              // success!
 }
 
 Map *loadMap(const char *filename)
@@ -357,9 +358,9 @@ Map *loadMap(const char *filename)
     for (int i = 0; i < nwalls && fgets(buffer, sizeof(buffer), mfile); i++)
     {
         char textbuff[64];
-
+        // Read the wall data
         sscanf(buffer, "%f,%f,%f,%f,%63s", &result->walls[i].start.x, &result->walls[i].start.y, &result->walls[i].stop.x, &result->walls[i].stop.y, textbuff);
-        result->walls[i].texture = LoadTexture(textbuff);
+        result->walls[i].texture = LoadTexture(textbuff); // Load the texture
         if (result->walls[i].texture.id == 0)
         {
             printf("Failed to load texture %s \n", textbuff);
@@ -369,6 +370,7 @@ Map *loadMap(const char *filename)
     for (int i = 0; i < nenemy && fgets(buffer, sizeof(buffer), mfile) && nenemy; i++)
     {
         int type;
+        // Read pos, id, and type from file
         sscanf(buffer, "%f,%f,%d,%d", &result->enemies[i].pos.x, &result->enemies[i].pos.y, &result->enemies[i].id, &type);
 
         switch (type)
