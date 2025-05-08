@@ -328,8 +328,8 @@ int main(void)
     SetTargetFPS(60);
     srand(time(NULL));
     SetExitKey(KEY_BACKSPACE);
-    ToggleFullscreen();
-    HideCursor();
+    //ToggleFullscreen();
+    //HideCursor();
     Player player = PLAYERINIT;
     GameState gameState = MAINMENU;
 

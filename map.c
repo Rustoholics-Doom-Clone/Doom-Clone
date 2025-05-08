@@ -194,8 +194,8 @@ void updateEnemy(Enemy *foe, Player p1, int *playerHealth, int *k_pistAmmo, int 
                     foe->hp = 0;
                     break;
                 case 4:
-                    *k_pistAmmo += 10;
-                    *pieAmmo += 2;
+                    *k_pistAmmo += 20;
+                    *pieAmmo += 3;
                     foe->hp = 0;
                     break;
 
