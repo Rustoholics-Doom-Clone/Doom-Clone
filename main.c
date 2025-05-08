@@ -376,7 +376,8 @@ int main(void)
             if (IsKeyPressed(KEY_ENTER))
             {
                 gameState = GAMEPLAY;
-                player = PLAYERINIT;
+                player.pos = STARTPOS;
+                player.dir = (Vec2){0.0, 1.0};
                 freeMap(mp);
                 mp = loadMap(Maps[currentMap]); // This is very inefficient, but I don't know how to reset a map in a better way
                 totalEnemies = countHostiles(mp);
@@ -463,7 +464,8 @@ int main(void)
             }
             if (IsKeyPressed(KEY_ENTER))
             {
-                player = PLAYERINIT;
+                player.pos = STARTPOS;
+                player.dir = (Vec2){0.0, 1.0};
                 gameState = MAINMENU;
             }
 
@@ -495,7 +497,8 @@ int main(void)
                 }
 
                 gameState = GAMEPLAY;
-                player = PLAYERINIT; // Reset player
+                player.pos = STARTPOS;
+                player.dir = (Vec2){0.0, 1.0};
 
                 // Free data before mp changes in order to avoid memory leaks and segmentation faults
                 freeCollisionData(hits, NUM_RAYS);
