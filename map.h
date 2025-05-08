@@ -2,16 +2,6 @@
 #include "movement.h"
 #include <stdio.h>
 
-#ifndef WALLSTRUCT
-#define WALLSTRUCT
-
-typedef struct Wall
-{
-    Vec2 start, stop;  // Both ends of the wall
-    Texture2D texture; // The texture of the wall
-} Wall;
-
-#endif
 #ifndef ENEMY
 #define ENEMY
 
@@ -81,6 +71,12 @@ int countHostiles(Map *mp);
 
 #ifndef MAPH
 #define MAPH
+
+typedef struct Wall
+{
+    Vec2 start, stop;  // Both ends of the wall
+    Texture2D texture; // The texture of the wall
+} Wall;
 
 typedef struct Map
 {
