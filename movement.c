@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "movement.h"
+#include "enemy.h"
 #include "map.h"
 
 void wishMoveForward(Player *player)

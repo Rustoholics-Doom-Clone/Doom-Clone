@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "enemy.h"
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
@@ -327,13 +328,13 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raycasting in raylib");
     SetTargetFPS(60);
     srand(time(NULL));
-    SetExitKey(KEY_BACKSPACE); //set close program key, so esc can be used for pause
+    SetExitKey(KEY_BACKSPACE); // set close program key, so esc can be used for pause
     ToggleFullscreen();
     HideCursor();
     Player player = PLAYERINIT;
     GameState gameState = MAINMENU;
 
-    //Load assets
+    // Load assets
     Map *mp = loadMap("Maps/map1.csv");
 
     Font font = LoadFont("Sprites/Fonts/setback.png");
@@ -370,8 +371,7 @@ int main(void)
 
         CollisionData **projectileData = rayShotProjectile(player, FOV, mp, mp->projectiles); // Gets projectile CollisionData
 
-
-        //Switch between the different states
+        // Switch between the different states
         switch (gameState)
         {
         case MAINMENU:
@@ -472,7 +472,7 @@ int main(void)
                 gameState = MAINMENU;
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
@@ -520,7 +520,7 @@ int main(void)
                 break;    // Extra just in case
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
@@ -559,7 +559,7 @@ int main(void)
                 break;    // Extra just in case
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
@@ -581,7 +581,7 @@ int main(void)
                 weapons = getWeapons(SCREEN_WIDTH, SCREEN_HEIGHT, mp->projectiles);
             }
 
-            //Draw level in background
+            // Draw level in background
             drawScene(player, enemyData, mp->enemyCount, hits, NUM_RAYS, projectileData, &floorImage, &floorTextureBuffer, floorTexture, roofTexture);
             drawWeapon(weapons, currentwpn);
             drawHud(player, weapons[currentwpn], currentwpn, remainingEnemies);
